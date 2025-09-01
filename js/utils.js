@@ -7,6 +7,8 @@
  * - setupFormattedInputs معقدة وقد تحتوي على أخطاء في موضع المؤشر
  * - لا يوجد معالجة للأخطاء في بعض الدوال
  * - التبديل بين الأقسام لا يحفظ الحالة أو التاريخ
+ * - لا يوجد دعم للروابط العميقة (deep linking)
+ * - قد تحدث تسرب ذاكرة في setupFormattedInputs
  */
 
 // رقمية: تحويل الأرقام العربية/الفارسية إلى إنجليزية
@@ -276,6 +278,13 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('resize', function () { if (window.innerWidth >= 769) closeDrawer(); });
 });
 
+/**
+ * تعيين نص آمن لعنصر DOM
+ * يتحقق من وجود العنصر قبل تعيين النص
+ * يتجنب أخطاء null reference
+ * @param {HTMLElement} el - العنصر المراد تعيين نصه
+ * @param {string} text - النص المراد عرضه
+ */
 function setTextSafe(el, text){ if (el) el.textContent = text; }
 
 /**
@@ -343,6 +352,8 @@ function refreshCurrentView() {
 }
 
 // تصدير الدوال للنطاق العام
+// يجعل الدوال متاحة في جميع الملفات الأخرى
+// التحقق من وجود window لتجنب الأخطاء في بيئة Node.js
 if (typeof window !== 'undefined') {
   window.toEnglishDigits = toEnglishDigits;
   window.formatNumber = formatNumber;

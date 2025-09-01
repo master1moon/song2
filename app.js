@@ -7,10 +7,13 @@
  * - قد لا يتم تشفير التوكن بشكل صحيح في بعض الحالات
  * - معالجة الأخطاء تحتاج لتحسين (استخدام try/catch فارغ)
  * - لا يوجد تحقق من صلاحية التوكن قبل استخدامه
+ * - لا يوجد معالجة لحالة انتهاء صلاحية التوكن
+ * - لا يوجد تحقق من حجم البيانات قبل الرفع
  */
 
 // إعدادات GitHub ومزامنة البيانات
 // يخزن إعدادات GitHub المطلوبة للمزامنة (التوكن، معرف Gist، اسم الملف، المزامنة التلقائية)
+// الكائن يُحمل من التخزين المحلي عند بدء التطبيق
 let githubSettings = { token: '', gistId: '', fileName: 'network-cards.json', autoSync: false };
 
 /**
@@ -40,7 +43,10 @@ function loadGithubSettings() {
                 window.DataEncryption.saveEncrypted('githubSettings', parsed);
             }
         }
-    } catch (e) { /* ignore */ }
+    } catch (e) { 
+        // تجاهل الأخطاء - يجب تحسين هذا لعرض رسالة للمستخدم
+        console.warn('خطأ في تحميل إعدادات GitHub:', e);
+    }
 }
 
 /**
@@ -224,6 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
  * تسجيل Service Worker للعمل بدون اتصال
  * يتحقق من دعم المتصفح قبل التسجيل
  * يسجل نجاح أو فشل التسجيل في وحدة التحكم
+ * يمكّن التطبيق من العمل offline وتحسين الأداء
+ * يتعامل مع التخزين المؤقت للملفات الثابتة
  */
 // Service Worker registration
 (function(){

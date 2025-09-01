@@ -5,11 +5,12 @@
  * يتكامل مع نظام المخزون لخصم الكميات المباعة
  * 
  * المشاكل المحتملة:
- * - متغير today غير معرف مما قد يسبب خطأ
  * - دالة cleanupModalBackdrops غير موجودة
  * - لا يوجد تحقق كافي من توفر الكمية قبل البيع
  * - حذف البيع لا يعيد الكمية للمخزون تلقائياً
  * - معالجة أحداث change متكررة قد تسبب تسرب ذاكرة
+ * - لا يوجد تحقق من صحة البيانات قبل الحفظ
+ * - لا يوجد تسجيل للعمليات (audit log)
  */
 
 // إدارة المبيعات
@@ -95,13 +96,19 @@ function saveSale() {
     showNotification('تم إضافة البيع بنجاح', 'success');
   }
   if (!isCustom && packageId) { checkLowStockForPackage(packageId); }
+  // حفظ البيانات في التخزين المحلي
   saveData();
+  
+  // تحديث جميع العروض والتقارير المتعلقة
   refreshCurrentView(); // تحديث جميع العروض المرئية
   showStoreDetails(storeId); // تحديث تفاصيل المحل
   updateProfitReport(); // خاص بتقرير الأرباح
   generateDebtReport(); // خاص بتقرير الديون
+  // إغلاق نافذة البيع
   const modal = bootstrap.Modal.getInstance(document.getElementById('saleModal')); 
   modal.hide();
+  
+  // تنظيف خلفيات النوافذ المنبثقة - الدالة غير موجودة
   if (typeof cleanupModalBackdrops === 'function') setTimeout(cleanupModalBackdrops, 300);
 }
 
@@ -153,8 +160,12 @@ function editSale(id) {
 function deleteSale(id) {
   const sale = data.sales.find(s => s.id === id); if (!sale) return;
   if (!confirm('هل أنت متأكد من حذف هذا البيع؟')) return;
+  // حذف البيع من قائمة المبيعات
   data.sales = data.sales.filter(s => s.id !== id);
   saveData();
+  
+  // إضافة إلى سلة المحذوفات وتحديث العروض
+  // يستخدم async/await للتعامل مع عملية الحذف بشكل غير متزامن
   (async()=>{ try{ if (typeof addToTrash==='function') await addToTrash('sales', sale); }catch{}; refreshCurrentView(); updateProfitReport(); })();
   showNotification('تم حذف البيع بنجاح', 'success');
 }

@@ -5,12 +5,14 @@
  * يوفر تقارير مفصلة للمحلات والشركاء
  * 
  * المشاكل المحتملة:
- * - الملف كبير جداً (1380 سطر) مما يصعب الصيانة
+ * - الملف كبير جداً (2150 سطر) مما يصعب الصيانة
  * - بعض الدوال مكررة أو متشابهة جداً
  * - معالجة التواريخ غير موحدة في جميع التقارير
  * - التصدير إلى PDF قد يواجه مشاكل مع النصوص العربية
  * - الحسابات المعقدة قد تحتوي على أخطاء منطقية
  * - لا يوجد تخزين مؤقت للتقارير المحسوبة
+ * - عدم وجود فصل للمهام (refactoring needed)
+ * - التكرار في حساب الإحصائيات
  */
 
 // تحديث لوحة التحكم (تقارير) - تمت إعادة تسميته لتجنب التعارض مع دالة لوحة التحكم في index.html
@@ -44,10 +46,14 @@ function updateDashboardReports() {
     const totalDebtsEl = document.getElementById('totalDebtsSum'); if (totalDebtsEl) totalDebtsEl.textContent = formatNumber(totalDebts);
     const totalExpensesEl = document.getElementById('totalExpensesSum'); if (totalExpensesEl) totalExpensesEl.textContent = formatNumber(totalExpenses);
           const netEl = document.getElementById('netProfit'); if (netEl) { netEl.textContent = formatNumber(net); netEl.className = net >= 0 ? 'stat-value currency profit-positive' : 'stat-value currency profit-negative'; }
-   } catch (e) { /* noop */ }
+       } catch (e) { 
+        // تجاهل الأخطاء - يجب تحسين هذا لعرض رسالة خطأ
+        console.warn('خطأ في تحديث لوحة التحكم:', e);
+    }
 }
 
 // حافظ على التوافق إن وُجدت استدعاءات قديمة
+// تصدير الدوال للنطاق العام للسماح باستخدامها في ملفات أخرى
 if (typeof window !== 'undefined') { 
   window.updateDashboard = window.updateDashboard || updateDashboardReports;
   // تصدير الدوال للنطاق العام
@@ -57,6 +63,12 @@ if (typeof window !== 'undefined') {
   window.buildStoreReportHTML = buildStoreReportHTML;
 }
 
+/**
+ * الحصول على اسم نوع السعر بالعربية
+ * يحول قيم نوع السعر الإنجليزية إلى عربية
+ * @param {string} priceType - نوع السعر (retail, wholesale, distributor)
+ * @returns {string} الاسم بالعربية
+ */
 function getPriceTypeName(priceType) {
   switch (priceType) {
     case 'retail': return 'تجزئة';
@@ -66,7 +78,13 @@ function getPriceTypeName(priceType) {
   }
 }
 
-// دالة للتحقق من تطابق المحل مع الفلتر - معطلة الآن
+/**
+ * دالة للتحقق من تطابق المحل مع الفلتر - معطلة الآن
+ * كانت تستخدم للفلترة لكن تم تعطيلها
+ * يمكن إعادة تفعيلها في المستقبل للفلترة حسب المحل
+ * @param {Object} item - العنصر للتحقق منه
+ * @returns {boolean} دائماً true حالياً
+ */
 function isStoreMatch(item) {
   return true; // إرجاع true دائماً بعد حذف الفلاتر
 }
@@ -76,6 +94,12 @@ if (typeof window !== 'undefined') {
   window.isStoreMatch = isStoreMatch;
 }
 
+/**
+ * تحديث تقرير الأرباح
+ * يحسب إجمالي المبيعات، المدفوعات، والمصروفات
+ * يحسب صافي الربح للفترة المحددة
+ * يعرض النتائج في عناصر HTML محددة
+ */
 function updateProfitReport() {
   // التأكد من وجود البيانات
   if (!data || typeof data !== 'object') {
@@ -101,6 +125,13 @@ function updateProfitReport() {
   if (netProfitElement) netProfitElement.textContent = formatNumber(netProfit);
 }
 
+/**
+ * إنشاء تقارير الشركاء
+ * يحسب حصة كل شريك من صافي الأرباح
+ * يعرض تفاصيل التسديدات والمصروفات
+ * يسمح بتعديل وحذف العناصر مباشرة
+ * مشكلة: لا يوجد تحقق من صحة عدد الشركاء
+ */
 function generatePartnerReports() {
   const container = document.getElementById('partnerReportsContainer');
   if (!container) return;

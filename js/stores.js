@@ -10,11 +10,17 @@
  * - معالجة الأخطاء ضعيفة في بعض الدوال
  * - لا يوجد تحقق من تكرار أسماء المحلات
  * - حذف المحل لا يحذف البيانات المرتبطة به
+ * - لا يوجد دعم للترقيم pagination في قائمة المحلات
+ * - عدم وجود مؤشرات بصرية لحالة التحميل
  */
 
 // إدارة المحلات
 
 // حالة البحث والفلترة
+// يحتفظ بحالة البحث والفلترة الحالية لقائمة المحلات
+// searchQuery: نص البحث الحالي
+// priceFilter: فلتر نوع السعر (all, retail, wholesale, distributor)
+// sortBy: طريقة الترتيب (name, date, balance)
 const storesState = {
   searchQuery: '',
   priceFilter: 'all',
@@ -109,7 +115,12 @@ function renderStoresList() {
   });
 }
 
-// تهيئة معالجات البحث والفلترة
+/**
+ * تهيئة معالجات البحث والفلترة
+ * يربط مستمعي الأحداث بحقول البحث والفلترة والترتيب
+ * يعيد عرض قائمة المحلات عند أي تغيير
+ * يتم استدعاؤها عند تحميل الصفحة
+ */
 function initStoresFilters() {
   const searchInput = document.getElementById('storeSearchInput');
   const priceFilter = document.getElementById('storePriceFilter');
@@ -138,6 +149,7 @@ function initStoresFilters() {
 }
 
 // استدعاء التهيئة عند تحميل الصفحة
+// التحقق من وجود window لتجنب الأخطاء في بيئة Node.js
 if (typeof window !== 'undefined') {
   document.addEventListener('DOMContentLoaded', initStoresFilters);
 }
@@ -145,6 +157,9 @@ if (typeof window !== 'undefined') {
 /**
  * اختيار جهة اتصال من الجهاز
  * يستخدم Contact Picker API المتاحة في المتصفحات الحديثة
+ * يتطلب HTTPS للعمل بشكل صحيح
+ * قد لا يعمل على جميع المتصفحات (خاصة Safari وFirefox)
+ * @returns {Promise<void>} يملأ حقل رقم الهاتف إذا نجح
  */
 async function selectContactPhone() {
   // التحقق من دعم المتصفح لـ Contact Picker API
