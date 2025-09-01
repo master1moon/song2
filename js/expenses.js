@@ -62,8 +62,19 @@ function deleteExpense(id) {
   if (!confirm('هل أنت متأكد من حذف هذا المصروف؟')) return;
   const removed = data.expenses.find(e => e.id === id);
   data.expenses = data.expenses.filter(e => e.id !== id);
-  // حفظ التغييرات
+  /**
+   * حفظ التغييرات وتحديث الكاش
+   * يحفظ البيانات في التخزين المحلي
+   * يبطل كاش التقارير المتأثرة بحذف المصروف
+   */
   saveData();
+  
+  // إبطال كاش التقارير المتأثرة
+  if (typeof reportCache !== 'undefined') {
+    reportCache.invalidate(/^report_profit/);
+    reportCache.invalidate(/^report_partner/);
+    console.log('تم تحديث كاش التقارير بعد حذف المصروف');
+  }
   
   // إضافة إلى سلة المحذوفات وتحديث العروض
   // يستخدم async/await للتعامل مع العمليات غير المتزامنة
@@ -102,7 +113,21 @@ function saveExpense() {
   } catch (_) {
     // تجاهل أخطاء التخزين
   }
+  
+  /**
+   * حفظ البيانات وتحديث الكاش
+   * يحفظ البيانات في التخزين المحلي
+   * يبطل كاش تقارير الأرباح لأن المصروفات تؤثر عليها
+   * يبطل كاش تقارير الشركاء لأن المصروفات تؤثر على حصصهم
+   */
   saveData();
+  
+  // إبطال كاش التقارير المتأثرة بالمصروفات
+  if (typeof reportCache !== 'undefined') {
+    reportCache.invalidate(/^report_profit/);
+    reportCache.invalidate(/^report_partner/);
+    console.log('تم تحديث كاش التقارير بعد تغيير المصروفات');
+  }
   refreshCurrentView(); // تحديث جميع العروض المرئية
   updateProfitReport(); // خاص بتقرير الأرباح
   if (typeof generatePartnerReports === 'function') generatePartnerReports();

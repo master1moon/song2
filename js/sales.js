@@ -96,8 +96,25 @@ function saveSale() {
     showNotification('تم إضافة البيع بنجاح', 'success');
   }
   if (!isCustom && packageId) { checkLowStockForPackage(packageId); }
-  // حفظ البيانات في التخزين المحلي
+  /**
+   * حفظ البيانات وتحديث الكاش
+   * يحفظ البيانات في التخزين المحلي
+   * يبطل كاش المحل المتأثر ليتم إعادة حساب رصيده
+   * يبطل كاش التقارير ذات الصلة
+   */
   saveData();
+  
+  // إبطال كاش المحل المتأثر
+  if (typeof balanceCache !== 'undefined') {
+    balanceCache.invalidateStore(storeId);
+    console.log(`تم تحديث كاش المحل: ${storeId}`);
+  }
+  
+  // إبطال كاش التقارير ذات الصلة
+  if (typeof reportCache !== 'undefined') {
+    reportCache.invalidate(/^report_profit/);
+    reportCache.invalidate(/^report_debt/);
+  }
   
   // تحديث جميع العروض والتقارير المتعلقة
   refreshCurrentView(); // تحديث جميع العروض المرئية
@@ -160,9 +177,25 @@ function editSale(id) {
 function deleteSale(id) {
   const sale = data.sales.find(s => s.id === id); if (!sale) return;
   if (!confirm('هل أنت متأكد من حذف هذا البيع؟')) return;
-  // حذف البيع من قائمة المبيعات
+  /**
+   * حذف البيع وتحديث الكاش
+   * يحذف البيع من قائمة المبيعات
+   * يبطل كاش المحل المتأثر ليتم إعادة حساب رصيده
+   * يبطل كاش التقارير ذات الصلة
+   */
   data.sales = data.sales.filter(s => s.id !== id);
   saveData();
+  
+  // إبطال كاش المحل المتأثر
+  if (typeof balanceCache !== 'undefined' && sale) {
+    balanceCache.invalidateStore(sale.storeId);
+    console.log(`تم تحديث كاش المحل بعد حذف البيع: ${sale.storeId}`);
+  }
+  
+  // إبطال كاش التقارير
+  if (typeof reportCache !== 'undefined') {
+    reportCache.invalidate(/^report_/);
+  }
   
   // إضافة إلى سلة المحذوفات وتحديث العروض
   // يستخدم async/await للتعامل مع عملية الحذف بشكل غير متزامن
