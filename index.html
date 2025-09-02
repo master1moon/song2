@@ -6102,6 +6102,46 @@
     <script src="js/settings.js"></script>
     <script src="js/settingsUI.js"></script>
     
+    <!-- نظام الصوت -->
+    <script src="js/soundSystem.js"></script>
+    
+    <script>
+    /**
+     * اختبار صوت التنبيهات
+     * يشغل أصوات مختلفة حسب النوع
+     */
+    function testNotificationSound() {
+        if (!window.SoundSystem) {
+            showNotification('نظام الصوت غير متاح', 'error');
+            return;
+        }
+        
+        // تحديث إعدادات الصوت
+        const soundEnabled = document.getElementById('setting-soundEnabled')?.checked || false;
+        window.SoundSystem.updateSettings(soundEnabled, 50);
+        
+        if (!soundEnabled) {
+            showNotification('الأصوات معطلة. قم بتفعيلها أولاً', 'warning');
+            return;
+        }
+        
+        // تشغيل سلسلة من الأصوات للاختبار
+        showNotification('صوت النجاح', 'success');
+        
+        setTimeout(() => {
+            showNotification('صوت التحذير', 'warning');
+        }, 1500);
+        
+        setTimeout(() => {
+            showNotification('صوت الخطأ', 'error');
+        }, 3000);
+        
+        setTimeout(() => {
+            showNotification('صوت المعلومات', 'info');
+        }, 4500);
+    }
+    </script>
+    
     <!-- 
         مراقب أداء الكاش (اختياري)
         يعرض إحصائيات الكاش في أسفل الشاشة

@@ -571,6 +571,14 @@
                 originalShowNotification(message, type, options);
             };
         }
+        
+        // تحديث نظام الصوت إذا كان متاحاً
+        if (typeof window.SoundSystem !== 'undefined') {
+            window.SoundSystem.updateSettings(
+                notifications.soundEnabled,
+                notifications.soundVolume
+            );
+        }
 
         // طلب إذن إشعارات المتصفح إذا مفعلة
         if (notifications.browserNotifications && 'Notification' in window) {

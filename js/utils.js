@@ -174,7 +174,7 @@ function setupFormattedInputs() {
  * @param {string} message - نص الرسالة
  * @param {string} type - نوع الإشعار (success, error, warning, info)
  */
-function showNotification(message, type) {
+function showNotification(message, type, options = {}) {
   const notification = document.getElementById('notification');
   const notificationText = document.getElementById('notificationText');
   if (!notification || !notificationText) return;
@@ -187,14 +187,22 @@ function showNotification(message, type) {
   notificationText.textContent = message;
   notification.className = `notification ${type} show`;
   
-  // إخفاء الإشعار بعد 3 ثواني
+  // تشغيل الصوت إذا كان مفعلاً
+  if (window.SoundSystem && (options.sound !== false)) {
+    window.SoundSystem.playNotification(type);
+  }
+  
+  // الحصول على مدة العرض من الخيارات أو استخدام الافتراضي
+  const duration = options.duration || 3000;
+  
+  // إخفاء الإشعار بعد المدة المحددة
   notification.hideTimeout = setTimeout(() => { 
     notification.classList.remove('show');
     // إزالة الفئات بعد انتهاء الحركة
     setTimeout(() => {
       notification.className = 'notification';
     }, 300);
-  }, 3000);
+  }, duration);
 }
 
 /**

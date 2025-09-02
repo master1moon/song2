@@ -410,6 +410,17 @@
                                 تفعيل الأصوات
                             </label>
                         </div>
+                        <button type="button" class="btn btn-sm btn-primary mt-2" onclick="testNotificationSound()">
+                            <i class="fas fa-volume-up"></i> اختبار الصوت
+                        </button>
+                        
+                        <div class="mt-3">
+                            <label class="form-label">مستوى الصوت: <span id="volumeValue">${notifications.soundVolume || 50}%</span></label>
+                            <input type="range" class="form-range" id="setting-soundVolume"
+                                   min="0" max="100" step="10" 
+                                   value="${notifications.soundVolume || 50}"
+                                   onchange="AppSettings.update('notifications.soundVolume', parseInt(this.value)); document.getElementById('volumeValue').textContent = this.value + '%';">
+                        </div>
                     </div>
                 </div>
 
