@@ -433,16 +433,48 @@
         }
         
         body.dark-theme .table th {
-            background-color: #252a3a;
-            color: #f0f0f0;
-            border-color: #3a3f4e;
+            background-color: #252a3a !important;
+            color: #ffffff !important;
+            border-color: #3a3f4e !important;
             font-weight: 600;
         }
         
         body.dark-theme .table td {
-            background-color: #1a1f2e;
-            border-color: #2a2f3e;
-            color: #e0e0e0;
+            background-color: #1a1f2e !important;
+            border-color: #2a2f3e !important;
+            color: #f0f0f0 !important;
+        }
+        
+        body.dark-theme .table thead th {
+            background-color: #1f2937 !important;
+            color: #ffffff !important;
+        }
+        
+        /* إصلاح عناوين الجداول في جميع الأقسام */
+        body.dark-theme .section-title,
+        body.dark-theme .card-title,
+        body.dark-theme .modal-title,
+        body.dark-theme h1, 
+        body.dark-theme h2, 
+        body.dark-theme h3, 
+        body.dark-theme h4, 
+        body.dark-theme h5, 
+        body.dark-theme h6 {
+            color: #ffffff !important;
+        }
+        
+        /* إصلاح النصوص في العرض الجدولي */
+        body.dark-theme .data-table th,
+        body.dark-theme .data-table td {
+            color: #f0f0f0 !important;
+        }
+        
+        /* إصلاح كشف الحساب */
+        body.dark-theme .account-statement th,
+        body.dark-theme .account-statement td,
+        body.dark-theme .statement-header,
+        body.dark-theme .statement-details {
+            color: #f0f0f0 !important;
         }
         
         body.dark-theme .table-striped tbody tr:nth-of-type(odd) {
@@ -631,6 +663,121 @@
         body.dark-theme .card-footer {
             background-color: #252a3a;
             border-top-color: #3a3f4e;
+            color: #f0f0f0;
+        }
+        
+        /* إصلاحات إضافية للمظهر الداكن */
+        body.dark-theme label {
+            color: #f0f0f0 !important;
+        }
+        
+        body.dark-theme .form-label {
+            color: #f0f0f0 !important;
+        }
+        
+        body.dark-theme .badge {
+            background-color: #374151;
+            color: #f0f0f0;
+        }
+        
+        body.dark-theme .badge-primary {
+            background-color: #3b82f6;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .badge-success {
+            background-color: #10b981;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .badge-danger {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .badge-warning {
+            background-color: #f59e0b;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .badge-info {
+            background-color: #3b82f6;
+            color: #ffffff;
+        }
+        
+        /* إصلاح التبويبات والقوائم */
+        body.dark-theme .nav-tabs .nav-link {
+            color: #a0a0a0;
+            background-color: transparent;
+            border-color: #3a3f4e;
+        }
+        
+        body.dark-theme .nav-tabs .nav-link.active {
+            color: #ffffff;
+            background-color: #1a1f2e;
+            border-color: #3a3f4e #3a3f4e #1a1f2e;
+        }
+        
+        body.dark-theme .nav-tabs .nav-link:hover {
+            color: #ffffff;
+            border-color: #4a5568;
+        }
+        
+        /* إصلاح أزرار الإغلاق والتحكم */
+        body.dark-theme .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+        
+        /* إصلاح breadcrumb */
+        body.dark-theme .breadcrumb {
+            background-color: #252a3a;
+        }
+        
+        body.dark-theme .breadcrumb-item.active {
+            color: #a0a0a0;
+        }
+        
+        body.dark-theme .breadcrumb-item a {
+            color: #60a5fa;
+        }
+        
+        /* إصلاح pagination */
+        body.dark-theme .pagination .page-link {
+            background-color: #252a3a;
+            color: #f0f0f0;
+            border-color: #3a3f4e;
+        }
+        
+        body.dark-theme .pagination .page-link:hover {
+            background-color: #374151;
+            color: #ffffff;
+            border-color: #4a5568;
+        }
+        
+        body.dark-theme .pagination .page-item.active .page-link {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+            color: #ffffff;
+        }
+        
+        /* إصلاح tooltips و popovers */
+        body.dark-theme .tooltip-inner {
+            background-color: #374151;
+            color: #f0f0f0;
+        }
+        
+        body.dark-theme .popover {
+            background-color: #252a3a;
+            border-color: #3a3f4e;
+        }
+        
+        body.dark-theme .popover-header {
+            background-color: #1f2937;
+            color: #ffffff;
+            border-bottom-color: #3a3f4e;
+        }
+        
+        body.dark-theme .popover-body {
             color: #f0f0f0;
         }
         
@@ -890,6 +1037,68 @@
         body[data-font-size="massive"] h5,
         body[data-font-size="massive"] h6 {
             font-size: calc(24px * var(--heading-scale, 1.2));
+        }
+        
+        /* ============= أوزان الخطوط ============= */
+        body {
+            font-weight: var(--font-weight-base, 400);
+        }
+        
+        body[data-font-weight="thin"] {
+            font-weight: 100;
+        }
+        
+        body[data-font-weight="light"] {
+            font-weight: 300;
+        }
+        
+        body[data-font-weight="normal"] {
+            font-weight: 400;
+        }
+        
+        body[data-font-weight="medium"] {
+            font-weight: 500;
+        }
+        
+        body[data-font-weight="semibold"] {
+            font-weight: 600;
+        }
+        
+        body[data-font-weight="bold"] {
+            font-weight: 700;
+        }
+        
+        body[data-font-weight="extrabold"] {
+            font-weight: 800;
+        }
+        
+        body[data-font-weight="black"] {
+            font-weight: 900;
+        }
+        
+        /* تطبيق وزن الخط على جميع العناصر */
+        body[data-font-weight] .form-control,
+        body[data-font-weight] .form-select,
+        body[data-font-weight] .btn,
+        body[data-font-weight] p,
+        body[data-font-weight] span,
+        body[data-font-weight] div,
+        body[data-font-weight] li,
+        body[data-font-weight] td {
+            font-weight: inherit;
+        }
+        
+        /* العناوين دائماً أثقل قليلاً */
+        body[data-font-weight] h1,
+        body[data-font-weight] h2,
+        body[data-font-weight] h3,
+        body[data-font-weight] h4,
+        body[data-font-weight] h5,
+        body[data-font-weight] h6,
+        body[data-font-weight] th,
+        body[data-font-weight] .font-weight-bold,
+        body[data-font-weight] .fw-bold {
+            font-weight: calc(var(--font-weight-base, 400) + 200);
         }
 
 

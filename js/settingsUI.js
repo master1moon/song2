@@ -37,6 +37,7 @@
         // تحميل إعدادات العرض
         setElementValue('setting-theme', settings.display.theme);
         setElementValue('setting-fontSize', settings.display.fontSize);
+        setElementValue('setting-fontWeight', settings.display.fontWeight);
         setElementValue('setting-density', settings.display.density);
         setElementValue('setting-primaryColor', settings.display.primaryColor);
         setElementValue('setting-secondaryColor', settings.display.secondaryColor);
@@ -215,6 +216,19 @@
 
                 <div class="row mb-3">
                     <div class="col-md-6">
+                        <label class="form-label">وزن/سمك الخط</label>
+                        <select class="form-select" id="setting-fontWeight" onchange="AppSettings.update('display.fontWeight', this.value)">
+                            <option value="thin">رفيع جداً</option>
+                            <option value="light">رفيع</option>
+                            <option value="normal">عادي</option>
+                            <option value="medium">متوسط</option>
+                            <option value="semibold">شبه عريض</option>
+                            <option value="bold">عريض</option>
+                            <option value="extrabold">عريض جداً</option>
+                            <option value="black">أسود</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
                         <label class="form-label">كثافة العرض</label>
                         <select class="form-select" id="setting-density" onchange="AppSettings.update('display.density', this.value)">
                             <option value="ultra-compact">مضغوط جداً</option>
@@ -223,9 +237,6 @@
                             <option value="comfortable">مريح</option>
                             <option value="spacious">واسع</option>
                         </select>
-                    </div>
-                    <div class="col-md-6">
-                        <!-- مساحة فارغة أو يمكن إضافة خيار آخر هنا -->
                     </div>
                 </div>
 

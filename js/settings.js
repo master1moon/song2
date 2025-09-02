@@ -16,8 +16,13 @@
     const defaultSettings = {
         // إعدادات العرض والمظهر
         display: {
-            theme: 'light',              // المظهر: light | dark | auto - الافتراضي فاتح
+            theme: 'dark',               // المظهر: light | dark | auto - الافتراضي داكن
             fontSize: 'medium',          // حجم الخط: tiny | small | medium | large | xlarge | huge | massive
+            fontWeight: 'normal',        // وزن الخط: thin | light | normal | medium | semibold | bold | extrabold | black
+            fontStyle: 'normal',         // نمط الخط: normal | italic
+            textDecoration: 'none',      // زخرفة النص: none | underline | overline | line-through
+            letterSpacing: 'normal',     // تباعد الأحرف: tight | normal | wide | wider | widest
+            lineHeight: 'normal',        // ارتفاع السطر: compact | normal | relaxed | loose
             fontFamily: 'default',       // نوع الخط
             primaryColor: '#007bff',     // اللون الرئيسي
             secondaryColor: '#6c757d',   // اللون الثانوي
@@ -357,6 +362,11 @@
         document.body.setAttribute('data-font-size', display.fontSize);
         document.documentElement.style.setProperty('--font-size-base', 
             getFontSize(display.fontSize));
+        
+        // تطبيق وزن الخط
+        document.body.setAttribute('data-font-weight', display.fontWeight);
+        document.documentElement.style.setProperty('--font-weight-base', 
+            getFontWeight(display.fontWeight));
 
         // تطبيق الألوان مع التحقق من التباين
         const primaryColor = display.primaryColor;
@@ -592,6 +602,23 @@
             'massive': '24px'
         };
         return sizes[size] || '14px';
+    }
+    
+    /**
+     * الحصول على وزن الخط بناءً على الإعداد
+     */
+    function getFontWeight(weight) {
+        const weights = {
+            'thin': '100',
+            'light': '300',
+            'normal': '400',
+            'medium': '500',
+            'semibold': '600',
+            'bold': '700',
+            'extrabold': '800',
+            'black': '900'
+        };
+        return weights[weight] || '400';
     }
 
     /**
