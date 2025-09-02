@@ -239,10 +239,7 @@
             min-width: 120px;
         }
         
-        .currency::after {
-            content: " ر.ي";
-            font-family: inherit;
-        }
+        /* تمت إزالة .currency::after لأن العملة تضاف من خلال formatNumber */
         
         .form-control:focus, .form-select:focus {
             box-shadow: 0 0 0 0.25rem rgba(44, 62, 80, 0.25);
@@ -1311,7 +1308,10 @@
         }
         .site-footer .developer{ font-weight: 600; }
         .site-footer .contact i{ margin-left:6px; }
-        .site-footer small{ color:#bdc3c7; }
+        .site-footer small{ 
+            color: var(--primary-color-text, #bdc3c7); 
+            opacity: 0.8;
+        }
 
         .notification { z-index: 1500; }
         

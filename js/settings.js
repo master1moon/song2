@@ -791,10 +791,33 @@
             const previous = settingsHistory.pop();
             currentSettings = JSON.parse(previous);
             applySettings(currentSettings);
-            saveSettings(true);
             
+            // حفظ بدون إضافة للتاريخ
+            try {
+                localStorage.setItem('appSettings', JSON.stringify(currentSettings));
+                localStorage.setItem('appSettingsBackup', JSON.stringify(currentSettings));
+                localStorage.setItem('appSettingsTimestamp', new Date().toISOString());
+                
+                // مسح التغييرات غير المحفوظة
+                unsavedChanges = {};
+                
+                // تحديث واجهة المستخدم
+                if (typeof SettingsUI !== 'undefined' && SettingsUI.loadSettingsToUI) {
+                    SettingsUI.loadSettingsToUI(currentSettings);
+                }
+                
+                if (typeof showNotification === 'function') {
+                    showNotification('تم التراجع عن التغيير', 'info');
+                }
+            } catch (e) {
+                console.error('Error saving settings after undo:', e);
+                if (typeof showNotification === 'function') {
+                    showNotification('حدث خطأ أثناء التراجع', 'error');
+                }
+            }
+        } else {
             if (typeof showNotification === 'function') {
-                showNotification('تم التراجع عن التغيير', 'info');
+                showNotification('لا توجد تغييرات للتراجع عنها', 'warning');
             }
         }
     }

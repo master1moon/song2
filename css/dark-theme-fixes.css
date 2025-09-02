@@ -520,6 +520,48 @@ body.dark-theme * {
     opacity: 1 !important;
 }
 
+/* إصلاح footer في المظهر الداكن */
+body.dark-theme .site-footer {
+    background-color: var(--primary-color) !important;
+    color: var(--primary-color-text, #ffffff) !important;
+}
+
+body.dark-theme .site-footer * {
+    color: inherit !important;
+}
+
+body.dark-theme .site-footer a {
+    color: var(--primary-color-text, #ffffff) !important;
+    opacity: 0.8;
+}
+
+body.dark-theme .site-footer a:hover {
+    opacity: 1;
+}
+
+body.dark-theme .site-footer small {
+    color: var(--primary-color-text, #ffffff) !important;
+    opacity: 0.7;
+}
+
+/* إصلاح عندما يكون col-md-4 بلون فاتح */
+body.dark-theme .col-md-4[style*="background"],
+body.dark-theme .col-md-4[style*="background-color"] {
+    color: #000000 !important;
+}
+
+body.dark-theme .col-md-4[style*="background: #fff"],
+body.dark-theme .col-md-4[style*="background-color: #fff"],
+body.dark-theme .col-md-4[style*="background: white"],
+body.dark-theme .col-md-4[style*="background-color: white"] {
+    color: #000000 !important;
+}
+
+body.dark-theme .col-md-4[style*="background"] *,
+body.dark-theme .col-md-4[style*="background-color"] * {
+    color: inherit !important;
+}
+
 /* إصلاح خاص للعناصر المحددة */
 body.dark-theme .date-header-row {
     background-color: #0f141f !important;

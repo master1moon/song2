@@ -565,7 +565,7 @@ function showStoreDetails(storeId) {
     row.innerHTML = `
       <td>${sale.date}</td>
       <td>${sale.reason || (pkg ? pkg.name : 'غير معروف')}</td>
-      <td>${isCustom ? ('<span class="currency">' + formatNumber(sale.amount) + '</span>') : sale.quantity}</td>
+      <td>${isCustom ? ('<span class="currency">' + formatNumber(sale.amount) + '</span>') : formatNumber(sale.quantity, false)}</td>
       <td class="currency">${formatNumber(sale.total)}</td>
       <td class="action-buttons">
         <button class="btn btn-sm btn-warning edit-sale" data-id="${sale.id}"><i class="fas fa-edit"></i></button>
@@ -1206,7 +1206,7 @@ function updateSalesTable(storeId, sales) {
     row.innerHTML = `
       <td>${formatDateEn(sale.date)}</td>
       <td>${packageName}</td>
-      <td>${sale.quantity > 0 ? sale.quantity : formatNumber(sale.amount)}</td>
+      <td>${sale.quantity > 0 ? formatNumber(sale.quantity, false) : '<span class="currency">' + formatNumber(sale.amount) + '</span>'}</td>
       <td class="currency">${formatNumber(sale.total)}</td>
       <td>
         <button class="btn btn-sm btn-warning" onclick="editSale('${sale.id}')">

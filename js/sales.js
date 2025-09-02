@@ -152,13 +152,13 @@ function editSale(id) {
     if (isCustom) {
       document.getElementById('saleReason').value = sale.reason || '';
       document.getElementById('saleAmount').value = formatNumber(sale.amount) || '';
-    } else { document.getElementById('saleQuantity').value = formatNumber(sale.quantity) || ''; }
+    } else { document.getElementById('saleQuantity').value = sale.quantity || ''; }
   });
   document.getElementById('saleModalTitle').textContent = 'تعديل البيع';
   document.getElementById('saleId').value = sale.id;
   document.getElementById('saleStoreId').value = sale.storeId;
   document.getElementById('saleReason').value = sale.reason || '';
-  document.getElementById('saleQuantity').value = formatNumber(sale.quantity) || '';
+  document.getElementById('saleQuantity').value = sale.quantity || '';
   document.getElementById('saleAmount').value = formatNumber(sale.amount) || '';
   document.getElementById('saleDate').value = sale.date;
   document.getElementById('customReasonGroup').style.display = isCustom ? 'block' : 'none';

@@ -105,7 +105,7 @@ function renderInventoryTable() {
       // استخدام الطريقة الآمنة
       const row = window.$safe.row([
         pkg.name,
-        formatNumber(item.quantity),
+        formatNumber(item.quantity, false),
         {text: formatNumber(retailValue), className: 'currency'},
         {text: formatNumber(wholesaleValue), className: 'currency'},
         {text: formatNumber(distributorValue), className: 'currency'},
@@ -132,7 +132,7 @@ function renderInventoryTable() {
       // إضافة الخلايا
       const cells = [
         pkg.name,
-        formatNumber(item.quantity),
+        formatNumber(item.quantity, false),
         formatNumber(retailValue),
         formatNumber(wholesaleValue),
         formatNumber(distributorValue),
@@ -198,7 +198,7 @@ function editInventory(id) {
   data.packages.forEach(pkg => { const option = document.createElement('option'); option.value = pkg.id; option.textContent = pkg.name; option.selected = pkg.id === item.packageId; select.appendChild(option); });
   document.getElementById('inventoryModalTitle').textContent = 'تعديل الكمية';
   document.getElementById('inventoryId').value = item.id;
-  document.getElementById('inventoryQuantity').value = formatNumber(item.quantity);
+  document.getElementById('inventoryQuantity').value = item.quantity;
   document.getElementById('inventoryDate').value = item.createdAt || getTodayDate();
   const modal = new bootstrap.Modal(document.getElementById('inventoryModal')); modal.show();
 }
