@@ -35,7 +35,6 @@
         const settings = AppSettings.getAll();
         
         // تحميل إعدادات العرض
-        setElementValue('setting-language', settings.display.language);
         setElementValue('setting-theme', settings.display.theme);
         setElementValue('setting-fontSize', settings.display.fontSize);
         setElementValue('setting-density', settings.display.density);
@@ -193,13 +192,6 @@
                 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label class="form-label">اللغة</label>
-                        <select class="form-select" id="setting-language" onchange="AppSettings.update('display.language', this.value)">
-                            <option value="ar">العربية</option>
-                            <option value="en">English</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
                         <label class="form-label">المظهر</label>
                         <select class="form-select" id="setting-theme" onchange="AppSettings.update('display.theme', this.value)">
                             <option value="light">فاتح</option>
@@ -207,25 +199,33 @@
                             <option value="auto">تلقائي (حسب النظام)</option>
                         </select>
                     </div>
-                </div>
-
-                <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label">حجم الخط</label>
                         <select class="form-select" id="setting-fontSize" onchange="AppSettings.update('display.fontSize', this.value)">
+                            <option value="tiny">صغير جداً</option>
                             <option value="small">صغير</option>
                             <option value="medium">متوسط</option>
                             <option value="large">كبير</option>
                             <option value="xlarge">كبير جداً</option>
+                            <option value="huge">ضخم</option>
+                            <option value="massive">ضخم جداً</option>
                         </select>
                     </div>
+                </div>
+
+                <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label">كثافة العرض</label>
                         <select class="form-select" id="setting-density" onchange="AppSettings.update('display.density', this.value)">
+                            <option value="ultra-compact">مضغوط جداً</option>
                             <option value="compact">مضغوط</option>
                             <option value="normal">عادي</option>
                             <option value="comfortable">مريح</option>
+                            <option value="spacious">واسع</option>
                         </select>
+                    </div>
+                    <div class="col-md-6">
+                        <!-- مساحة فارغة أو يمكن إضافة خيار آخر هنا -->
                     </div>
                 </div>
 

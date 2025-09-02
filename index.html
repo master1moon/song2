@@ -390,16 +390,16 @@
         
         /* ============= أنماط المظهر الداكن ============= */
         body.dark-theme {
-            background-color: #1a1a1a;
-            color: #e0e0e0;
+            background-color: #0f0f0f;
+            color: #f0f0f0;
         }
         
         body.dark-theme .sidebar {
-            background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+            background: linear-gradient(180deg, #1a1f2e 0%, #151923 100%);
         }
         
         body.dark-theme .main-content {
-            background-color: #1a1a1a;
+            background-color: #0f0f0f;
         }
         
         body.dark-theme .header-bar,
@@ -407,41 +407,55 @@
         body.dark-theme .stat-card,
         body.dark-theme .modal-content,
         body.dark-theme .card {
-            background-color: #2d3748;
-            color: #e0e0e0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            background-color: #1a1f2e;
+            color: #f0f0f0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            border: 1px solid #2a2f3e;
         }
         
         body.dark-theme .form-control,
         body.dark-theme .form-select {
-            background-color: #374151;
-            color: #e0e0e0;
-            border-color: #4b5563;
+            background-color: #252a3a;
+            color: #f0f0f0;
+            border-color: #3a3f4e;
         }
         
         body.dark-theme .form-control:focus,
         body.dark-theme .form-select:focus {
-            background-color: #374151;
-            color: #e0e0e0;
-            border-color: #60a5fa;
-            box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.25);
+            background-color: #2a2f3e;
+            color: #f0f0f0;
+            border-color: #4a8eff;
+            box-shadow: 0 0 0 0.2rem rgba(74, 142, 255, 0.25);
         }
         
         body.dark-theme .table {
-            color: #e0e0e0;
+            color: #f0f0f0;
         }
         
         body.dark-theme .table th {
-            background-color: #374151;
-            color: #e0e0e0;
+            background-color: #252a3a;
+            color: #f0f0f0;
+            border-color: #3a3f4e;
+            font-weight: 600;
         }
         
         body.dark-theme .table td {
-            border-color: #4b5563;
+            background-color: #1a1f2e;
+            border-color: #2a2f3e;
+            color: #e0e0e0;
         }
         
         body.dark-theme .table-striped tbody tr:nth-of-type(odd) {
-            background-color: rgba(75, 85, 99, 0.3);
+            background-color: #202530;
+        }
+        
+        body.dark-theme .table-striped tbody tr:nth-of-type(even) {
+            background-color: #1a1f2e;
+        }
+        
+        body.dark-theme .table-hover tbody tr:hover {
+            background-color: #252a3a;
+            color: #ffffff;
         }
         
         body.dark-theme .btn-primary {
@@ -513,6 +527,113 @@
             border-color: #16a34a;
         }
         
+        /* إصلاح مربعات التصدير والاستيراد */
+        body.dark-theme .export-options label,
+        body.dark-theme .import-section label {
+            color: #f0f0f0;
+        }
+        
+        body.dark-theme .export-options .form-check-input {
+            background-color: #252a3a;
+            border-color: #3a3f4e;
+        }
+        
+        body.dark-theme .export-options .form-check-input:checked {
+            background-color: #4a8eff;
+            border-color: #4a8eff;
+        }
+        
+        /* إصلاح منطقة table-responsive */
+        body.dark-theme .table-responsive {
+            background-color: transparent;
+        }
+        
+        body.dark-theme .table-responsive .table {
+            margin-bottom: 0;
+        }
+        
+        /* إصلاح الأيقونات والنصوص الباهتة */
+        body.dark-theme .fa, 
+        body.dark-theme .fas, 
+        body.dark-theme .far {
+            color: #a0a0a0;
+        }
+        
+        body.dark-theme .btn .fa,
+        body.dark-theme .btn .fas,
+        body.dark-theme .btn .far {
+            color: inherit;
+        }
+        
+        /* إصلاح حدود وخلفيات إضافية */
+        body.dark-theme .border {
+            border-color: #3a3f4e !important;
+        }
+        
+        body.dark-theme .bg-light {
+            background-color: #252a3a !important;
+        }
+        
+        body.dark-theme .bg-white {
+            background-color: #1a1f2e !important;
+            color: #f0f0f0;
+        }
+        
+        /* إصلاح ألوان النصوص الثانوية */
+        body.dark-theme .text-secondary {
+            color: #b0b0b0 !important;
+        }
+        
+        body.dark-theme .text-muted {
+            color: #888888 !important;
+        }
+        
+        body.dark-theme .text-dark {
+            color: #f0f0f0 !important;
+        }
+        
+        /* إصلاح أقسام الإحصائيات */
+        body.dark-theme .stat-card h3 {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .stat-card p {
+            color: #b0b0b0;
+        }
+        
+        /* إصلاح القوائم المنسدلة */
+        body.dark-theme .dropdown-menu {
+            background-color: #252a3a;
+            border-color: #3a3f4e;
+        }
+        
+        body.dark-theme .dropdown-item {
+            color: #f0f0f0;
+        }
+        
+        body.dark-theme .dropdown-item:hover {
+            background-color: #2a2f3e;
+            color: #ffffff;
+        }
+        
+        /* إصلاح شريط التقدم */
+        body.dark-theme .progress {
+            background-color: #252a3a;
+        }
+        
+        /* إصلاح البطاقات */
+        body.dark-theme .card-header {
+            background-color: #252a3a;
+            border-bottom-color: #3a3f4e;
+            color: #f0f0f0;
+        }
+        
+        body.dark-theme .card-footer {
+            background-color: #252a3a;
+            border-top-color: #3a3f4e;
+            color: #f0f0f0;
+        }
+        
         /* ============= تطبيق الألوان المخصصة ============= */
         :root {
             --primary-color: #007bff;
@@ -553,6 +674,38 @@
         }
         
         /* ============= كثافة العرض ============= */
+        /* كثافة فائقة الضغط */
+        body[data-density="ultra-compact"] .section-content {
+            padding: 8px;
+        }
+        
+        body[data-density="ultra-compact"] .form-control,
+        body[data-density="ultra-compact"] .form-select {
+            padding: 0.15rem 0.3rem;
+            font-size: 0.8rem;
+            height: 28px;
+        }
+        
+        body[data-density="ultra-compact"] .btn {
+            padding: 0.15rem 0.3rem;
+            font-size: 0.8rem;
+            height: 28px;
+        }
+        
+        body[data-density="ultra-compact"] .table td,
+        body[data-density="ultra-compact"] .table th {
+            padding: 0.25rem;
+        }
+        
+        body[data-density="ultra-compact"] .card {
+            padding: 8px;
+        }
+        
+        body[data-density="ultra-compact"] .header-bar {
+            padding: 8px 12px;
+        }
+        
+        /* كثافة مضغوطة */
         body[data-density="compact"] .section-content {
             padding: 15px;
         }
@@ -573,6 +726,12 @@
             padding: 0.5rem;
         }
         
+        /* كثافة عادية (افتراضي) */
+        body[data-density="normal"] .section-content {
+            padding: 25px;
+        }
+        
+        /* كثافة مريحة */
         body[data-density="comfortable"] .section-content {
             padding: 35px;
         }
@@ -591,6 +750,43 @@
         body[data-density="comfortable"] .table td,
         body[data-density="comfortable"] .table th {
             padding: 1rem;
+        }
+        
+        /* كثافة واسعة */
+        body[data-density="spacious"] .section-content {
+            padding: 45px;
+        }
+        
+        body[data-density="spacious"] .form-control,
+        body[data-density="spacious"] .form-select {
+            padding: 1rem 1.25rem;
+            font-size: 1.25rem;
+            height: 50px;
+        }
+        
+        body[data-density="spacious"] .btn {
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            height: 50px;
+        }
+        
+        body[data-density="spacious"] .table td,
+        body[data-density="spacious"] .table th {
+            padding: 1.25rem;
+        }
+        
+        body[data-density="spacious"] .card {
+            padding: 30px;
+        }
+        
+        body[data-density="spacious"] .header-bar {
+            padding: 25px 30px;
+        }
+        
+        body[data-density="spacious"] .modal-header,
+        body[data-density="spacious"] .modal-body,
+        body[data-density="spacious"] .modal-footer {
+            padding: 1.5rem;
         }
         
         /* ============= تعطيل التأثيرات الحركية ============= */
@@ -613,6 +809,10 @@
         }
         
         /* ============= أحجام الخطوط ============= */
+        body[data-font-size="tiny"] {
+            font-size: 10px;
+        }
+        
         body[data-font-size="small"] {
             font-size: 12px;
         }
@@ -627,6 +827,27 @@
         
         body[data-font-size="xlarge"] {
             font-size: 18px;
+        }
+        
+        body[data-font-size="huge"] {
+            font-size: 20px;
+        }
+        
+        body[data-font-size="massive"] {
+            font-size: 24px;
+        }
+        
+        /* تطبيق حجم الخط على جميع العناصر */
+        body[data-font-size="tiny"] .form-control,
+        body[data-font-size="tiny"] .form-select,
+        body[data-font-size="tiny"] .btn,
+        body[data-font-size="tiny"] h1,
+        body[data-font-size="tiny"] h2,
+        body[data-font-size="tiny"] h3,
+        body[data-font-size="tiny"] h4,
+        body[data-font-size="tiny"] h5,
+        body[data-font-size="tiny"] h6 {
+            font-size: calc(10px * var(--heading-scale, 1));
         }
         
         body[data-font-size="small"] .form-control,
@@ -647,47 +868,30 @@
             font-size: 18px;
         }
         
-        /* ============= اتجاه النص للغات ============= */
-        body[lang="en"] {
-            direction: ltr;
-            text-align: left;
+        body[data-font-size="huge"] .form-control,
+        body[data-font-size="huge"] .form-select,
+        body[data-font-size="huge"] .btn,
+        body[data-font-size="huge"] h1,
+        body[data-font-size="huge"] h2,
+        body[data-font-size="huge"] h3,
+        body[data-font-size="huge"] h4,
+        body[data-font-size="huge"] h5,
+        body[data-font-size="huge"] h6 {
+            font-size: calc(20px * var(--heading-scale, 1));
         }
         
-        body[lang="en"] .sidebar {
-            left: 0;
-            right: auto;
+        body[data-font-size="massive"] .form-control,
+        body[data-font-size="massive"] .form-select,
+        body[data-font-size="massive"] .btn,
+        body[data-font-size="massive"] h1,
+        body[data-font-size="massive"] h2,
+        body[data-font-size="massive"] h3,
+        body[data-font-size="massive"] h4,
+        body[data-font-size="massive"] h5,
+        body[data-font-size="massive"] h6 {
+            font-size: calc(24px * var(--heading-scale, 1.2));
         }
-        
-        body[lang="en"] .main-content {
-            margin-left: 250px;
-            margin-right: 0;
-        }
-        
-        body[lang="en"] .text-right {
-            text-align: left !important;
-        }
-        
-        body[lang="en"] .text-left {
-            text-align: right !important;
-        }
-        
-        body[lang="en"] .float-right {
-            float: left !important;
-        }
-        
-        body[lang="en"] .float-left {
-            float: right !important;
-        }
-        
-        body[lang="en"] .mr-auto {
-            margin-left: auto !important;
-            margin-right: 0 !important;
-        }
-        
-        body[lang="en"] .ml-auto {
-            margin-right: auto !important;
-            margin-left: 0 !important;
-        }
+
 
         @media (max-width: 768px) {
             .app-container {

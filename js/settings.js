@@ -16,16 +16,14 @@
     const defaultSettings = {
         // إعدادات العرض والمظهر
         display: {
-            language: 'ar',              // اللغة: ar | en
-            theme: 'light',              // المظهر: light | dark | auto
-            fontSize: 'medium',          // حجم الخط: small | medium | large | xlarge
+            theme: 'light',              // المظهر: light | dark | auto - الافتراضي فاتح
+            fontSize: 'medium',          // حجم الخط: tiny | small | medium | large | xlarge | huge | massive
             fontFamily: 'default',       // نوع الخط
             primaryColor: '#007bff',     // اللون الرئيسي
             secondaryColor: '#6c757d',   // اللون الثانوي
             textColor: '#212529',        // لون النص
-            density: 'normal',           // كثافة العرض: compact | normal | comfortable
+            density: 'normal',           // كثافة العرض: ultra-compact | compact | normal | comfortable | spacious
             animations: true,            // تفعيل الحركات
-            direction: 'rtl',           // اتجاه الواجهة: rtl | ltr | auto
             showIcons: true,            // عرض الأيقونات
             roundedCorners: true,       // الزوايا المستديرة
             sidebarPosition: 'right'    // موضع الشريط الجانبي
@@ -345,12 +343,6 @@
      * تطبيق إعدادات العرض والمظهر
      */
     function applyDisplaySettings(display) {
-        // تطبيق اللغة
-        document.documentElement.lang = display.language;
-        document.body.setAttribute('lang', display.language);
-        document.documentElement.dir = display.direction === 'auto' ? 
-            (display.language === 'ar' ? 'rtl' : 'ltr') : display.direction;
-
         // تطبيق المظهر (Theme)
         if (display.theme === 'dark') {
             document.body.classList.add('dark-theme');
@@ -393,13 +385,6 @@
         
         // تطبيق الزوايا المستديرة
         document.body.classList.toggle('no-rounded-corners', !display.roundedCorners);
-        
-        // تحديث النصوص للغة المختارة
-        if (display.language === 'en') {
-            translateToEnglish();
-        } else {
-            translateToArabic();
-        }
     }
     
     /**
@@ -461,77 +446,6 @@
         
         return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     }
-    
-    /**
-     * ترجمة الواجهة للإنجليزية
-     */
-    function translateToEnglish() {
-        // ترجمة العناوين الرئيسية
-        const translations = {
-            'لوحة التحكم': 'Dashboard',
-            'الباقات': 'Packages',
-            'الكميات': 'Inventory',
-            'المحلات': 'Stores',
-            'المصروفات': 'Expenses',
-            'التقارير': 'Reports',
-            'الاستيراد والتصدير': 'Import & Export',
-            'سلة المحذوفات': 'Trash',
-            'الإعدادات': 'Settings',
-            'إضافة جديد': 'Add New',
-            'بحث': 'Search',
-            'حفظ': 'Save',
-            'إلغاء': 'Cancel',
-            'تعديل': 'Edit',
-            'حذف': 'Delete',
-            'الكل': 'All'
-        };
-        
-        // تطبيق الترجمات
-        document.querySelectorAll('*').forEach(element => {
-            if (element.childNodes.length === 1 && element.childNodes[0].nodeType === 3) {
-                const text = element.textContent.trim();
-                if (translations[text]) {
-                    element.textContent = translations[text];
-                }
-            }
-        });
-    }
-    
-    /**
-     * ترجمة الواجهة للعربية
-     */
-    function translateToArabic() {
-        // ترجمة العناوين الرئيسية
-        const translations = {
-            'Dashboard': 'لوحة التحكم',
-            'Packages': 'الباقات',
-            'Inventory': 'الكميات',
-            'Stores': 'المحلات',
-            'Expenses': 'المصروفات',
-            'Reports': 'التقارير',
-            'Import & Export': 'الاستيراد والتصدير',
-            'Trash': 'سلة المحذوفات',
-            'Settings': 'الإعدادات',
-            'Add New': 'إضافة جديد',
-            'Search': 'بحث',
-            'Save': 'حفظ',
-            'Cancel': 'إلغاء',
-            'Edit': 'تعديل',
-            'Delete': 'حذف',
-            'All': 'الكل'
-        };
-        
-        // تطبيق الترجمات
-        document.querySelectorAll('*').forEach(element => {
-            if (element.childNodes.length === 1 && element.childNodes[0].nodeType === 3) {
-                const text = element.textContent.trim();
-                if (translations[text]) {
-                    element.textContent = translations[text];
-                }
-            }
-        });
-    }
-
     /**
      * تطبيق إعدادات المالية والعملة
      */
@@ -669,10 +583,13 @@
      */
     function getFontSize(size) {
         const sizes = {
+            'tiny': '10px',
             'small': '12px',
             'medium': '14px',
             'large': '16px',
-            'xlarge': '18px'
+            'xlarge': '18px',
+            'huge': '20px',
+            'massive': '24px'
         };
         return sizes[size] || '14px';
     }
