@@ -388,6 +388,307 @@
             color: #6c757d;
         }
         
+        /* ============= أنماط المظهر الداكن ============= */
+        body.dark-theme {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        body.dark-theme .sidebar {
+            background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+        }
+        
+        body.dark-theme .main-content {
+            background-color: #1a1a1a;
+        }
+        
+        body.dark-theme .header-bar,
+        body.dark-theme .section-content,
+        body.dark-theme .stat-card,
+        body.dark-theme .modal-content,
+        body.dark-theme .card {
+            background-color: #2d3748;
+            color: #e0e0e0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        body.dark-theme .form-control,
+        body.dark-theme .form-select {
+            background-color: #374151;
+            color: #e0e0e0;
+            border-color: #4b5563;
+        }
+        
+        body.dark-theme .form-control:focus,
+        body.dark-theme .form-select:focus {
+            background-color: #374151;
+            color: #e0e0e0;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.25);
+        }
+        
+        body.dark-theme .table {
+            color: #e0e0e0;
+        }
+        
+        body.dark-theme .table th {
+            background-color: #374151;
+            color: #e0e0e0;
+        }
+        
+        body.dark-theme .table td {
+            border-color: #4b5563;
+        }
+        
+        body.dark-theme .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(75, 85, 99, 0.3);
+        }
+        
+        body.dark-theme .btn-primary {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        
+        body.dark-theme .btn-secondary {
+            background-color: #6b7280;
+            border-color: #6b7280;
+        }
+        
+        body.dark-theme .list-group-item {
+            background-color: #374151;
+            color: #e0e0e0;
+            border-color: #4b5563;
+        }
+        
+        body.dark-theme .list-group-item.active {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        
+        body.dark-theme .modal-header,
+        body.dark-theme .modal-footer {
+            border-color: #4b5563;
+        }
+        
+        body.dark-theme .close,
+        body.dark-theme .btn-close {
+            color: #e0e0e0;
+            opacity: 0.8;
+        }
+        
+        body.dark-theme .page-title {
+            color: #e0e0e0;
+        }
+        
+        body.dark-theme .section-title {
+            color: #60a5fa;
+            border-bottom-color: #4b5563;
+        }
+        
+        body.dark-theme .text-muted {
+            color: #9ca3af !important;
+        }
+        
+        body.dark-theme .alert-info {
+            background-color: #1e3a5f;
+            color: #93c5fd;
+            border-color: #2563eb;
+        }
+        
+        body.dark-theme .alert-warning {
+            background-color: #422006;
+            color: #fbbf24;
+            border-color: #d97706;
+        }
+        
+        body.dark-theme .alert-danger {
+            background-color: #450a0a;
+            color: #fca5a5;
+            border-color: #dc2626;
+        }
+        
+        body.dark-theme .alert-success {
+            background-color: #052e16;
+            color: #86efac;
+            border-color: #16a34a;
+        }
+        
+        /* ============= تطبيق الألوان المخصصة ============= */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --text-color: #212529;
+            --font-size-base: 14px;
+        }
+        
+        body.dark-theme {
+            --text-color: #e0e0e0;
+        }
+        
+        body {
+            color: var(--text-color);
+            font-size: var(--font-size-base);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: color-mix(in srgb, var(--primary-color) 85%, black);
+            border-color: color-mix(in srgb, var(--primary-color) 85%, black);
+        }
+        
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+        
+        .bg-primary {
+            background-color: var(--primary-color) !important;
+        }
+        
+        .border-primary {
+            border-color: var(--primary-color) !important;
+        }
+        
+        /* ============= كثافة العرض ============= */
+        body[data-density="compact"] .section-content {
+            padding: 15px;
+        }
+        
+        body[data-density="compact"] .form-control,
+        body[data-density="compact"] .form-select {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        body[data-density="compact"] .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        body[data-density="compact"] .table td,
+        body[data-density="compact"] .table th {
+            padding: 0.5rem;
+        }
+        
+        body[data-density="comfortable"] .section-content {
+            padding: 35px;
+        }
+        
+        body[data-density="comfortable"] .form-control,
+        body[data-density="comfortable"] .form-select {
+            padding: 0.75rem 1rem;
+            font-size: 1.125rem;
+        }
+        
+        body[data-density="comfortable"] .btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1.125rem;
+        }
+        
+        body[data-density="comfortable"] .table td,
+        body[data-density="comfortable"] .table th {
+            padding: 1rem;
+        }
+        
+        /* ============= تعطيل التأثيرات الحركية ============= */
+        body.no-animations * {
+            animation: none !important;
+            transition: none !important;
+        }
+        
+        /* ============= الزوايا المستديرة ============= */
+        body.no-rounded-corners .section-content,
+        body.no-rounded-corners .header-bar,
+        body.no-rounded-corners .stat-card,
+        body.no-rounded-corners .card,
+        body.no-rounded-corners .btn,
+        body.no-rounded-corners .form-control,
+        body.no-rounded-corners .form-select,
+        body.no-rounded-corners .modal-content,
+        body.no-rounded-corners .list-group-item {
+            border-radius: 0 !important;
+        }
+        
+        /* ============= أحجام الخطوط ============= */
+        body[data-font-size="small"] {
+            font-size: 12px;
+        }
+        
+        body[data-font-size="medium"] {
+            font-size: 14px;
+        }
+        
+        body[data-font-size="large"] {
+            font-size: 16px;
+        }
+        
+        body[data-font-size="xlarge"] {
+            font-size: 18px;
+        }
+        
+        body[data-font-size="small"] .form-control,
+        body[data-font-size="small"] .form-select,
+        body[data-font-size="small"] .btn {
+            font-size: 12px;
+        }
+        
+        body[data-font-size="large"] .form-control,
+        body[data-font-size="large"] .form-select,
+        body[data-font-size="large"] .btn {
+            font-size: 16px;
+        }
+        
+        body[data-font-size="xlarge"] .form-control,
+        body[data-font-size="xlarge"] .form-select,
+        body[data-font-size="xlarge"] .btn {
+            font-size: 18px;
+        }
+        
+        /* ============= اتجاه النص للغات ============= */
+        body[lang="en"] {
+            direction: ltr;
+            text-align: left;
+        }
+        
+        body[lang="en"] .sidebar {
+            left: 0;
+            right: auto;
+        }
+        
+        body[lang="en"] .main-content {
+            margin-left: 250px;
+            margin-right: 0;
+        }
+        
+        body[lang="en"] .text-right {
+            text-align: left !important;
+        }
+        
+        body[lang="en"] .text-left {
+            text-align: right !important;
+        }
+        
+        body[lang="en"] .float-right {
+            float: left !important;
+        }
+        
+        body[lang="en"] .float-left {
+            float: right !important;
+        }
+        
+        body[lang="en"] .mr-auto {
+            margin-left: auto !important;
+            margin-right: 0 !important;
+        }
+        
+        body[lang="en"] .ml-auto {
+            margin-right: auto !important;
+            margin-left: 0 !important;
+        }
+
         @media (max-width: 768px) {
             .app-container {
                 flex-direction: column;

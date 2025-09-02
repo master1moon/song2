@@ -22,6 +22,7 @@
             fontFamily: 'default',       // نوع الخط
             primaryColor: '#007bff',     // اللون الرئيسي
             secondaryColor: '#6c757d',   // اللون الثانوي
+            textColor: '#212529',        // لون النص
             density: 'normal',           // كثافة العرض: compact | normal | comfortable
             animations: true,            // تفعيل الحركات
             direction: 'rtl',           // اتجاه الواجهة: rtl | ltr | auto
@@ -346,6 +347,7 @@
     function applyDisplaySettings(display) {
         // تطبيق اللغة
         document.documentElement.lang = display.language;
+        document.body.setAttribute('lang', display.language);
         document.documentElement.dir = display.direction === 'auto' ? 
             (display.language === 'ar' ? 'rtl' : 'ltr') : display.direction;
 
@@ -360,18 +362,174 @@
         }
 
         // تطبيق حجم الخط
+        document.body.setAttribute('data-font-size', display.fontSize);
         document.documentElement.style.setProperty('--font-size-base', 
             getFontSize(display.fontSize));
 
-        // تطبيق الألوان
-        document.documentElement.style.setProperty('--primary-color', display.primaryColor);
-        document.documentElement.style.setProperty('--secondary-color', display.secondaryColor);
+        // تطبيق الألوان مع التحقق من التباين
+        const primaryColor = display.primaryColor;
+        const secondaryColor = display.secondaryColor;
+        const textColor = display.textColor;
+        
+        // التحقق من أن لون النص مختلف عن لون الخلفية
+        const isDark = document.body.classList.contains('dark-theme');
+        const bgColor = isDark ? '#1a1a1a' : '#ffffff';
+        
+        // حساب التباين وتعديل اللون إذا لزم
+        const adjustedTextColor = ensureContrast(textColor, bgColor);
+        
+        document.documentElement.style.setProperty('--primary-color', primaryColor);
+        document.documentElement.style.setProperty('--secondary-color', secondaryColor);
+        document.documentElement.style.setProperty('--text-color', adjustedTextColor);
+        
+        // تطبيق لون النص مباشرة
+        document.body.style.color = adjustedTextColor;
 
         // تطبيق كثافة العرض
         document.body.setAttribute('data-density', display.density);
 
         // تطبيق الحركات
         document.body.classList.toggle('no-animations', !display.animations);
+        
+        // تطبيق الزوايا المستديرة
+        document.body.classList.toggle('no-rounded-corners', !display.roundedCorners);
+        
+        // تحديث النصوص للغة المختارة
+        if (display.language === 'en') {
+            translateToEnglish();
+        } else {
+            translateToArabic();
+        }
+    }
+    
+    /**
+     * التحقق من التباين بين لونين وتعديل اللون إذا لزم
+     */
+    function ensureContrast(color1, color2) {
+        const c1 = hexToRgb(color1);
+        const c2 = hexToRgb(color2);
+        
+        if (!c1 || !c2) return color1;
+        
+        // حساب التباين
+        const contrast = getContrastRatio(c1, c2);
+        
+        // إذا كان التباين أقل من 4.5:1 (WCAG AA standard)
+        if (contrast < 4.5) {
+            // تعديل اللون ليكون أغمق أو أفتح حسب الخلفية
+            const isDarkBg = (c2.r + c2.g + c2.b) / 3 < 128;
+            return isDarkBg ? '#ffffff' : '#000000';
+        }
+        
+        return color1;
+    }
+    
+    /**
+     * تحويل اللون من hex إلى RGB
+     */
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+    
+    /**
+     * حساب نسبة التباين بين لونين
+     */
+    function getContrastRatio(rgb1, rgb2) {
+        const l1 = getLuminance(rgb1);
+        const l2 = getLuminance(rgb2);
+        const lighter = Math.max(l1, l2);
+        const darker = Math.min(l1, l2);
+        return (lighter + 0.05) / (darker + 0.05);
+    }
+    
+    /**
+     * حساب الإضاءة النسبية للون
+     */
+    function getLuminance(rgb) {
+        const rsRGB = rgb.r / 255;
+        const gsRGB = rgb.g / 255;
+        const bsRGB = rgb.b / 255;
+        
+        const r = rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4);
+        const g = gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4);
+        const b = bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4);
+        
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+    
+    /**
+     * ترجمة الواجهة للإنجليزية
+     */
+    function translateToEnglish() {
+        // ترجمة العناوين الرئيسية
+        const translations = {
+            'لوحة التحكم': 'Dashboard',
+            'الباقات': 'Packages',
+            'الكميات': 'Inventory',
+            'المحلات': 'Stores',
+            'المصروفات': 'Expenses',
+            'التقارير': 'Reports',
+            'الاستيراد والتصدير': 'Import & Export',
+            'سلة المحذوفات': 'Trash',
+            'الإعدادات': 'Settings',
+            'إضافة جديد': 'Add New',
+            'بحث': 'Search',
+            'حفظ': 'Save',
+            'إلغاء': 'Cancel',
+            'تعديل': 'Edit',
+            'حذف': 'Delete',
+            'الكل': 'All'
+        };
+        
+        // تطبيق الترجمات
+        document.querySelectorAll('*').forEach(element => {
+            if (element.childNodes.length === 1 && element.childNodes[0].nodeType === 3) {
+                const text = element.textContent.trim();
+                if (translations[text]) {
+                    element.textContent = translations[text];
+                }
+            }
+        });
+    }
+    
+    /**
+     * ترجمة الواجهة للعربية
+     */
+    function translateToArabic() {
+        // ترجمة العناوين الرئيسية
+        const translations = {
+            'Dashboard': 'لوحة التحكم',
+            'Packages': 'الباقات',
+            'Inventory': 'الكميات',
+            'Stores': 'المحلات',
+            'Expenses': 'المصروفات',
+            'Reports': 'التقارير',
+            'Import & Export': 'الاستيراد والتصدير',
+            'Trash': 'سلة المحذوفات',
+            'Settings': 'الإعدادات',
+            'Add New': 'إضافة جديد',
+            'Search': 'بحث',
+            'Save': 'حفظ',
+            'Cancel': 'إلغاء',
+            'Edit': 'تعديل',
+            'Delete': 'حذف',
+            'All': 'الكل'
+        };
+        
+        // تطبيق الترجمات
+        document.querySelectorAll('*').forEach(element => {
+            if (element.childNodes.length === 1 && element.childNodes[0].nodeType === 3) {
+                const text = element.textContent.trim();
+                if (translations[text]) {
+                    element.textContent = translations[text];
+                }
+            }
+        });
     }
 
     /**
@@ -722,7 +880,16 @@
     };
 
     // تحميل الإعدادات عند بدء التطبيق
-    document.addEventListener('DOMContentLoaded', loadSettings);
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSettings();
+        
+        // التأكد من تطبيق الإعدادات بعد تحميل الصفحة بالكامل
+        setTimeout(() => {
+            if (currentSettings && currentSettings.display) {
+                applyDisplaySettings(currentSettings.display);
+            }
+        }, 100);
+    });
 
     // حفظ الإعدادات قبل إغلاق الصفحة
     window.addEventListener('beforeunload', (e) => {
@@ -732,5 +899,14 @@
             e.returnValue = 'لديك تغييرات غير محفوظة';
         }
     });
+    
+    // مراقبة تغيير اللون المفضل للنظام
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (currentSettings.display.theme === 'auto') {
+                document.body.classList.toggle('dark-theme', e.matches);
+            }
+        });
+    }
 
 })();

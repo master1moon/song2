@@ -41,6 +41,7 @@
         setElementValue('setting-density', settings.display.density);
         setElementValue('setting-primaryColor', settings.display.primaryColor);
         setElementValue('setting-secondaryColor', settings.display.secondaryColor);
+        setElementValue('setting-textColor', settings.display.textColor);
         setElementChecked('setting-animations', settings.display.animations);
         setElementChecked('setting-roundedCorners', settings.display.roundedCorners);
 
@@ -229,7 +230,7 @@
                 </div>
 
                 <div class="row mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label">اللون الرئيسي</label>
                         <div class="input-group">
                             <input type="color" class="form-control form-control-color" id="setting-primaryColor" 
@@ -238,13 +239,22 @@
                                    onchange="document.getElementById('setting-primaryColor').value = this.value; AppSettings.update('display.primaryColor', this.value)">
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label">اللون الثانوي</label>
                         <div class="input-group">
                             <input type="color" class="form-control form-control-color" id="setting-secondaryColor"
                                    value="${display.secondaryColor}" onchange="AppSettings.update('display.secondaryColor', this.value)">
                             <input type="text" class="form-control" value="${display.secondaryColor}"
                                    onchange="document.getElementById('setting-secondaryColor').value = this.value; AppSettings.update('display.secondaryColor', this.value)">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">لون النص</label>
+                        <div class="input-group">
+                            <input type="color" class="form-control form-control-color" id="setting-textColor"
+                                   value="${display.textColor}" onchange="AppSettings.update('display.textColor', this.value)">
+                            <input type="text" class="form-control" value="${display.textColor}"
+                                   onchange="document.getElementById('setting-textColor').value = this.value; AppSettings.update('display.textColor', this.value)">
                         </div>
                     </div>
                 </div>
