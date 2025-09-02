@@ -24,7 +24,7 @@
             letterSpacing: 'normal',     // تباعد الأحرف: tight | normal | wide | wider | widest
             lineHeight: 'normal',        // ارتفاع السطر: compact | normal | relaxed | loose
             fontFamily: 'default',       // نوع الخط
-            primaryColor: '#007bff',     // اللون الرئيسي
+            primaryColor: '#c4123f',     // اللون الرئيسي
             secondaryColor: '#6c757d',   // اللون الثانوي
             textColor: '#212529',        // لون النص
             density: 'normal',           // كثافة العرض: ultra-compact | compact | normal | comfortable | spacious
@@ -386,6 +386,25 @@
         
         // تطبيق لون النص مباشرة
         document.body.style.color = adjustedTextColor;
+        document.body.setAttribute('data-text-color', 'custom');
+        
+        // تطبيق اللون على جميع العناصر الموجودة
+        const allElements = document.querySelectorAll('*');
+        allElements.forEach(element => {
+            // تجاهل العناصر التي لها ألوان خاصة
+            if (!element.classList.contains('btn') && 
+                !element.classList.contains('badge') &&
+                !element.classList.contains('alert') &&
+                !element.classList.contains('text-primary') &&
+                !element.classList.contains('text-secondary') &&
+                !element.classList.contains('text-success') &&
+                !element.classList.contains('text-danger') &&
+                !element.classList.contains('text-warning') &&
+                !element.classList.contains('text-info') &&
+                !element.classList.contains('text-muted')) {
+                element.style.color = '';  // مسح أي لون inline
+            }
+        });
 
         // تطبيق كثافة العرض
         document.body.setAttribute('data-density', display.density);

@@ -1,0 +1,355 @@
+/**
+ * إصلاحات إضافية للمظهر الداكن
+ * يعالج جميع مشاكل القراءة والتباين
+ */
+
+/* إصلاحات عامة للنصوص */
+body.dark-theme,
+body.dark-theme * {
+    color: #f0f0f0 !important;
+}
+
+/* استثناءات للألوان الخاصة */
+body.dark-theme .text-primary { color: #60a5fa !important; }
+body.dark-theme .text-secondary { color: #9ca3af !important; }
+body.dark-theme .text-success { color: #34d399 !important; }
+body.dark-theme .text-danger { color: #f87171 !important; }
+body.dark-theme .text-warning { color: #fbbf24 !important; }
+body.dark-theme .text-info { color: #60a5fa !important; }
+body.dark-theme .text-light { color: #f3f4f6 !important; }
+body.dark-theme .text-dark { color: #111827 !important; }
+body.dark-theme .text-muted { color: #9ca3af !important; }
+
+/* إصلاح جميع الجداول */
+body.dark-theme table {
+    background-color: #1a1f2e !important;
+    color: #f0f0f0 !important;
+}
+
+body.dark-theme thead,
+body.dark-theme thead * {
+    background-color: #0f141f !important;
+    color: #ffffff !important;
+}
+
+body.dark-theme tbody tr {
+    background-color: #1a1f2e !important;
+}
+
+body.dark-theme tbody tr:nth-child(even) {
+    background-color: #161b28 !important;
+}
+
+body.dark-theme tbody tr:hover {
+    background-color: #252a3a !important;
+}
+
+body.dark-theme td,
+body.dark-theme th {
+    border-color: #2a2f3e !important;
+    color: #f0f0f0 !important;
+}
+
+/* إصلاح الحقول والأزرار */
+body.dark-theme input,
+body.dark-theme textarea,
+body.dark-theme select,
+body.dark-theme .form-control,
+body.dark-theme .form-select {
+    background-color: #1a1f2e !important;
+    color: #f0f0f0 !important;
+    border-color: #3a3f4e !important;
+}
+
+body.dark-theme input:focus,
+body.dark-theme textarea:focus,
+body.dark-theme select:focus,
+body.dark-theme .form-control:focus,
+body.dark-theme .form-select:focus {
+    background-color: #252a3a !important;
+    color: #ffffff !important;
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.25) !important;
+}
+
+/* إصلاح placeholder */
+body.dark-theme ::placeholder {
+    color: #6b7280 !important;
+    opacity: 1 !important;
+}
+
+/* إصلاح الأزرار */
+body.dark-theme .btn {
+    color: #f0f0f0 !important;
+}
+
+body.dark-theme .btn-primary {
+    background-color: #c4123f !important;
+    border-color: #c4123f !important;
+    color: #ffffff !important;
+}
+
+body.dark-theme .btn-secondary {
+    background-color: #4b5563 !important;
+    border-color: #4b5563 !important;
+    color: #ffffff !important;
+}
+
+body.dark-theme .btn-outline-primary {
+    color: #60a5fa !important;
+    border-color: #60a5fa !important;
+}
+
+body.dark-theme .btn-outline-primary:hover {
+    background-color: #60a5fa !important;
+    color: #ffffff !important;
+}
+
+body.dark-theme .btn-outline-dark {
+    color: #f0f0f0 !important;
+    border-color: #f0f0f0 !important;
+}
+
+body.dark-theme .btn-outline-dark:hover {
+    background-color: #f0f0f0 !important;
+    color: #0f0f0f !important;
+}
+
+/* إصلاح البطاقات والحاويات */
+body.dark-theme .card,
+body.dark-theme .modal-content,
+body.dark-theme .section-content {
+    background-color: #1a1f2e !important;
+    color: #f0f0f0 !important;
+    border-color: #2a2f3e !important;
+}
+
+body.dark-theme .card-header,
+body.dark-theme .modal-header {
+    background-color: #161b28 !important;
+    border-bottom-color: #2a2f3e !important;
+    color: #ffffff !important;
+}
+
+body.dark-theme .card-footer,
+body.dark-theme .modal-footer {
+    background-color: #161b28 !important;
+    border-top-color: #2a2f3e !important;
+    color: #f0f0f0 !important;
+}
+
+/* إصلاح القوائم */
+body.dark-theme .list-group-item {
+    background-color: #1a1f2e !important;
+    color: #f0f0f0 !important;
+    border-color: #2a2f3e !important;
+}
+
+body.dark-theme .list-group-item:hover {
+    background-color: #252a3a !important;
+}
+
+body.dark-theme .list-group-item.active {
+    background-color: #c4123f !important;
+    border-color: #c4123f !important;
+    color: #ffffff !important;
+}
+
+/* إصلاح التنبيهات */
+body.dark-theme .alert {
+    color: #ffffff !important;
+}
+
+body.dark-theme .alert-primary {
+    background-color: #1e3a8a !important;
+    border-color: #1e40af !important;
+}
+
+body.dark-theme .alert-success {
+    background-color: #065f46 !important;
+    border-color: #047857 !important;
+}
+
+body.dark-theme .alert-danger {
+    background-color: #7f1d1d !important;
+    border-color: #991b1b !important;
+}
+
+body.dark-theme .alert-warning {
+    background-color: #78350f !important;
+    border-color: #92400e !important;
+}
+
+body.dark-theme .alert-info {
+    background-color: #1e3a8a !important;
+    border-color: #1e40af !important;
+}
+
+/* إصلاح الشارات */
+body.dark-theme .badge {
+    color: #ffffff !important;
+}
+
+/* إصلاح التبويبات */
+body.dark-theme .nav-tabs .nav-link {
+    color: #9ca3af !important;
+}
+
+body.dark-theme .nav-tabs .nav-link:hover {
+    color: #f0f0f0 !important;
+    border-color: #4b5563 !important;
+}
+
+body.dark-theme .nav-tabs .nav-link.active {
+    background-color: #1a1f2e !important;
+    color: #ffffff !important;
+    border-color: #3a3f4e #3a3f4e #1a1f2e !important;
+}
+
+/* إصلاح dropdown */
+body.dark-theme .dropdown-menu {
+    background-color: #1a1f2e !important;
+    border-color: #2a2f3e !important;
+}
+
+body.dark-theme .dropdown-item {
+    color: #f0f0f0 !important;
+}
+
+body.dark-theme .dropdown-item:hover {
+    background-color: #252a3a !important;
+    color: #ffffff !important;
+}
+
+body.dark-theme .dropdown-divider {
+    border-top-color: #2a2f3e !important;
+}
+
+/* إصلاح pagination */
+body.dark-theme .page-link {
+    background-color: #1a1f2e !important;
+    color: #f0f0f0 !important;
+    border-color: #2a2f3e !important;
+}
+
+body.dark-theme .page-link:hover {
+    background-color: #252a3a !important;
+    color: #ffffff !important;
+}
+
+body.dark-theme .page-item.active .page-link {
+    background-color: #c4123f !important;
+    border-color: #c4123f !important;
+    color: #ffffff !important;
+}
+
+/* إصلاح progress bar */
+body.dark-theme .progress {
+    background-color: #252a3a !important;
+}
+
+body.dark-theme .progress-bar {
+    background-color: #c4123f !important;
+}
+
+/* إصلاح tooltips */
+body.dark-theme .tooltip-inner {
+    background-color: #252a3a !important;
+    color: #f0f0f0 !important;
+}
+
+body.dark-theme .tooltip-arrow::before {
+    border-top-color: #252a3a !important;
+}
+
+/* إصلاح العناوين */
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3,
+body.dark-theme h4,
+body.dark-theme h5,
+body.dark-theme h6,
+body.dark-theme .h1,
+body.dark-theme .h2,
+body.dark-theme .h3,
+body.dark-theme .h4,
+body.dark-theme .h5,
+body.dark-theme .h6 {
+    color: #ffffff !important;
+}
+
+/* إصلاح الروابط */
+body.dark-theme a {
+    color: #60a5fa !important;
+}
+
+body.dark-theme a:hover {
+    color: #93bbfc !important;
+}
+
+/* إصلاح أي عنصر قد يكون له خلفية بيضاء */
+body.dark-theme .bg-white,
+body.dark-theme .bg-light {
+    background-color: #1a1f2e !important;
+    color: #f0f0f0 !important;
+}
+
+/* إصلاح الحدود */
+body.dark-theme .border,
+body.dark-theme .border-top,
+body.dark-theme .border-bottom,
+body.dark-theme .border-left,
+body.dark-theme .border-right {
+    border-color: #2a2f3e !important;
+}
+
+/* إصلاح hr */
+body.dark-theme hr {
+    border-color: #2a2f3e !important;
+    opacity: 1 !important;
+}
+
+/* التأكد من أن جميع النصوص مرئية */
+body.dark-theme [class*="text-"] {
+    opacity: 1 !important;
+}
+
+/* إصلاح أي عنصر قد يكون شفاف */
+body.dark-theme * {
+    opacity: 1 !important;
+}
+
+/* إصلاح خاص للعناصر المحددة */
+body.dark-theme .date-header-row {
+    background-color: #0f141f !important;
+}
+
+body.dark-theme .date-header-row * {
+    color: #ffffff !important;
+    font-weight: bold !important;
+}
+
+body.dark-theme #storeSearchInput {
+    background-color: #1a1f2e !important;
+    color: #f0f0f0 !important;
+    border-color: #3a3f4e !important;
+}
+
+body.dark-theme .table-responsive {
+    background-color: transparent !important;
+}
+
+body.dark-theme .data-table * {
+    color: #f0f0f0 !important;
+}
+
+body.dark-theme .export-btn {
+    background-color: #252a3a !important;
+    color: #f0f0f0 !important;
+    border-color: #3a3f4e !important;
+}
+
+body.dark-theme .export-btn:hover {
+    background-color: #374151 !important;
+    color: #ffffff !important;
+}

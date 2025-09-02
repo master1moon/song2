@@ -11,6 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام إدارة كروت الشبكات اللاسلكية</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/dark-theme-fixes.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -469,6 +470,27 @@
             color: #f0f0f0 !important;
         }
         
+        /* إصلاح data-table بشكل خاص */
+        body.dark-theme .data-table {
+            background-color: #1a1f2e !important;
+        }
+        
+        body.dark-theme .data-table th {
+            background-color: #0f141f !important;
+            color: #ffffff !important;
+            border-color: #2a2f3e !important;
+        }
+        
+        body.dark-theme .data-table td {
+            background-color: #1a1f2e !important;
+            color: #f0f0f0 !important;
+            border-bottom-color: #2a2f3e !important;
+        }
+        
+        body.dark-theme .data-table tr:hover td {
+            background-color: #252a3a !important;
+        }
+        
         /* إصلاح كشف الحساب */
         body.dark-theme .account-statement th,
         body.dark-theme .account-statement td,
@@ -781,9 +803,100 @@
             color: #f0f0f0;
         }
         
+        /* إصلاح date-header-row */
+        body.dark-theme .date-header-row {
+            background-color: #0f141f !important;
+            color: #ffffff !important;
+        }
+        
+        body.dark-theme .date-header-row td,
+        body.dark-theme .date-header-row th {
+            background-color: #0f141f !important;
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+        
+        /* إصلاح حقول البحث */
+        body.dark-theme #storeSearchInput,
+        body.dark-theme input[type="search"],
+        body.dark-theme input[type="text"].search-input {
+            background-color: #1a1f2e !important;
+            color: #f0f0f0 !important;
+            border-color: #3a3f4e !important;
+        }
+        
+        body.dark-theme #storeSearchInput::placeholder,
+        body.dark-theme input[type="search"]::placeholder {
+            color: #808080 !important;
+        }
+        
+        /* إصلاح table-responsive */
+        body.dark-theme .table-responsive {
+            background-color: transparent !important;
+        }
+        
+        body.dark-theme .table-responsive table {
+            background-color: #1a1f2e !important;
+        }
+        
+        /* إصلاح الأزرار outline-dark */
+        body.dark-theme .btn-outline-dark {
+            color: #f0f0f0 !important;
+            border-color: #f0f0f0 !important;
+            background-color: transparent;
+        }
+        
+        body.dark-theme .btn-outline-dark:hover {
+            color: #0f0f0f !important;
+            background-color: #f0f0f0 !important;
+            border-color: #f0f0f0 !important;
+        }
+        
+        /* إصلاح أزرار التصدير */
+        body.dark-theme .export-btn {
+            background-color: #252a3a !important;
+            color: #f0f0f0 !important;
+            border-color: #3a3f4e !important;
+        }
+        
+        body.dark-theme .export-btn:hover {
+            background-color: #374151 !important;
+            color: #ffffff !important;
+            border-color: #4a5568 !important;
+        }
+        
+        /* إصلاح جميع الأزرار outline في الوضع الداكن */
+        body.dark-theme .btn-outline-primary,
+        body.dark-theme .btn-outline-secondary,
+        body.dark-theme .btn-outline-success,
+        body.dark-theme .btn-outline-danger,
+        body.dark-theme .btn-outline-warning,
+        body.dark-theme .btn-outline-info {
+            background-color: transparent;
+        }
+        
+        body.dark-theme .btn-outline-primary:hover {
+            color: #fff !important;
+        }
+        
+        /* تأكد من وضوح جميع النصوص في الجداول */
+        body.dark-theme table,
+        body.dark-theme table * {
+            color: #f0f0f0 !important;
+        }
+        
+        body.dark-theme table thead {
+            background-color: #0f141f !important;
+        }
+        
+        body.dark-theme table thead th {
+            color: #ffffff !important;
+            font-weight: 600 !important;
+        }
+        
         /* ============= تطبيق الألوان المخصصة ============= */
         :root {
-            --primary-color: #007bff;
+            --primary-color: #c4123f;
             --secondary-color: #6c757d;
             --text-color: #212529;
             --font-size-base: 14px;
@@ -794,8 +907,29 @@
         }
         
         body {
-            color: var(--text-color);
+            color: var(--text-color) !important;
             font-size: var(--font-size-base);
+        }
+        
+        /* تطبيق لون النص على جميع العناصر */
+        body * {
+            color: inherit;
+        }
+        
+        /* تطبيق لون النص المخصص */
+        body[data-text-color] {
+            color: var(--text-color) !important;
+        }
+        
+        body[data-text-color] p,
+        body[data-text-color] span,
+        body[data-text-color] div,
+        body[data-text-color] li,
+        body[data-text-color] td,
+        body[data-text-color] label,
+        body[data-text-color] .form-control,
+        body[data-text-color] .form-select {
+            color: inherit !important;
         }
         
         .btn-primary {
