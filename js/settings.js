@@ -36,8 +36,8 @@
 
         // إعدادات المالية والعملة
         financial: {
-            currency: 'SAR',             // رمز العملة
-            currencyName: 'ريال',        // اسم العملة
+            currency: 'YER',             // رمز العملة
+            currencyName: 'ريال يمني',    // اسم العملة
             currencyPosition: 'after',   // موضع العملة: before | after
             decimalSeparator: '.',       // الفاصل العشري
             thousandsSeparator: ',',     // فاصل الآلاف

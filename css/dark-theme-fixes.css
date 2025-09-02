@@ -314,6 +314,172 @@ body.dark-theme [class*="text-"] {
     opacity: 1 !important;
 }
 
+/* إصلاح ألوان النصوص الخاصة بـ Bootstrap */
+body.dark-theme .text-success {
+    color: #10b981 !important; /* أخضر فاتح */
+}
+
+body.dark-theme .text-danger {
+    color: #ef4444 !important; /* أحمر فاتح */
+}
+
+body.dark-theme .text-warning {
+    color: #f59e0b !important; /* برتقالي فاتح */
+}
+
+body.dark-theme .text-info {
+    color: #3b82f6 !important; /* أزرق فاتح */
+}
+
+body.dark-theme .text-primary {
+    color: #e85d75 !important; /* لون رئيسي فاتح مشتق من #c4123f */
+}
+
+/* إصلاح أيقونات البحث */
+body.dark-theme .fa-search,
+body.dark-theme .fas.fa-search {
+    color: #9ca3af !important;
+}
+
+body.dark-theme .btn .fa-search {
+    color: inherit !important;
+}
+
+/* إصلاح أزرار outline-primary */
+body.dark-theme .btn-outline-primary {
+    color: #e85d75 !important;
+    border-color: #e85d75 !important;
+    background-color: transparent;
+}
+
+body.dark-theme .btn-outline-primary:hover {
+    color: #ffffff !important;
+    background-color: #c4123f !important;
+    border-color: #c4123f !important;
+}
+
+body.dark-theme .btn-outline-primary.active {
+    color: #ffffff !important;
+    background-color: #c4123f !important;
+    border-color: #c4123f !important;
+}
+
+/* إصلاح date-header-row */
+body.dark-theme .date-header-row {
+    background-color: #0a0d15 !important;
+}
+
+body.dark-theme .date-header-row td {
+    background-color: #0a0d15 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    border-color: #1a1f2e !important;
+}
+
+/* إصلاح info-card */
+body.dark-theme .info-card {
+    background-color: #1a1f2e !important;
+    border-color: #2a2f3e !important;
+    color: #f0f0f0 !important;
+}
+
+body.dark-theme .info-card.border-success {
+    border-color: #10b981 !important;
+    border-width: 2px !important;
+}
+
+body.dark-theme .info-card.border-danger {
+    border-color: #ef4444 !important;
+    border-width: 2px !important;
+}
+
+body.dark-theme .info-card.border-warning {
+    border-color: #f59e0b !important;
+    border-width: 2px !important;
+}
+
+body.dark-theme .info-card.border-info {
+    border-color: #3b82f6 !important;
+    border-width: 2px !important;
+}
+
+/* إصلاح stats-container */
+body.dark-theme .stats-container {
+    background-color: transparent !important;
+}
+
+body.dark-theme .stats-container .stat-card {
+    background-color: #1a1f2e !important;
+    border: 1px solid #2a2f3e !important;
+    color: #f0f0f0 !important;
+}
+
+body.dark-theme .stats-container .stat-card h3 {
+    color: #ffffff !important;
+}
+
+body.dark-theme .stats-container .stat-card p {
+    color: #9ca3af !important;
+}
+
+/* إصلاح العملة */
+body.dark-theme .currency {
+    color: inherit !important;
+}
+
+/* إصلاح checkboxes في المظهر الداكن */
+body.dark-theme .form-check-input {
+    background-color: #2a2f3e !important;
+    border-color: #4a5568 !important;
+}
+
+body.dark-theme .form-check-input:checked {
+    background-color: #c4123f !important;
+    border-color: #c4123f !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e") !important;
+}
+
+body.dark-theme .form-check-input:focus {
+    border-color: #e85d75 !important;
+    box-shadow: 0 0 0 0.25rem rgba(228, 93, 117, 0.25) !important;
+}
+
+body.dark-theme .form-check-input:disabled {
+    background-color: #1a1f2e !important;
+    opacity: 0.5 !important;
+}
+
+/* إصلاح radio buttons */
+body.dark-theme .form-check-input[type="radio"] {
+    background-color: #2a2f3e !important;
+    border-color: #4a5568 !important;
+}
+
+body.dark-theme .form-check-input[type="radio"]:checked {
+    background-color: #c4123f !important;
+    border-color: #c4123f !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e") !important;
+}
+
+/* إصلاح switches */
+body.dark-theme .form-switch .form-check-input {
+    background-color: #4a5568 !important;
+    border-color: #4a5568 !important;
+}
+
+body.dark-theme .form-switch .form-check-input:checked {
+    background-color: #c4123f !important;
+    border-color: #c4123f !important;
+}
+
+body.dark-theme .form-switch .form-check-input:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%234a5568'/%3e%3c/svg%3e") !important;
+}
+
+body.dark-theme .form-switch .form-check-input:checked:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23c4123f'/%3e%3c/svg%3e") !important;
+}
+
 /* إصلاح أي عنصر قد يكون شفاف */
 body.dark-theme * {
     opacity: 1 !important;

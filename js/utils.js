@@ -178,9 +178,23 @@ function showNotification(message, type) {
   const notification = document.getElementById('notification');
   const notificationText = document.getElementById('notificationText');
   if (!notification || !notificationText) return;
+  
+  // إلغاء أي مؤقت سابق
+  if (notification.hideTimeout) {
+    clearTimeout(notification.hideTimeout);
+  }
+  
   notificationText.textContent = message;
   notification.className = `notification ${type} show`;
-  setTimeout(() => { notification.className = 'notification'; }, 3000);
+  
+  // إخفاء الإشعار بعد 3 ثواني
+  notification.hideTimeout = setTimeout(() => { 
+    notification.classList.remove('show');
+    // إزالة الفئات بعد انتهاء الحركة
+    setTimeout(() => {
+      notification.className = 'notification';
+    }, 300);
+  }, 3000);
 }
 
 /**
