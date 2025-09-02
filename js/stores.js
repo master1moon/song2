@@ -121,7 +121,7 @@ async function renderStoresList() {
           ${phoneInfo ? `<br><small class="text-muted">${phoneInfo}</small>` : ''}
         </div>
         <div class="text-end">
-          <small class="${balanceClass} fw-bold">${formatNumber(Math.abs(store.balance))} ريال</small>
+          <small class="${balanceClass} fw-bold currency">${formatNumber(Math.abs(store.balance))}</small>
           <br><small class="text-muted">${store.balance >= 0 ? 'دائن' : 'مدين'}</small>
         </div>
       </div>`;
@@ -354,7 +354,7 @@ function showStoreDetails(storeId) {
         <div class="info-card ${balance >= 0 ? 'border-success' : 'border-danger'}">
           <i class="fas fa-wallet ${balance >= 0 ? 'text-success' : 'text-danger'} mb-2"></i>
           <h6>الرصيد الحالي</h6>
-          <p class="h4 mb-0 ${balance >= 0 ? 'text-success' : 'text-danger'} currency">${formatNumber(Math.abs(balance))}</p>
+          <p class="h4 mb-0 ${balance >= 0 ? 'text-success' : 'text-danger'}"><span class="currency">${formatNumber(Math.abs(balance))}</span></p>
           <small class="text-muted">${balance >= 0 ? 'دائن' : 'مدين'}</small>
         </div>
       </div>

@@ -909,12 +909,12 @@ function buildAccountStatementHTML(store, periodText, allTransactions, previousB
         <div class="summary-box">
             <h3>📊 ملخص الحساب</h3>
             <div class="summary-grid">
-                <div>• إجمالي المبيعات: <strong>${formatNumber(totalDebits)} ريال</strong></div>
-                <div>• إجمالي التسديدات: <strong>${formatNumber(totalCredits)} ريال</strong></div>
+                <div>• إجمالي المبيعات: <strong class="currency">${formatNumber(totalDebits)}</strong></div>
+                <div>• إجمالي التسديدات: <strong class="currency">${formatNumber(totalCredits)}</strong></div>
                 <div>• عدد عمليات البيع: <strong>${allTransactions.filter(t => t.type === 'sale').length}</strong></div>
                 <div>• عدد عمليات التسديد: <strong>${allTransactions.filter(t => t.type === 'payment').length}</strong></div>
-                <div>• صافي الحركة: <strong>${formatNumber(totalDebits - totalCredits)} ريال</strong></div>
-                <div>• الرصيد النهائي: <strong>${formatNumber(Math.abs(finalBalance))} ريال ${finalBalanceText}</strong></div>
+                <div>• صافي الحركة: <strong class="currency">${formatNumber(totalDebits - totalCredits)}</strong></div>
+                <div>• الرصيد النهائي: <strong class="currency">${formatNumber(Math.abs(finalBalance))}</strong> <span>${finalBalanceText}</span></div>
             </div>
         </div>
         
@@ -1733,9 +1733,9 @@ function exportSummaries(format) {
     showNotification('تم تصدير الملخصات إلى Excel', 'success');
   } else if (format === 'txt') {
     let content = `ملخصات مرئية - المدة: ${fromDate} إلى ${toDate}\n\n`;
-    content += `إجمالي المبيعات: ${formatNumber(totalSales)} ريال\n`;
-    content += `إجمالي التسديدات: ${formatNumber(totalPayments)} ريال\n`;
-    content += `إجمالي المصروفات: ${formatNumber(totalExpenses)} ريال\n`;
+    content += `إجمالي المبيعات: ${formatNumber(totalSales)}\n`;
+    content += `إجمالي التسديدات: ${formatNumber(totalPayments)}\n`;
+    content += `إجمالي المصروفات: ${formatNumber(totalExpenses)}\n`;
     downloadTextFile(content, `ملخصات_${moment().format('YYYY-MM-DD')}.txt`);
     showNotification('تم تصدير الملخصات إلى ملف نصي', 'success');
   } else if (format === 'pdf' || format === 'print') {
@@ -1763,7 +1763,7 @@ function exportDebts(format) {
   } else if (format === 'txt') {
     let content = `تقرير الديون - المدة: ${fromDate} إلى ${toDate}\n\n`;
     debtData.forEach(debt => {
-      content += `${debt['اسم المحل']}: ${formatNumber(debt['المتبقي'])} ريال\n`;
+      content += `${debt['اسم المحل']}: ${formatNumber(debt['المتبقي'])}\n`;
     });
     downloadTextFile(content, `تقرير_الديون_${moment().format('YYYY-MM-DD')}.txt`);
     showNotification('تم تصدير تقرير الديون إلى ملف نصي', 'success');
@@ -1784,7 +1784,7 @@ function exportProfit(format) {
   } else if (format === 'txt') {
     let content = `تقرير الأرباح والخسائر - المدة: ${fromDate} إلى ${toDate}\n\n`;
     profitData.forEach(item => {
-      content += `${item['الوصف']}: ${formatNumber(item['المبلغ'])} ريال\n`;
+      content += `${item['الوصف']}: ${formatNumber(item['المبلغ'])}\n`;
     });
     downloadTextFile(content, `تقرير_الأرباح_${moment().format('YYYY-MM-DD')}.txt`);
     showNotification('تم تصدير تقرير الأرباح إلى ملف نصي', 'success');
@@ -1900,9 +1900,9 @@ function buildPrintPageHTML(title, period, data, type) {
   if (type === 'summaries') {
     html += `
         <table>
-            <tr><td>إجمالي المبيعات</td><td class="currency">${formatNumber(data.totalSales)} ريال</td></tr>
-            <tr><td>إجمالي التسديدات</td><td class="currency">${formatNumber(data.totalPayments)} ريال</td></tr>
-            <tr><td>إجمالي المصروفات</td><td class="currency">${formatNumber(data.totalExpenses)} ريال</td></tr>
+            <tr><td>إجمالي المبيعات</td><td class="currency">${formatNumber(data.totalSales)}</td></tr>
+            <tr><td>إجمالي التسديدات</td><td class="currency">${formatNumber(data.totalPayments)}</td></tr>
+            <tr><td>إجمالي المصروفات</td><td class="currency">${formatNumber(data.totalExpenses)}</td></tr>
         </table>`;
   } else if (type === 'debts') {
     html += `
@@ -1920,9 +1920,9 @@ function buildPrintPageHTML(title, period, data, type) {
       html += `
                 <tr>
                     <td>${row['اسم المحل']}</td>
-                    <td class="currency">${formatNumber(row['إجمالي المبيعات'])} ريال</td>
-                    <td class="currency">${formatNumber(row['المدفوع'])} ريال</td>
-                    <td class="currency">${formatNumber(row['المتبقي'])} ريال</td>
+                    <td class="currency">${formatNumber(row['إجمالي المبيعات'])}</td>
+                    <td class="currency">${formatNumber(row['المدفوع'])}</td>
+                    <td class="currency">${formatNumber(row['المتبقي'])}</td>
                 </tr>`;
     });
     html += `
@@ -1942,7 +1942,7 @@ function buildPrintPageHTML(title, period, data, type) {
       html += `
                 <tr>
                     <td>${row['الوصف']}</td>
-                    <td class="currency">${formatNumber(row['المبلغ'])} ريال</td>
+                    <td class="currency">${formatNumber(row['المبلغ'])}</td>
                 </tr>`;
     });
     html += `

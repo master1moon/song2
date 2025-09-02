@@ -802,8 +802,8 @@
                 unsavedChanges = {};
                 
                 // تحديث واجهة المستخدم
-                if (typeof SettingsUI !== 'undefined' && SettingsUI.loadSettingsToUI) {
-                    SettingsUI.loadSettingsToUI(currentSettings);
+                if (typeof SettingsUI !== 'undefined' && SettingsUI.reload) {
+                    SettingsUI.reload();
                 }
                 
                 if (typeof showNotification === 'function') {
