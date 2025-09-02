@@ -37,7 +37,7 @@
         // إعدادات المالية والعملة
         financial: {
             currency: 'YER',             // رمز العملة
-            currencyName: 'ريال يمني',    // اسم العملة
+            currencyName: 'ريال',         // اسم العملة
             currencyPosition: 'after',   // موضع العملة: before | after
             decimalSeparator: '.',       // الفاصل العشري
             thousandsSeparator: ',',     // فاصل الآلاف
@@ -384,6 +384,20 @@
         document.documentElement.style.setProperty('--secondary-color', secondaryColor);
         document.documentElement.style.setProperty('--text-color', adjustedTextColor);
         
+        // حساب لون النص المناسب للون الأساسي (للأزرار والخلفيات الملونة)
+        const primaryRgb = hexToRgb(primaryColor);
+        if (primaryRgb) {
+            const primaryLuminance = getLuminance(primaryRgb);
+            const primaryTextColor = primaryLuminance > 0.5 ? '#000000' : '#ffffff';
+            document.documentElement.style.setProperty('--primary-color-text', primaryTextColor);
+            
+            // حساب لون hover
+            const hoverColor = primaryLuminance > 0.5 
+                ? shadeColor(primaryColor, -20) // أغمق قليلاً
+                : shadeColor(primaryColor, 20);  // أفتح قليلاً
+            document.documentElement.style.setProperty('--primary-color-hover', hoverColor);
+        }
+        
         // تطبيق لون النص مباشرة
         document.body.style.color = adjustedTextColor;
         document.body.setAttribute('data-text-color', 'custom');
@@ -475,6 +489,30 @@
         
         return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     }
+    
+    /**
+     * تغيير درجة اللون (أفتح أو أغمق)
+     * @param {string} color - اللون بصيغة hex
+     * @param {number} percent - النسبة المئوية للتغيير (موجب = أفتح، سالب = أغمق)
+     */
+    function shadeColor(color, percent) {
+        const rgb = hexToRgb(color);
+        if (!rgb) return color;
+        
+        const t = percent < 0 ? 0 : 255;
+        const p = percent < 0 ? percent * -1 : percent;
+        const w = p / 100;
+        
+        const r = Math.round((t - rgb.r) * w + rgb.r);
+        const g = Math.round((t - rgb.g) * w + rgb.g);
+        const b = Math.round((t - rgb.b) * w + rgb.b);
+        
+        return '#' + [r, g, b].map(x => {
+            const hex = x.toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        }).join('');
+    }
+    
     /**
      * تطبيق إعدادات المالية والعملة
      */
@@ -690,6 +728,14 @@
         // حفظ القيمة القديمة للتراجع
         const oldValue = obj[keys[keys.length - 1]];
         unsavedChanges[path] = { old: oldValue, new: value };
+        
+        // حفظ نسخة من الإعدادات الحالية قبل التغيير
+        if (oldValue !== value) {
+            if (settingsHistory.length >= 10) {
+                settingsHistory.shift(); // الاحتفاظ بآخر 10 تغييرات فقط
+            }
+            settingsHistory.push(JSON.stringify(currentSettings));
+        }
         
         // تعيين القيمة الجديدة
         obj[keys[keys.length - 1]] = value;

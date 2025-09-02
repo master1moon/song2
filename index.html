@@ -1292,9 +1292,23 @@
         .expense-type-picker .form-control{ flex:1; }
         
         /* تذييل الصفحة */
-        .site-footer{ background: var(--primary-color); color:#ecf0f1; border-top: 1px solid rgba(255,255,255,0.1); }
-        .site-footer a{ color:#ffd166; text-decoration: none; }
-        .site-footer a:hover{ color:#ffe08a; text-decoration: underline; }
+        .site-footer{ 
+            background: var(--primary-color); 
+            color: var(--primary-color-text, #ecf0f1); 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+        }
+        
+        .site-footer a {
+            color: var(--primary-color-text, #ecf0f1);
+            opacity: 0.8;
+            text-decoration: none;
+        }
+        
+        .site-footer a:hover {
+            color: var(--primary-color-text, #ecf0f1);
+            opacity: 1;
+            text-decoration: underline;
+        }
         .site-footer .developer{ font-weight: 600; }
         .site-footer .contact i{ margin-left:6px; }
         .site-footer small{ color:#bdc3c7; }
@@ -3269,7 +3283,7 @@
             
             // إجمالي الكروت لا يعتمد على التاريخ
             const totalCards = data.inventory.reduce((sum, item) => sum + item.quantity, 0);
-            document.getElementById('totalCards').textContent = formatNumber(totalCards);
+            document.getElementById('totalCards').textContent = formatNumber(totalCards, false);
             
             // تطبيق الفلاتر الزمنية على مبيعات/تسديدات/مصروفات
             const filteredSales = filterByDateRange(data.sales, s => s.date);
@@ -5990,6 +6004,7 @@
                         <div class="col-md-6 text-md-end d-flex flex-column justify-content-center">
                             <div>جميع الحقوق محفوظة © 2025 نجيب المقداد</div>
                             <small class="mt-1">نسخة الويب التقدمية - تعمل دون إنترنت بعد التحميل الأول</small>
+                            <small class="mt-1">⚖️ يُحظر نسخ أو توزيع هذا النظام بدون إذن مسبق</small>
                         </div>
                     </div>
                 </div>
