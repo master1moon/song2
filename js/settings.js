@@ -260,6 +260,11 @@
             
             // تطبيق الإعدادات المحملة
             applySettings(currentSettings);
+            
+            // حفظ الحالة الأولية في التاريخ
+            settingsHistory = [];
+            settingsHistory.push(JSON.stringify(currentSettings));
+            
             console.log('تم تحميل الإعدادات بنجاح');
         } catch (error) {
             console.error('خطأ في تحميل الإعدادات:', error);
@@ -729,11 +734,18 @@
         const oldValue = obj[keys[keys.length - 1]];
         unsavedChanges[path] = { old: oldValue, new: value };
         
-        // حفظ نسخة من الإعدادات الحالية قبل التغيير
-        if (oldValue !== value) {
-            if (settingsHistory.length >= 10) {
-                settingsHistory.shift(); // الاحتفاظ بآخر 10 تغييرات فقط
+        // حفظ نسخة من الإعدادات الحالية قبل التغيير (فقط إذا كانت القيمة مختلفة)
+        if (oldValue !== value && settingsHistory.length > 0) {
+            // التحقق من أن آخر حالة في التاريخ مختلفة عن الحالة الحالية
+            const lastHistory = JSON.parse(settingsHistory[settingsHistory.length - 1]);
+            if (JSON.stringify(lastHistory) !== JSON.stringify(currentSettings)) {
+                if (settingsHistory.length >= 10) {
+                    settingsHistory.shift(); // الاحتفاظ بآخر 10 تغييرات فقط
+                }
+                settingsHistory.push(JSON.stringify(currentSettings));
             }
+        } else if (oldValue !== value && settingsHistory.length === 0) {
+            // إذا كان التاريخ فارغاً، أضف الحالة الحالية
             settingsHistory.push(JSON.stringify(currentSettings));
         }
         
