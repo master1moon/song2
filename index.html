@@ -1049,6 +1049,11 @@
                         <i class="fas fa-trash"></i> سلة المحذوفات
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="settings">
+                        <i class="fas fa-cog"></i> الإعدادات
+                    </a>
+                </li>
             </ul>
         </div>
 
@@ -1714,6 +1719,58 @@
                     </div>
                 </div>
             </div>
+
+            <!-- قسم الإعدادات -->
+            <div id="settings" class="section" style="display:none;">
+                <div class="header-bar">
+                    <h3 class="page-title"><i class="fas fa-cog"></i> الإعدادات</h3>
+                    <div>
+                        <button class="btn btn-success btn-sm" onclick="AppSettings.save(true)">
+                            <i class="fas fa-save"></i> حفظ التغييرات
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="AppSettings.undo()">
+                            <i class="fas fa-undo"></i> تراجع
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="if(confirm('هل أنت متأكد من إعادة تعيين جميع الإعدادات؟')) AppSettings.reset()">
+                            <i class="fas fa-redo"></i> إعادة تعيين
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- القائمة الجانبية للإعدادات -->
+                    <div class="col-md-3">
+                        <div class="list-group" id="settingsTabs">
+                            <a href="#" class="list-group-item list-group-item-action active" data-tab="display">
+                                <i class="fas fa-palette"></i> العرض والمظهر
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" data-tab="financial">
+                                <i class="fas fa-money-bill"></i> المالية والعملة
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" data-tab="notifications">
+                                <i class="fas fa-bell"></i> التنبيهات
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" data-tab="backup">
+                                <i class="fas fa-cloud-upload-alt"></i> النسخ الاحتياطي
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" data-tab="security">
+                                <i class="fas fa-shield-alt"></i> الأمان
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" data-tab="performance">
+                                <i class="fas fa-tachometer-alt"></i> الأداء
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- محتوى الإعدادات -->
+                    <div class="col-md-9">
+                        <div class="section-content" id="settingsContent">
+                            <!-- سيتم إضافة محتوى التبويبات هنا -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -5159,12 +5216,20 @@
         </div>
     </div>
 
-    <!-- 
+        <!--
         نظام التخزين المؤقت الذكي
         يحسن الأداء بنسبة 60-80% عن طريق حفظ نتائج الحسابات المعقدة
         يقلل من الحسابات المتكررة ويسرع استجابة التطبيق
     -->
     <script src="js/smartCache.js"></script>
+    
+    <!--
+        نظام الإعدادات المتقدم
+        يوفر واجهة شاملة لتخصيص جميع جوانب التطبيق
+        يدعم الحفظ الذكي مع إمكانية التراجع والاستعادة
+    -->
+    <script src="js/settings.js"></script>
+    <script src="js/settingsUI.js"></script>
     
     <!-- 
         مراقب أداء الكاش (اختياري)

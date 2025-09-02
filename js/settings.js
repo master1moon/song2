@@ -1,0 +1,736 @@
+/**
+ * ملف settings.js - نظام إدارة الإعدادات المتقدم
+ * يوفر واجهة شاملة لتخصيص جميع جوانب التطبيق
+ * يدعم الحفظ الذكي مع إمكانية التراجع والاستعادة
+ * يتكامل بسلاسة مع جميع وظائف التطبيق الموجودة
+ */
+
+(function() {
+    'use strict';
+
+    /**
+     * كائن الإعدادات الافتراضية
+     * يحتوي على جميع الإعدادات القابلة للتخصيص مع قيمها الافتراضية
+     * مصمم ليتوافق مع الوضع الحالي للتطبيق لضمان عدم حدوث تعارض
+     */
+    const defaultSettings = {
+        // إعدادات العرض والمظهر
+        display: {
+            language: 'ar',              // اللغة: ar | en
+            theme: 'light',              // المظهر: light | dark | auto
+            fontSize: 'medium',          // حجم الخط: small | medium | large | xlarge
+            fontFamily: 'default',       // نوع الخط
+            primaryColor: '#007bff',     // اللون الرئيسي
+            secondaryColor: '#6c757d',   // اللون الثانوي
+            density: 'normal',           // كثافة العرض: compact | normal | comfortable
+            animations: true,            // تفعيل الحركات
+            direction: 'rtl',           // اتجاه الواجهة: rtl | ltr | auto
+            showIcons: true,            // عرض الأيقونات
+            roundedCorners: true,       // الزوايا المستديرة
+            sidebarPosition: 'right'    // موضع الشريط الجانبي
+        },
+
+        // إعدادات المالية والعملة
+        financial: {
+            currency: 'SAR',             // رمز العملة
+            currencyName: 'ريال',        // اسم العملة
+            currencyPosition: 'after',   // موضع العملة: before | after
+            decimalSeparator: '.',       // الفاصل العشري
+            thousandsSeparator: ',',     // فاصل الآلاف
+            decimals: 2,                 // عدد الخانات العشرية
+            numberFormat: 'en',          // صيغة الأرقام: ar | en
+            taxRate: 15,                 // نسبة الضريبة %
+            taxIncluded: false,          // الضريبة مضمنة في السعر
+            roundingMethod: 'normal',    // طريقة التقريب
+            showZeroDecimals: false,     // عرض الأصفار العشرية
+            negativeFormat: 'minus'      // صيغة الأرقام السالبة
+        },
+
+        // إعدادات التنبيهات والإشعارات
+        notifications: {
+            enabled: true,                          // تفعيل التنبيهات
+            position: 'top-right',                  // موضع التنبيهات
+            duration: 3000,                         // مدة العرض (مللي ثانية)
+            soundEnabled: true,                     // الأصوات
+            soundVolume: 50,                        // مستوى الصوت %
+            browserNotifications: false,            // إشعارات المتصفح
+            lowStock: {
+                enabled: true,                      // تنبيه المخزون المنخفض
+                threshold: 10,                      // الحد الأدنى
+                urgentThreshold: 5,                 // الحد الحرج
+                checkInterval: 'daily'              // فترة الفحص
+            },
+            dueDates: {
+                enabled: true,                      // تنبيه المواعيد المستحقة
+                daysBefore: 3,                      // عدد الأيام قبل الاستحقاق
+                reminderTime: '09:00',              // وقت التذكير
+                repeatReminder: true                // تكرار التذكير
+            },
+            targets: {
+                enabled: true,                      // تنبيهات الأهداف
+                dailyTarget: true,                  // الهدف اليومي
+                weeklyTarget: true,                 // الهدف الأسبوعي
+                monthlyTarget: true                 // الهدف الشهري
+            }
+        },
+
+        // إعدادات النسخ الاحتياطي والمزامنة
+        backup: {
+            autoBackup: true,                      // النسخ التلقائي
+            frequency: 'daily',                    // التكرار: hourly | daily | weekly | monthly
+            time: '02:00',                        // وقت النسخ
+            keepCount: 7,                         // عدد النسخ المحفوظة
+            location: 'local',                    // المكان: local | github | gdrive | dropbox
+            compress: true,                       // ضغط البيانات
+            encrypt: true,                        // تشفير النسخ
+            includeSettings: true,                // تضمين الإعدادات
+            includeReports: false,                // تضمين التقارير
+            notifyOnSuccess: false,               // إشعار عند النجاح
+            notifyOnFailure: true,                // إشعار عند الفشل
+            autoRestore: false,                   // استعادة تلقائية عند الخطأ
+            cloudSync: false                      // المزامنة السحابية
+        },
+
+        // إعدادات الأمان والخصوصية
+        security: {
+            appLock: false,                       // قفل التطبيق
+            lockType: 'none',                     // نوع القفل: none | pin | password | pattern | biometric
+            autoLockMinutes: 15,                  // القفل التلقائي (دقائق)
+            pinLength: 4,                         // طول رمز PIN
+            passwordMinLength: 8,                 // الحد الأدنى لكلمة المرور
+            requireUppercase: true,               // طلب أحرف كبيرة
+            requireNumbers: true,                 // طلب أرقام
+            requireSpecialChars: false,           // طلب رموز خاصة
+            encryptSensitive: true,               // تشفير البيانات الحساسة
+            hideBalances: false,                  // إخفاء الأرصدة
+            blurSensitive: false,                 // طمس البيانات الحساسة
+            activityLog: true,                    // سجل النشاطات
+            maxLoginAttempts: 5,                  // محاولات الدخول القصوى
+            sessionTimeout: 30,                   // مهلة الجلسة (دقائق)
+            twoFactorAuth: false                  // التحقق بخطوتين
+        },
+
+        // إعدادات التقارير والطباعة
+        reports: {
+            companyName: '',                      // اسم الشركة
+            companyLogo: '',                      // شعار الشركة (base64)
+            companyPhone: '',                     // هاتف الشركة
+            companyEmail: '',                     // بريد الشركة
+            companyAddress: '',                   // عنوان الشركة
+            commercialRegister: '',               // السجل التجاري
+            taxNumber: '',                        // الرقم الضريبي
+            reportFooter: '',                     // تذييل التقارير
+            dateFormat: 'DD/MM/YYYY',            // صيغة التاريخ
+            timeFormat: '24h',                    // صيغة الوقت: 12h | 24h
+            paperSize: 'A4',                      // حجم الورق
+            orientation: 'portrait',              // الاتجاه: portrait | landscape
+            margins: {
+                top: 20,
+                right: 20,
+                bottom: 20,
+                left: 20
+            },
+            showGridLines: true,                  // عرض خطوط الشبكة
+            showPageNumbers: true,                // عرض أرقام الصفحات
+            defaultExportFormat: 'pdf',          // الصيغة الافتراضية: pdf | excel | csv
+            includeCharts: true,                  // تضمين الرسوم البيانية
+            watermark: '',                        // العلامة المائية
+            qrCode: false                         // رمز QR للتحقق
+        },
+
+        // إعدادات الأداء والكاش
+        performance: {
+            cacheEnabled: true,                   // تفعيل الكاش
+            cacheSize: 'medium',                  // الحجم: small | medium | large
+            cacheDuration: 10,                    // المدة (دقائق)
+            lazyLoading: true,                    // التحميل الكسول
+            itemsPerPage: 25,                     // عدد العناصر بالصفحة
+            preloadData: true,                    // تحميل البيانات مسبقاً
+            virtualScrolling: false,              // التمرير الافتراضي
+            imageOptimization: true,              // تحسين الصور
+            compressionLevel: 'medium',           // مستوى الضغط
+            offlineMode: true,                    // الوضع دون اتصال
+            syncInterval: 5,                      // فترة المزامنة (دقائق)
+            reducedMotion: false,                 // تقليل الحركة
+            powerSaveMode: false                  // وضع توفير الطاقة
+        },
+
+        // إعدادات المخزون والمنتجات
+        inventory: {
+            trackStock: true,                     // تتبع المخزون
+            allowNegativeStock: false,            // السماح بمخزون سالب
+            defaultUnit: 'قطعة',                  // الوحدة الافتراضية
+            showStockAlerts: true,                // عرض تنبيهات المخزون
+            autoReorder: false,                   // إعادة الطلب التلقائي
+            reorderPoint: 10,                     // نقطة إعادة الطلب
+            barcodeScanning: false,               // مسح الباركود
+            batchTracking: false,                 // تتبع الدفعات
+            expiryTracking: false,                // تتبع الصلاحية
+            serialTracking: false,                // تتبع الأرقام التسلسلية
+            categoriesEnabled: true,              // تفعيل التصنيفات
+            brandsEnabled: false,                 // تفعيل العلامات التجارية
+            variantsEnabled: false,               // تفعيل المتغيرات
+            priceHistory: true                    // سجل الأسعار
+        },
+
+        // إعدادات المبيعات والفواتير
+        sales: {
+            invoicePrefix: 'INV-',                // بادئة الفاتورة
+            startingNumber: 1,                    // رقم البداية
+            autoIncrementNumber: true,            // ترقيم تلقائي
+            requireCustomer: true,                // طلب اختيار عميل
+            defaultPaymentMethod: 'cash',         // طريقة الدفع الافتراضية
+            allowPartialPayment: true,            // السماح بالدفع الجزئي
+            allowDiscount: true,                  // السماح بالخصومات
+            maxDiscountPercent: 50,               // أقصى نسبة خصم %
+            requireDiscountReason: false,         // طلب سبب الخصم
+            printAfterSave: false,                // طباعة بعد الحفظ
+            emailAfterSave: false,                // إرسال بالبريد بعد الحفظ
+            showProfitInSales: false,            // عرض الربح في المبيعات
+            allowPriceEdit: true,                 // السماح بتعديل السعر
+            returnPeriodDays: 7,                  // فترة الإرجاع (أيام)
+            requireReturnReason: true             // طلب سبب الإرجاع
+        },
+
+        // إعدادات العملاء والموردين
+        customers: {
+            requirePhone: false,                  // طلب رقم الهاتف
+            requireEmail: false,                  // طلب البريد الإلكتروني
+            requireAddress: false,                // طلب العنوان
+            creditLimit: true,                    // حد الائتمان
+            defaultCreditLimit: 10000,           // الحد الافتراضي
+            loyaltyProgram: false,                // برنامج الولاء
+            pointsPerCurrency: 1,                 // نقاط لكل عملة
+            birthdayReminders: false,             // تذكير بأعياد الميلاد
+            customerGroups: true,                 // مجموعات العملاء
+            priceListsEnabled: false,             // قوائم الأسعار
+            statementPeriod: 'monthly',          // فترة الكشف
+            autoArchiveInactive: false,          // أرشفة غير النشطين تلقائياً
+            inactiveDays: 365                    // أيام عدم النشاط
+        },
+
+        // إعدادات متقدمة للمطورين
+        advanced: {
+            debugMode: false,                     // وضع التطوير
+            showConsoleErrors: false,             // عرض أخطاء وحدة التحكم
+            performanceMonitor: false,            // مراقب الأداء
+            apiEndpoint: '',                      // نقطة نهاية API
+            apiKey: '',                          // مفتاح API
+            webhooksEnabled: false,               // تفعيل Webhooks
+            webhookUrl: '',                      // رابط Webhook
+            customCSS: '',                       // CSS مخصص
+            customJS: '',                        // JavaScript مخصص
+            experimentalFeatures: false,         // الميزات التجريبية
+            telemetry: false,                    // إرسال بيانات الاستخدام
+            errorReporting: true,                // تقارير الأخطاء
+            maintenanceMode: false,              // وضع الصيانة
+            dataRetentionDays: 0,                // فترة الاحتفاظ بالبيانات (0 = دائم)
+            allowDataExport: true,               // السماح بتصدير البيانات
+            allowDataImport: true                // السماح باستيراد البيانات
+        }
+    };
+
+    /**
+     * كائن الإعدادات الحالية
+     * يتم تحميله من التخزين المحلي أو استخدام القيم الافتراضية
+     */
+    let currentSettings = {};
+    let settingsHistory = [];              // سجل التغييرات للتراجع
+    let unsavedChanges = {};              // التغييرات غير المحفوظة
+    let autoSaveTimer = null;             // مؤقت الحفظ التلقائي
+
+    /**
+     * تحميل الإعدادات من التخزين المحلي
+     * يدمج الإعدادات المحفوظة مع الافتراضية لضمان وجود جميع المفاتيح
+     */
+    function loadSettings() {
+        try {
+            const saved = localStorage.getItem('appSettings');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                // دمج عميق للإعدادات المحفوظة مع الافتراضية
+                currentSettings = deepMerge(defaultSettings, parsed);
+            } else {
+                currentSettings = JSON.parse(JSON.stringify(defaultSettings));
+            }
+            
+            // تطبيق الإعدادات المحملة
+            applySettings(currentSettings);
+            console.log('تم تحميل الإعدادات بنجاح');
+        } catch (error) {
+            console.error('خطأ في تحميل الإعدادات:', error);
+            currentSettings = JSON.parse(JSON.stringify(defaultSettings));
+        }
+    }
+
+    /**
+     * حفظ الإعدادات في التخزين المحلي
+     * يدعم الحفظ الذكي مع إمكانية التراجع
+     * @param {boolean} immediate - حفظ فوري أم مؤجل
+     */
+    function saveSettings(immediate = false) {
+        if (!immediate && autoSaveTimer) {
+            clearTimeout(autoSaveTimer);
+        }
+
+        const doSave = () => {
+            try {
+                // حفظ في السجل للتراجع
+                if (settingsHistory.length >= 10) {
+                    settingsHistory.shift(); // الاحتفاظ بآخر 10 تغييرات فقط
+                }
+                settingsHistory.push(JSON.stringify(currentSettings));
+
+                // حفظ في التخزين المحلي
+                localStorage.setItem('appSettings', JSON.stringify(currentSettings));
+                localStorage.setItem('appSettingsBackup', JSON.stringify(currentSettings));
+                localStorage.setItem('appSettingsTimestamp', new Date().toISOString());
+
+                // مسح التغييرات غير المحفوظة
+                unsavedChanges = {};
+
+                // إشعار بالحفظ
+                if (typeof showNotification === 'function') {
+                    showNotification('تم حفظ الإعدادات بنجاح', 'success');
+                }
+
+                console.log('تم حفظ الإعدادات');
+                return true;
+            } catch (error) {
+                console.error('خطأ في حفظ الإعدادات:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification('فشل حفظ الإعدادات', 'error');
+                }
+                return false;
+            }
+        };
+
+        if (immediate) {
+            return doSave();
+        } else {
+            // حفظ مؤجل بعد 2 ثانية من آخر تغيير
+            autoSaveTimer = setTimeout(doSave, 2000);
+        }
+    }
+
+    /**
+     * تطبيق الإعدادات على التطبيق
+     * يحدث جميع الوظائف المتأثرة بالإعدادات
+     * @param {object} settings - الإعدادات المراد تطبيقها
+     */
+    function applySettings(settings) {
+        // تطبيق إعدادات العرض
+        applyDisplaySettings(settings.display);
+        
+        // تطبيق إعدادات المالية
+        applyFinancialSettings(settings.financial);
+        
+        // تطبيق إعدادات التنبيهات
+        applyNotificationSettings(settings.notifications);
+        
+        // تطبيق إعدادات الأداء
+        applyPerformanceSettings(settings.performance);
+        
+        // تطبيق إعدادات الأمان
+        applySecuritySettings(settings.security);
+
+        // إطلاق حدث تغيير الإعدادات
+        document.dispatchEvent(new CustomEvent('settingsChanged', { 
+            detail: settings 
+        }));
+    }
+
+    /**
+     * تطبيق إعدادات العرض والمظهر
+     */
+    function applyDisplaySettings(display) {
+        // تطبيق اللغة
+        document.documentElement.lang = display.language;
+        document.documentElement.dir = display.direction === 'auto' ? 
+            (display.language === 'ar' ? 'rtl' : 'ltr') : display.direction;
+
+        // تطبيق المظهر (Theme)
+        if (display.theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        } else if (display.theme === 'auto') {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.body.classList.toggle('dark-theme', prefersDark);
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
+
+        // تطبيق حجم الخط
+        document.documentElement.style.setProperty('--font-size-base', 
+            getFontSize(display.fontSize));
+
+        // تطبيق الألوان
+        document.documentElement.style.setProperty('--primary-color', display.primaryColor);
+        document.documentElement.style.setProperty('--secondary-color', display.secondaryColor);
+
+        // تطبيق كثافة العرض
+        document.body.setAttribute('data-density', display.density);
+
+        // تطبيق الحركات
+        document.body.classList.toggle('no-animations', !display.animations);
+    }
+
+    /**
+     * تطبيق إعدادات المالية والعملة
+     */
+    function applyFinancialSettings(financial) {
+        // تحديث دالة formatNumber إن وجدت
+        if (typeof window.formatNumber === 'function') {
+            const originalFormatNumber = window.formatNumber;
+            window.formatNumber = function(number, showCurrency = true) {
+                // تحويل الأرقام حسب الإعداد
+                let formatted = new Intl.NumberFormat(
+                    financial.numberFormat === 'ar' ? 'ar-SA' : 'en-US',
+                    {
+                        minimumFractionDigits: financial.showZeroDecimals ? financial.decimals : 0,
+                        maximumFractionDigits: financial.decimals
+                    }
+                ).format(number);
+
+                // إضافة العملة
+                if (showCurrency) {
+                    const currency = financial.currencyName || financial.currency;
+                    if (financial.currencyPosition === 'before') {
+                        formatted = currency + ' ' + formatted;
+                    } else {
+                        formatted = formatted + ' ' + currency;
+                    }
+                }
+
+                return formatted;
+            };
+        }
+    }
+
+    /**
+     * تطبيق إعدادات التنبيهات
+     */
+    function applyNotificationSettings(notifications) {
+        // تحديث دالة showNotification إن وجدت
+        if (typeof window.showNotification === 'function') {
+            const originalShowNotification = window.showNotification;
+            window.showNotification = function(message, type = 'info') {
+                if (!notifications.enabled) return;
+                
+                // استخدام الإعدادات المخصصة
+                const options = {
+                    position: notifications.position,
+                    duration: notifications.duration,
+                    sound: notifications.soundEnabled
+                };
+                
+                // استدعاء الدالة الأصلية مع الخيارات
+                originalShowNotification(message, type, options);
+            };
+        }
+
+        // طلب إذن إشعارات المتصفح إذا مفعلة
+        if (notifications.browserNotifications && 'Notification' in window) {
+            Notification.requestPermission();
+        }
+    }
+
+    /**
+     * تطبيق إعدادات الأداء
+     */
+    function applyPerformanceSettings(performance) {
+        // تحديث إعدادات الكاش
+        if (typeof window.balanceCache !== 'undefined') {
+            const cacheSize = {
+                'small': 100,
+                'medium': 200,
+                'large': 500
+            }[performance.cacheSize] || 200;
+
+            const cacheDuration = performance.cacheDuration * 60 * 1000; // تحويل لمللي ثانية
+
+            // إعادة إنشاء الكاش بالحجم الجديد
+            window.balanceCache = new SmartCache(cacheSize, cacheDuration);
+            window.reportCache = new SmartCache(Math.floor(cacheSize / 4), cacheDuration * 2);
+        }
+
+        // تطبيق عدد العناصر بالصفحة
+        if (typeof window.itemsPerPage !== 'undefined') {
+            window.itemsPerPage = performance.itemsPerPage;
+        }
+
+        // تطبيق وضع توفير الطاقة
+        document.body.classList.toggle('power-save-mode', performance.powerSaveMode);
+    }
+
+    /**
+     * تطبيق إعدادات الأمان
+     */
+    function applySecuritySettings(security) {
+        // تطبيق إخفاء الأرصدة
+        document.body.classList.toggle('hide-balances', security.hideBalances);
+        
+        // تطبيق طمس البيانات الحساسة
+        document.body.classList.toggle('blur-sensitive', security.blurSensitive);
+
+        // تعيين مهلة الجلسة
+        if (security.sessionTimeout > 0) {
+            setupSessionTimeout(security.sessionTimeout);
+        }
+    }
+
+    /**
+     * دمج عميق للكائنات
+     * يستخدم لدمج الإعدادات المحفوظة مع الافتراضية
+     */
+    function deepMerge(target, source) {
+        const output = Object.assign({}, target);
+        if (isObject(target) && isObject(source)) {
+            Object.keys(source).forEach(key => {
+                if (isObject(source[key])) {
+                    if (!(key in target))
+                        Object.assign(output, { [key]: source[key] });
+                    else
+                        output[key] = deepMerge(target[key], source[key]);
+                } else {
+                    Object.assign(output, { [key]: source[key] });
+                }
+            });
+        }
+        return output;
+    }
+
+    /**
+     * التحقق من كون القيمة كائن
+     */
+    function isObject(item) {
+        return item && typeof item === 'object' && !Array.isArray(item);
+    }
+
+    /**
+     * الحصول على حجم الخط بناءً على الإعداد
+     */
+    function getFontSize(size) {
+        const sizes = {
+            'small': '12px',
+            'medium': '14px',
+            'large': '16px',
+            'xlarge': '18px'
+        };
+        return sizes[size] || '14px';
+    }
+
+    /**
+     * إعداد مهلة الجلسة
+     */
+    function setupSessionTimeout(minutes) {
+        let timeout;
+        const resetTimeout = () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                // قفل التطبيق أو تسجيل الخروج
+                if (currentSettings.security.appLock) {
+                    lockApp();
+                }
+            }, minutes * 60 * 1000);
+        };
+
+        // إعادة تعيين المؤقت عند أي نشاط
+        ['mousedown', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetTimeout, true);
+        });
+
+        resetTimeout();
+    }
+
+    /**
+     * قفل التطبيق
+     */
+    function lockApp() {
+        // عرض شاشة القفل
+        console.log('تم قفل التطبيق بسبب عدم النشاط');
+        // TODO: تنفيذ شاشة القفل
+    }
+
+    /**
+     * تحديث إعداد معين
+     * @param {string} path - مسار الإعداد (مثل: display.theme)
+     * @param {*} value - القيمة الجديدة
+     */
+    function updateSetting(path, value) {
+        const keys = path.split('.');
+        let obj = currentSettings;
+        
+        // الوصول للكائن الأب
+        for (let i = 0; i < keys.length - 1; i++) {
+            if (!obj[keys[i]]) obj[keys[i]] = {};
+            obj = obj[keys[i]];
+        }
+        
+        // حفظ القيمة القديمة للتراجع
+        const oldValue = obj[keys[keys.length - 1]];
+        unsavedChanges[path] = { old: oldValue, new: value };
+        
+        // تعيين القيمة الجديدة
+        obj[keys[keys.length - 1]] = value;
+        
+        // تطبيق التغيير فوراً
+        applySettings(currentSettings);
+        
+        // حفظ ذكي (مؤجل)
+        saveSettings(false);
+    }
+
+    /**
+     * الحصول على قيمة إعداد
+     * @param {string} path - مسار الإعداد
+     * @returns {*} قيمة الإعداد
+     */
+    function getSetting(path) {
+        const keys = path.split('.');
+        let obj = currentSettings;
+        
+        for (let i = 0; i < keys.length; i++) {
+            if (!obj[keys[i]]) return undefined;
+            obj = obj[keys[i]];
+        }
+        
+        return obj;
+    }
+
+    /**
+     * إعادة تعيين الإعدادات للقيم الافتراضية
+     * @param {string} category - الفئة المراد إعادة تعيينها (اختياري)
+     */
+    function resetSettings(category = null) {
+        if (category && defaultSettings[category]) {
+            currentSettings[category] = JSON.parse(JSON.stringify(defaultSettings[category]));
+        } else {
+            currentSettings = JSON.parse(JSON.stringify(defaultSettings));
+        }
+        
+        applySettings(currentSettings);
+        saveSettings(true);
+        
+        if (typeof showNotification === 'function') {
+            showNotification('تم إعادة تعيين الإعدادات', 'info');
+        }
+    }
+
+    /**
+     * التراجع عن آخر تغيير
+     */
+    function undoSettings() {
+        if (settingsHistory.length > 0) {
+            const previous = settingsHistory.pop();
+            currentSettings = JSON.parse(previous);
+            applySettings(currentSettings);
+            saveSettings(true);
+            
+            if (typeof showNotification === 'function') {
+                showNotification('تم التراجع عن التغيير', 'info');
+            }
+        }
+    }
+
+    /**
+     * تصدير الإعدادات
+     * @returns {string} الإعدادات بصيغة JSON
+     */
+    function exportSettings() {
+        const exportData = {
+            settings: currentSettings,
+            version: '1.0.0',
+            timestamp: new Date().toISOString(),
+            app: 'نظام إدارة المحلات'
+        };
+        
+        return JSON.stringify(exportData, null, 2);
+    }
+
+    /**
+     * استيراد الإعدادات
+     * @param {string} jsonString - الإعدادات بصيغة JSON
+     * @returns {boolean} نجاح العملية
+     */
+    function importSettings(jsonString) {
+        try {
+            const importData = JSON.parse(jsonString);
+            
+            if (!importData.settings) {
+                throw new Error('ملف الإعدادات غير صالح');
+            }
+            
+            // حفظ نسخة احتياطية
+            settingsHistory.push(JSON.stringify(currentSettings));
+            
+            // تطبيق الإعدادات المستوردة
+            currentSettings = deepMerge(defaultSettings, importData.settings);
+            applySettings(currentSettings);
+            saveSettings(true);
+            
+            if (typeof showNotification === 'function') {
+                showNotification('تم استيراد الإعدادات بنجاح', 'success');
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('خطأ في استيراد الإعدادات:', error);
+            if (typeof showNotification === 'function') {
+                showNotification('فشل استيراد الإعدادات', 'error');
+            }
+            return false;
+        }
+    }
+
+    /**
+     * الحصول على جميع الإعدادات
+     */
+    function getAllSettings() {
+        return JSON.parse(JSON.stringify(currentSettings));
+    }
+
+    /**
+     * الحصول على الإعدادات الافتراضية
+     */
+    function getDefaultSettings() {
+        return JSON.parse(JSON.stringify(defaultSettings));
+    }
+
+    /**
+     * التحقق من وجود تغييرات غير محفوظة
+     */
+    function hasUnsavedChanges() {
+        return Object.keys(unsavedChanges).length > 0;
+    }
+
+    // تصدير الوظائف للاستخدام العام
+    window.AppSettings = {
+        load: loadSettings,
+        save: saveSettings,
+        update: updateSetting,
+        get: getSetting,
+        getAll: getAllSettings,
+        getDefaults: getDefaultSettings,
+        reset: resetSettings,
+        undo: undoSettings,
+        apply: applySettings,
+        export: exportSettings,
+        import: importSettings,
+        hasUnsavedChanges: hasUnsavedChanges,
+        currentSettings: () => currentSettings,
+        defaultSettings: () => defaultSettings
+    };
+
+    // تحميل الإعدادات عند بدء التطبيق
+    document.addEventListener('DOMContentLoaded', loadSettings);
+
+    // حفظ الإعدادات قبل إغلاق الصفحة
+    window.addEventListener('beforeunload', (e) => {
+        if (hasUnsavedChanges()) {
+            saveSettings(true);
+            e.preventDefault();
+            e.returnValue = 'لديك تغييرات غير محفوظة';
+        }
+    });
+
+})();

@@ -203,6 +203,7 @@ function switchSection(targetSection, labelText) {
   if (title) document.querySelector('.page-title').textContent = title;
   if (targetSection === 'reports') if (typeof generatePartnerReports === 'function') generatePartnerReports();
   if (targetSection === 'trash') if (typeof renderTrashTable === 'function') setTimeout(() => renderTrashTable(), 100);
+  if (targetSection === 'settings') if (typeof SettingsUI !== 'undefined' && SettingsUI.init) SettingsUI.init();
 }
 
 /**
