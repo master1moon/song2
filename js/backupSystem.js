@@ -12,6 +12,138 @@
      */
     const BackupSystem = {
         /**
+         * إنشاء نسخة احتياطية وإرسالها بالبريد
+         */
+        async createEmailBackup() {
+            try {
+                showNotification('جاري إنشاء النسخة الاحتياطية...', 'info');
+                
+                // جمع البيانات
+                const backupData = this.collectBackupData();
+                const filename = `backup_${new Date().toISOString().split('T')[0]}_${Date.now()}.json`;
+                
+                // تحميل الملف أولاً
+                this.downloadBackup(backupData, filename);
+                
+                // عرض واجهة البريد الإلكتروني
+                this.showEmailInterface(backupData, filename);
+                
+            } catch (error) {
+                console.error('خطأ في إنشاء نسخة البريد:', error);
+                showNotification('فشل إنشاء النسخة الاحتياطية', 'error');
+            }
+        },
+
+        /**
+         * عرض واجهة البريد الإلكتروني
+         */
+        showEmailInterface(backupData, filename) {
+            const modalHTML = `
+                <div class="modal fade" id="emailBackupModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-info text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-envelope"></i> إرسال النسخة الاحتياطية بالبريد
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-success mb-3">
+                                    <i class="fas fa-check-circle"></i> تم تحميل النسخة الاحتياطية!
+                                    <br>الملف: <strong>${filename}</strong>
+                                </div>
+                                
+                                <h6>📧 الخطوة التالية: أرسل الملف لبريدك</h6>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">بريدك الإلكتروني:</label>
+                                    <input type="email" id="userEmail" class="form-control" 
+                                           placeholder="example@gmail.com" value="n1993love@gmail.com">
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary" onclick="
+                                        const email = document.getElementById('userEmail').value;
+                                        if(!email) {
+                                            showNotification('الرجاء إدخال البريد الإلكتروني', 'warning');
+                                            return;
+                                        }
+                                        const subject = 'نسخة احتياطية - ${filename}';
+                                        const body = 'مرحباً،\\n\\nمرفق ملف النسخة الاحتياطية للتطبيق.\\n\\nالرجاء حفظ الملف في مكان آمن:\\n- Google Drive → مجلد نجيب المقداد\\n- أو أي مكان آمن آخر\\n\\nملاحظة: الملف يحتوي على جميع بيانات التطبيق.';
+                                        window.location.href = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+                                        showNotification('تم فتح البريد الإلكتروني - أرفق الملف المحمّل', 'info');
+                                    ">
+                                        <i class="fas fa-envelope-open"></i> فتح برنامج البريد
+                                    </button>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="alert alert-info">
+                                    <h6>📋 تعليمات الإرسال:</h6>
+                                    <ol class="mb-0">
+                                        <li>سيفتح برنامج البريد الإلكتروني</li>
+                                        <li>أرفق الملف المحمّل (<strong>${filename}</strong>)</li>
+                                        <li>أرسل البريد لنفسك</li>
+                                        <li>افتح البريد واحفظ المرفق في Google Drive</li>
+                                    </ol>
+                                </div>
+                                
+                                <div class="alert alert-warning">
+                                    <h6>⚠️ لم يفتح البريد؟</h6>
+                                    <p>انسخ هذه المعلومات وألصقها في بريد جديد:</p>
+                                    <div class="mb-2">
+                                        <strong>إلى:</strong> 
+                                        <code id="emailTo">n1993love@gmail.com</code>
+                                        <button class="btn btn-sm btn-outline-primary ms-2" onclick="
+                                            const email = document.getElementById('userEmail').value || 'n1993love@gmail.com';
+                                            document.getElementById('emailTo').textContent = email;
+                                            navigator.clipboard.writeText(email);
+                                            showNotification('تم نسخ البريد', 'success');
+                                        ">
+                                            <i class="fas fa-copy"></i> نسخ
+                                        </button>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>الموضوع:</strong>
+                                        <code>نسخة احتياطية - ${filename}</code>
+                                        <button class="btn btn-sm btn-outline-primary ms-2" onclick="
+                                            navigator.clipboard.writeText('نسخة احتياطية - ${filename}');
+                                            showNotification('تم نسخ الموضوع', 'success');
+                                        ">
+                                            <i class="fas fa-copy"></i> نسخ
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <strong>المرفق:</strong> <code>${filename}</code> (الملف المحمّل)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // إضافة النافذة للصفحة
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = modalHTML;
+            document.body.appendChild(tempDiv.firstElementChild);
+            
+            // عرض النافذة
+            const modal = new bootstrap.Modal(document.getElementById('emailBackupModal'));
+            modal.show();
+            
+            // حذف النافذة عند الإغلاق
+            document.getElementById('emailBackupModal').addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
+        },
+
+        /**
          * إنشاء نسخة احتياطية
          * @param {boolean} silent - إنشاء بدون رسائل
          * @returns {Promise<Object>} بيانات النسخة الاحتياطية

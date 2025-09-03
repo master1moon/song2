@@ -571,6 +571,10 @@
                         <i class="fas fa-vial"></i> اختبار Google Drive
                     </button>
                     
+                    <button class="btn btn-info" onclick="if(typeof BackupSystem !== 'undefined') BackupSystem.createEmailBackup()">
+                        <i class="fas fa-envelope"></i> إرسال بالبريد
+                    </button>
+                    
                     <button class="btn btn-secondary" onclick="document.getElementById('restoreBackupFile').click()">
                         <i class="fas fa-upload"></i> استعادة نسخة احتياطية
                     </button>
