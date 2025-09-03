@@ -520,9 +520,10 @@
                         <label class="form-label">مكان الحفظ</label>
                         <select class="form-select" id="setting-backupLocation"
                                 onchange="AppSettings.update('backup.location', this.value)">
-                            <option value="local" ${backup.location === 'local' ? 'selected' : ''}>محلي</option>
+                            <option value="local" ${backup.location === 'local' ? 'selected' : ''}>محلي (جهازك)</option>
+                            <option value="browser" ${backup.location === 'browser' ? 'selected' : ''}>المتصفح</option>
                             <option value="github" ${backup.location === 'github' ? 'selected' : ''}>GitHub</option>
-                            <option value="gdrive" ${backup.location === 'gdrive' ? 'selected' : ''}>Google Drive</option>
+                            <option value="drive" ${backup.location === 'drive' ? 'selected' : ''}>Google Drive</option>
                             <option value="dropbox" ${backup.location === 'dropbox' ? 'selected' : ''}>Dropbox</option>
                         </select>
                     </div>
@@ -558,6 +559,9 @@
                                 المزامنة السحابية
                             </label>
                         </div>
+                        <small class="text-muted d-block mt-1">
+                            يحاول الرفع تلقائياً للسحابة عند إنشاء نسخة احتياطية
+                        </small>
                     </div>
                 </div>
 

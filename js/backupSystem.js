@@ -105,13 +105,23 @@
                     break;
                     
                 case 'drive':
-                    // Google Drive - يحتاج تطبيق خاص
-                    this.showCloudInstructions('drive', backupData, filename);
+                    // Google Drive - عرض الحلول المبتكرة
+                    this.downloadBackup(backupData, filename);
+                    if (window.CloudStorageHelper) {
+                        CloudStorageHelper.showAllSolutions(backupData, filename);
+                    } else {
+                        this.showCloudInstructions('drive', backupData, filename);
+                    }
                     break;
                     
                 case 'dropbox':
-                    // Dropbox - يحتاج تطبيق خاص
-                    this.showCloudInstructions('dropbox', backupData, filename);
+                    // Dropbox - عرض الحلول المبتكرة
+                    this.downloadBackup(backupData, filename);
+                    if (window.CloudStorageHelper) {
+                        CloudStorageHelper.showAllSolutions(backupData, filename);
+                    } else {
+                        this.showCloudInstructions('dropbox', backupData, filename);
+                    }
                     break;
                     
                 case 'github':
