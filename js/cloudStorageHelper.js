@@ -332,21 +332,6 @@ const uploadFile = async (data, filename) => {
                                         </div>
                                     </div>
                                     
-                                    <!-- Dropbox Solutions -->
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dropbox">
-                                                <i class="fab fa-dropbox me-2"></i> حلول Dropbox
-                                            </button>
-                                        </h2>
-                                        <div id="dropbox" class="accordion-collapse collapse" data-bs-parent="#cloudSolutionsAccordion">
-                                            <div class="accordion-body">
-                                                ${this.dropbox.createEmailUpload(backupData, filename)}
-                                                ${this.dropbox.createIFTTTRecipe()}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
                                     <!-- Universal Solutions -->
                                     <div class="accordion-item">
                                         <h2 class="accordion-header">
