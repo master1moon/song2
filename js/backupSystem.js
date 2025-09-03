@@ -107,21 +107,27 @@
                 case 'drive':
                     // Google Drive - عرض الحلول المبتكرة
                     this.downloadBackup(backupData, filename);
-                    if (window.CloudStorageHelper) {
-                        CloudStorageHelper.showAllSolutions(backupData, filename);
-                    } else {
-                        this.showCloudInstructions('drive', backupData, filename);
-                    }
+                    // تأخير بسيط للتأكد من تحميل المكتبة
+                    setTimeout(() => {
+                        if (typeof window.CloudStorageHelper !== 'undefined' && window.CloudStorageHelper.showAllSolutions) {
+                            window.CloudStorageHelper.showAllSolutions(backupData, filename);
+                        } else {
+                            this.showCloudInstructions('drive', backupData, filename);
+                        }
+                    }, 100);
                     break;
                     
                 case 'dropbox':
                     // Dropbox - عرض الحلول المبتكرة
                     this.downloadBackup(backupData, filename);
-                    if (window.CloudStorageHelper) {
-                        CloudStorageHelper.showAllSolutions(backupData, filename);
-                    } else {
-                        this.showCloudInstructions('dropbox', backupData, filename);
-                    }
+                    // تأخير بسيط للتأكد من تحميل المكتبة
+                    setTimeout(() => {
+                        if (typeof window.CloudStorageHelper !== 'undefined' && window.CloudStorageHelper.showAllSolutions) {
+                            window.CloudStorageHelper.showAllSolutions(backupData, filename);
+                        } else {
+                            this.showCloudInstructions('dropbox', backupData, filename);
+                        }
+                    }, 100);
                     break;
                     
                 case 'github':
@@ -197,32 +203,122 @@
          * @param {string} filename - اسم الملف
          */
         showCloudInstructions(service, data, filename) {
-            // أولاً، تحميل الملف محلياً
-            this.downloadBackup(data, filename);
+            // إنشاء كود Google Colab
+            const dataStr = JSON.stringify(data, null, 2);
+            const colabCode = `# كود Python لحفظ النسخة الاحتياطية في Google Drive
+from google.colab import drive
+import json
+from datetime import datetime
+
+# ربط Google Drive
+drive.mount('/content/drive')
+
+# البيانات
+backup_data = '''${dataStr}'''
+
+# حفظ الملف
+filename = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+filepath = f"/content/drive/MyDrive/{filename}"
+
+with open(filepath, 'w', encoding='utf-8') as f:
+    f.write(backup_data)
+
+print(f"✅ تم حفظ النسخة في: {filename}")`;
             
-            // ثم عرض التعليمات
+            // عرض التعليمات
             const instructions = {
                 drive: {
-                    title: 'رفع إلى Google Drive',
-                    steps: [
-                        '1. تم تحميل ملف النسخة الاحتياطية إلى جهازك',
-                        '2. افتح Google Drive (drive.google.com)',
-                        '3. اضغط على "جديد" أو "New"',
-                        '4. اختر "رفع ملف" أو "File upload"',
-                        '5. اختر الملف المحمّل: ' + filename,
-                        '6. انتظر حتى يكتمل الرفع'
-                    ]
+                    title: 'حفظ في Google Drive',
+                    content: `
+                        <div class="accordion" id="driveInstructions">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#colabMethod">
+                                        <strong>الطريقة 1: Google Colab (الأسهل والأسرع)</strong>
+                                    </button>
+                                </h2>
+                                <div id="colabMethod" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <ol>
+                                            <li>افتح <a href="https://colab.research.google.com" target="_blank">Google Colab</a></li>
+                                            <li>أنشئ دفتر ملاحظات جديد</li>
+                                            <li>انسخ الكود التالي:</li>
+                                        </ol>
+                                        <pre class="bg-dark text-light p-3 rounded" style="max-height: 300px; overflow-y: auto;"><code>${this.escapeHtml(colabCode)}</code></pre>
+                                        <button class="btn btn-primary mt-2" onclick="navigator.clipboard.writeText(\`${colabCode.replace(/`/g, '\\`')}\`); showNotification('تم نسخ الكود!', 'success')">
+                                            <i class="fas fa-copy"></i> نسخ الكود
+                                        </button>
+                                        <ol start="4">
+                                            <li>الصق الكود في Colab واضغط تشغيل ▶️</li>
+                                            <li>اسمح بالوصول لـ Drive</li>
+                                            <li>انتظر رسالة النجاح!</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#manualMethod">
+                                        الطريقة 2: الرفع اليدوي
+                                    </button>
+                                </h2>
+                                <div id="manualMethod" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <p>تم تحميل الملف: <strong>${filename}</strong></p>
+                                        <ol>
+                                            <li>افتح <a href="https://drive.google.com" target="_blank">Google Drive</a></li>
+                                            <li>اضغط على "جديد" أو "New"</li>
+                                            <li>اختر "رفع ملف" أو "File upload"</li>
+                                            <li>اختر الملف من مجلد التنزيلات</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
                 },
                 dropbox: {
-                    title: 'رفع إلى Dropbox',
-                    steps: [
-                        '1. تم تحميل ملف النسخة الاحتياطية إلى جهازك',
-                        '2. افتح Dropbox (dropbox.com)',
-                        '3. اضغط على "رفع" أو "Upload"',
-                        '4. اختر "ملفات" أو "Files"',
-                        '5. اختر الملف المحمّل: ' + filename,
-                        '6. انتظر حتى يكتمل الرفع'
-                    ]
+                    title: 'حفظ في Dropbox',
+                    content: `
+                        <div class="accordion" id="dropboxInstructions">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#sendToDropbox">
+                                        <strong>الطريقة 1: Send to Dropbox (الأسهل)</strong>
+                                    </button>
+                                </h2>
+                                <div id="sendToDropbox" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <ol>
+                                            <li>سجل في <a href="https://sendtodropbox.com" target="_blank">Send to Dropbox</a></li>
+                                            <li>احصل على بريدك الخاص (مثل: yourname.xyz@sendtodropbox.com)</li>
+                                            <li>أرسل الملف المحمّل إلى هذا البريد</li>
+                                            <li>سيظهر تلقائياً في Dropbox!</li>
+                                        </ol>
+                                        <p class="alert alert-success">
+                                            <strong>ملاحظة:</strong> الملف <strong>${filename}</strong> محفوظ في مجلد التنزيلات
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dropboxManual">
+                                        الطريقة 2: الرفع اليدوي
+                                    </button>
+                                </h2>
+                                <div id="dropboxManual" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <ol>
+                                            <li>افتح <a href="https://dropbox.com" target="_blank">Dropbox</a></li>
+                                            <li>اضغط على "رفع" أو "Upload"</li>
+                                            <li>اختر الملف: <strong>${filename}</strong></li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
                 }
             };
             
@@ -231,28 +327,20 @@
                 // إنشاء نافذة التعليمات
                 const modal = `
                     <div class="modal fade" id="cloudInstructionsModal" tabindex="-1">
-                        <div class="modal-dialog">
+                        <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title">${info.title}</h5>
+                                    <h5 class="modal-title">
+                                        <i class="${service === 'drive' ? 'fab fa-google-drive' : 'fab fa-dropbox'}"></i>
+                                        ${info.title}
+                                    </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-info-circle"></i>
-                                        لا يمكن الرفع مباشرة بدون ربط الحساب
-                                    </div>
-                                    <h6>اتبع الخطوات التالية:</h6>
-                                    <ol>
-                                        ${info.steps.map(step => `<li>${step}</li>`).join('')}
-                                    </ol>
+                                    ${info.content}
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-                                    <a href="${service === 'drive' ? 'https://drive.google.com' : 'https://dropbox.com'}" 
-                                       target="_blank" class="btn btn-primary">
-                                        فتح ${service === 'drive' ? 'Google Drive' : 'Dropbox'}
-                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -502,6 +590,20 @@
                 console.error('خطأ في استعادة النسخة:', error);
                 showNotification('فشلت استعادة النسخة', 'error');
             }
+        },
+
+        /**
+         * تنظيف HTML
+         */
+        escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
         },
 
         /**

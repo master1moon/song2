@@ -354,5 +354,8 @@ const uploadFile = async (data, filename) => {
 
     // تصدير المساعد
     window.CloudStorageHelper = CloudStorageHelper;
+    
+    // رسالة تأكيد التحميل
+    console.log('CloudStorageHelper loaded successfully');
 
 })();

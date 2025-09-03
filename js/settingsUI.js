@@ -585,11 +585,35 @@
                 <div class="alert alert-info mt-3">
                     <h6><i class="fas fa-info-circle"></i> معلومات عن أماكن الحفظ:</h6>
                     <ul class="mb-0">
-                        <li><strong>محلي:</strong> يتم تحميل الملف إلى جهازك (مجلد التنزيلات)</li>
-                        <li><strong>المتصفح:</strong> يحفظ في ذاكرة المتصفح (محدود الحجم)</li>
-                        <li><strong>Google Drive / Dropbox:</strong> يتم التحميل أولاً ثم عرض تعليمات الرفع</li>
-                        <li><strong>GitHub:</strong> يستخدم إعدادات GitHub في التطبيق (إن وجدت)</li>
+                        <li><strong>محلي (جهازك):</strong> يتم تحميل الملف مباشرة إلى مجلد التنزيلات - الأسرع والأبسط</li>
+                        <li><strong>المتصفح:</strong> يحفظ في ذاكرة المتصفح، يمكن استعراض آخر 10 نسخ (محدود بـ 5-10 ميجا)</li>
+                        <li><strong>Google Drive:</strong> 
+                            <ul>
+                                <li>يحمّل الملف أولاً ثم يعرض نافذة بحلول متعددة</li>
+                                <li>أسهل طريقة: Google Colab (انسخ الكود والصقه)</li>
+                                <li>أو: أرسل بالبريد ثم احفظ في Drive</li>
+                            </ul>
+                        </li>
+                        <li><strong>Dropbox:</strong> 
+                            <ul>
+                                <li>يحمّل الملف أولاً ثم يعرض نافذة بحلول متعددة</li>
+                                <li>أسهل طريقة: Send to Dropbox (بريد سحري)</li>
+                                <li>أو: استخدم IFTTT للأتمتة</li>
+                            </ul>
+                        </li>
+                        <li><strong>GitHub:</strong> 
+                            <ul>
+                                <li>يحتاج إعداد Token في قسم GitHub أولاً</li>
+                                <li>اذهب إلى: لوحة التحكم → GitHub → أدخل Token</li>
+                                <li>إذا لم يكن مُعدّاً، سيحمّل الملف محلياً</li>
+                            </ul>
+                        </li>
                     </ul>
+                    
+                    <div class="alert alert-success mt-2 mb-0">
+                        <strong>💡 نصيحة:</strong> ابدأ بـ "محلي" أو "المتصفح" - الأسهل والأسرع. 
+                        Google Drive و Dropbox يحتاجان خطوات إضافية لكنهما يوفران أماناً أكثر.
+                    </div>
                 </div>
             </div>
         `;
