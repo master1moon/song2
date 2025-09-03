@@ -561,9 +561,32 @@
                     </div>
                 </div>
 
-                <button class="btn btn-primary" onclick="if(typeof createBackup === 'function') createBackup()">
-                    <i class="fas fa-save"></i> إنشاء نسخة احتياطية الآن
-                </button>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-primary" onclick="if(typeof createBackup === 'function') createBackup()">
+                        <i class="fas fa-save"></i> إنشاء نسخة احتياطية الآن
+                    </button>
+                    
+                    <button class="btn btn-secondary" onclick="document.getElementById('restoreBackupFile').click()">
+                        <i class="fas fa-upload"></i> استعادة نسخة احتياطية
+                    </button>
+                    
+                    <button class="btn btn-info" onclick="if(typeof BackupSystem !== 'undefined') BackupSystem.showBrowserBackups()">
+                        <i class="fas fa-list"></i> النسخ المحفوظة
+                    </button>
+                </div>
+                
+                <input type="file" id="restoreBackupFile" accept=".json" style="display:none" 
+                       onchange="if(this.files[0] && typeof restoreBackup === 'function') restoreBackup(this.files[0])">
+                
+                <div class="alert alert-info mt-3">
+                    <h6><i class="fas fa-info-circle"></i> معلومات عن أماكن الحفظ:</h6>
+                    <ul class="mb-0">
+                        <li><strong>محلي:</strong> يتم تحميل الملف إلى جهازك (مجلد التنزيلات)</li>
+                        <li><strong>المتصفح:</strong> يحفظ في ذاكرة المتصفح (محدود الحجم)</li>
+                        <li><strong>Google Drive / Dropbox:</strong> يتم التحميل أولاً ثم عرض تعليمات الرفع</li>
+                        <li><strong>GitHub:</strong> يستخدم إعدادات GitHub في التطبيق (إن وجدت)</li>
+                    </ul>
+                </div>
             </div>
         `;
     }
