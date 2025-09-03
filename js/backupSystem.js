@@ -111,6 +111,9 @@
                     setTimeout(() => {
                         if (typeof window.CloudStorageHelper !== 'undefined' && window.CloudStorageHelper.showAllSolutions) {
                             window.CloudStorageHelper.showAllSolutions(backupData, filename);
+                        } else if (typeof window.showGoogleDriveInstructions === 'function') {
+                            // استخدام الحل الاحتياطي
+                            window.showGoogleDriveInstructions(backupData);
                         } else {
                             this.showCloudInstructions('drive', backupData, filename);
                         }

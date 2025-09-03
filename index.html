@@ -6112,6 +6112,148 @@
     <script src="js/cloudStorageHelper.js"></script>
     
     <script>
+    // التأكد من تحميل نظام النسخ الاحتياطي الجديد
+    document.addEventListener('DOMContentLoaded', function() {
+        // إعادة تعريف createBackup لاستخدام النظام الجديد
+        window.createBackup = async function() {
+            console.log('Creating backup...');
+            
+            // التحقق من BackupSystem
+            if (window.BackupSystem && window.BackupSystem.createBackup) {
+                return await window.BackupSystem.createBackup();
+            } else {
+                showNotification('نظام النسخ الاحتياطي غير متاح', 'error');
+                console.error('BackupSystem not loaded');
+            }
+        };
+        
+        // تسجيل حالة التحميل
+        if (window.BackupSystem) {
+            console.log('✅ BackupSystem loaded successfully');
+        } else {
+            console.error('❌ BackupSystem not loaded');
+        }
+        
+        if (window.CloudStorageHelper) {
+            console.log('✅ CloudStorageHelper loaded successfully');
+        } else {
+            console.error('❌ CloudStorageHelper not loaded');
+        }
+    });
+    
+    // حل احتياطي: دالة بسيطة لعرض تعليمات Google Drive
+    window.showGoogleDriveInstructions = function(backupData) {
+        const dataStr = JSON.stringify(backupData || {test: "بيانات تجريبية"}, null, 2);
+        const colabCode = `# كود Python لحفظ النسخة الاحتياطية في Google Drive
+from google.colab import drive
+import json
+from datetime import datetime
+
+# ربط Google Drive
+drive.mount('/content/drive')
+
+# البيانات
+backup_data = '''${dataStr}'''
+
+# حفظ الملف
+filename = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+filepath = f"/content/drive/MyDrive/{filename}"
+
+with open(filepath, 'w', encoding='utf-8') as f:
+    f.write(backup_data)
+
+print(f"✅ تم حفظ النسخة في: {filename}")`;
+
+        // إنشاء نافذة HTML
+        const modalHTML = `
+<div class="modal fade" id="driveInstructionsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fab fa-google-drive"></i> حفظ في Google Drive
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success">
+                    <h5>📋 الطريقة السهلة: Google Colab</h5>
+                    <p>فقط انسخ الكود والصقه في Google Colab!</p>
+                </div>
+                
+                <ol class="mb-3">
+                    <li>افتح <a href="https://colab.research.google.com" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-external-link-alt"></i> Google Colab
+                    </a></li>
+                    <li>أنشئ دفتر ملاحظات جديد (New notebook)</li>
+                    <li>انسخ الكود التالي:</li>
+                </ol>
+                
+                <div class="position-relative">
+                    <pre class="bg-dark text-light p-3 rounded" style="max-height: 300px; overflow-y: auto;"><code id="colabCodeContent">${colabCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+                    <button class="btn btn-success position-absolute top-0 end-0 m-2" onclick="copyColabCode()">
+                        <i class="fas fa-copy"></i> نسخ الكود
+                    </button>
+                </div>
+                
+                <ol start="4" class="mt-3">
+                    <li>الصق الكود في Colab</li>
+                    <li>اضغط على زر التشغيل ▶️ أو Ctrl+Enter</li>
+                    <li>اسمح بالوصول لـ Google Drive عند الطلب</li>
+                    <li>انتظر رسالة "✅ تم حفظ النسخة"</li>
+                </ol>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>ملاحظة:</strong> الملف سيُحفظ في المجلد الرئيسي لـ Google Drive الخاص بك
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <a href="https://colab.research.google.com" target="_blank" class="btn btn-primary">
+                    <i class="fab fa-google"></i> فتح Google Colab
+                </a>
+            </div>
+        </div>
+    </div>
+</div>`;
+
+        // إضافة النافذة للصفحة
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = modalHTML;
+        document.body.appendChild(tempDiv.firstElementChild);
+        
+        // دالة النسخ
+        window.copyColabCode = function() {
+            const codeElement = document.getElementById('colabCodeContent');
+            const textToCopy = codeElement.textContent;
+            navigator.clipboard.writeText(textToCopy).then(function() {
+                showNotification('تم نسخ الكود!', 'success');
+            }).catch(function(err) {
+                console.error('فشل النسخ:', err);
+                // حل بديل
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('تم نسخ الكود!', 'success');
+            });
+        };
+        
+        // عرض النافذة
+        const modal = new bootstrap.Modal(document.getElementById('driveInstructionsModal'));
+        modal.show();
+        
+        // حذف النافذة عند الإغلاق
+        document.getElementById('driveInstructionsModal').addEventListener('hidden.bs.modal', function() {
+            this.remove();
+        });
+    };
+    </script>
+    
+    <script>
     /**
      * اختبار صوت التنبيهات
      * يشغل أصوات مختلفة حسب النوع
