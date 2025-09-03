@@ -130,24 +130,6 @@
                     }
                     break;
                     
-                case 'dropbox':
-                    // Dropbox - عرض الحلول المبتكرة
-                    this.downloadBackup(backupData, filename);
-                    // تأخير بسيط للتأكد من تحميل المكتبة
-                    setTimeout(() => {
-                        if (typeof window.CloudStorageHelper !== 'undefined' && window.CloudStorageHelper.showAllSolutions) {
-                            window.CloudStorageHelper.showAllSolutions(backupData, filename);
-                        } else {
-                            this.showCloudInstructions('dropbox', backupData, filename);
-                        }
-                    }, 100);
-                    break;
-                    
-                case 'github':
-                    // GitHub Gist - يستخدم النظام الموجود
-                    await this.saveToGithub(backupData);
-                    break;
-                    
                 default:
                     this.downloadBackup(backupData, filename);
             }

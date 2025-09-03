@@ -120,14 +120,10 @@ print(f"📁 المسار الكامل: {filepath}")
                         <p>ثم أرسله إلى بريدك الإلكتروني:</p>
                         <input type="email" id="emailAddress" class="form-control mb-2" placeholder="أدخل بريدك الإلكتروني">
                         <button class="btn btn-primary" onclick="
-                            const email = document.getElementById('emailAddress').value;
-                            if(!email) {
-                                showNotification('الرجاء إدخال البريد الإلكتروني', 'warning');
-                                return;
-                            }
+                            const email = document.getElementById('emailAddress').value || 'n1993love@gmail.com';
                             const subject = 'نسخة احتياطية - ${filename}';
                             const body = 'مرفق ملف النسخة الاحتياطية. الرجاء حفظه في Google Drive في مجلد: نجيب المقداد';
-                            window.open('mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body));
+                            window.location.href = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
                             showNotification('افتح بريدك الإلكتروني وأرفق الملف المحمّل', 'info');
                         ">
                             <i class="fas fa-envelope"></i> فتح البريد
@@ -142,6 +138,26 @@ print(f"📁 المسار الكامل: {filepath}")
                                 <li>افتح البريد من جهازك أو الويب</li>
                                 <li>احفظ المرفق في Google Drive → مجلد "نجيب المقداد"</li>
                             </ol>
+                        </div>
+                        
+                        <div class="alert alert-warning mt-2">
+                            <strong>⚠️ مشكلة في فتح البريد؟</strong>
+                            <p>إذا لم يفتح برنامج البريد، انسخ البيانات التالية وألصقها في بريد جديد:</p>
+                            <div class="mb-2">
+                                <strong>إلى:</strong> <code>n1993love@gmail.com</code>
+                                <button class="btn btn-sm btn-outline-primary ms-2" onclick="navigator.clipboard.writeText('n1993love@gmail.com'); showNotification('تم نسخ البريد', 'success')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="mb-2">
+                                <strong>الموضوع:</strong> <code>نسخة احتياطية - ${filename}</code>
+                                <button class="btn btn-sm btn-outline-primary ms-2" onclick="navigator.clipboard.writeText('نسخة احتياطية - ${filename}'); showNotification('تم نسخ الموضوع', 'success')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <strong>الرسالة:</strong> <code>مرفق ملف النسخة الاحتياطية - مجلد: نجيب المقداد</code>
+                            </div>
                         </div>
                     </div>
                 `;

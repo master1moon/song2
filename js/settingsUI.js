@@ -522,9 +522,7 @@
                                 onchange="AppSettings.update('backup.location', this.value)">
                             <option value="local" ${backup.location === 'local' ? 'selected' : ''}>محلي (جهازك)</option>
                             <option value="browser" ${backup.location === 'browser' ? 'selected' : ''}>المتصفح</option>
-                            <option value="github" ${backup.location === 'github' ? 'selected' : ''}>GitHub</option>
                             <option value="drive" ${backup.location === 'drive' ? 'selected' : ''}>Google Drive</option>
-                            <option value="dropbox" ${backup.location === 'dropbox' ? 'selected' : ''}>Dropbox</option>
                         </select>
                     </div>
                 </div>
@@ -597,25 +595,11 @@
                                 <li>أو: أرسل بالبريد ثم احفظ في Drive</li>
                             </ul>
                         </li>
-                        <li><strong>Dropbox:</strong> 
-                            <ul>
-                                <li>يحمّل الملف أولاً ثم يعرض نافذة بحلول متعددة</li>
-                                <li>أسهل طريقة: Send to Dropbox (بريد سحري)</li>
-                                <li>أو: استخدم IFTTT للأتمتة</li>
-                            </ul>
-                        </li>
-                        <li><strong>GitHub:</strong> 
-                            <ul>
-                                <li>يحتاج إعداد Token في قسم GitHub أولاً</li>
-                                <li>اذهب إلى: لوحة التحكم → GitHub → أدخل Token</li>
-                                <li>إذا لم يكن مُعدّاً، سيحمّل الملف محلياً</li>
-                            </ul>
-                        </li>
                     </ul>
                     
                     <div class="alert alert-success mt-2 mb-0">
                         <strong>💡 نصيحة:</strong> ابدأ بـ "محلي" أو "المتصفح" - الأسهل والأسرع. 
-                        Google Drive و Dropbox يحتاجان خطوات إضافية لكنهما يوفران أماناً أكثر.
+                        Google Drive يحتاج خطوات إضافية لكنه يوفر أماناً أكثر.
                     </div>
                 </div>
             </div>
