@@ -174,6 +174,9 @@
         // تبويب الأمان
         html += createSecurityTab(settings.security);
         
+        // تبويب التقارير والطباعة
+        html += createReportsTab(settings.reports);
+        
         // تبويب الأداء
         html += createPerformanceTab(settings.performance);
 
@@ -704,6 +707,247 @@
     }
 
     /**
+     * إنشاء تبويب التقارير والطباعة
+     */
+    function createReportsTab(reports) {
+        return `
+            <div class="settings-tab" id="reports-settings" style="display:none;">
+                <h5 class="mb-4"><i class="fas fa-file-alt"></i> إعدادات التقارير والطباعة</h5>
+                
+                <!-- معلومات الشركة -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="fas fa-building"></i> معلومات الشركة</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">اسم الشركة</label>
+                                <input type="text" class="form-control" id="setting-companyName"
+                                       value="${reports.companyName}" placeholder="أدخل اسم شركتك"
+                                       onchange="AppSettings.update('reports.companyName', this.value)">
+                                <small class="text-muted">سيظهر في رأس جميع التقارير</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">شعار الشركة</label>
+                                <div class="d-flex align-items-center">
+                                    <div id="logoPreview" class="border rounded p-2 me-2" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                        ${reports.companyLogo ? 
+                                            `<img src="${reports.companyLogo}" style="max-width: 100%; max-height: 100%;">` : 
+                                            '<i class="fas fa-image text-muted"></i>'}
+                                    </div>
+                                    <div>
+                                        <input type="file" id="logoUpload" accept="image/*" style="display: none;"
+                                               onchange="handleLogoUpload(this)">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="document.getElementById('logoUpload').click()">
+                                            <i class="fas fa-upload"></i> رفع شعار
+                                        </button>
+                                        ${reports.companyLogo ? 
+                                            `<button class="btn btn-sm btn-outline-danger ms-1" onclick="removeLogo()">
+                                                <i class="fas fa-trash"></i>
+                                            </button>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">رقم الهاتف</label>
+                                <input type="tel" class="form-control" id="setting-companyPhone"
+                                       value="${reports.companyPhone}" placeholder="مثال: 01-234567"
+                                       onchange="AppSettings.update('reports.companyPhone', this.value)">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">البريد الإلكتروني</label>
+                                <input type="email" class="form-control" id="setting-companyEmail"
+                                       value="${reports.companyEmail}" placeholder="email@company.com"
+                                       onchange="AppSettings.update('reports.companyEmail', this.value)">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">السجل التجاري</label>
+                                <input type="text" class="form-control" id="setting-commercialRegister"
+                                       value="${reports.commercialRegister}" placeholder="رقم السجل"
+                                       onchange="AppSettings.update('reports.commercialRegister', this.value)">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">العنوان</label>
+                                <input type="text" class="form-control" id="setting-companyAddress"
+                                       value="${reports.companyAddress}" placeholder="العنوان الكامل"
+                                       onchange="AppSettings.update('reports.companyAddress', this.value)">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">الرقم الضريبي</label>
+                                <input type="text" class="form-control" id="setting-taxNumber"
+                                       value="${reports.taxNumber}" placeholder="VAT Number"
+                                       onchange="AppSettings.update('reports.taxNumber', this.value)">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">تذييل التقارير</label>
+                            <textarea class="form-control" id="setting-reportFooter" rows="2"
+                                      placeholder="نص مخصص يظهر في أسفل التقارير"
+                                      onchange="AppSettings.update('reports.reportFooter', this.value)">${reports.reportFooter}</textarea>
+                            <small class="text-muted">مثال: شكراً لتعاملكم معنا - جميع الأسعار شاملة الضريبة</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- إعدادات التنسيق -->
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0"><i class="fas fa-cog"></i> إعدادات التنسيق والطباعة</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">صيغة التاريخ</label>
+                                <select class="form-select" id="setting-dateFormat"
+                                        onchange="AppSettings.update('reports.dateFormat', this.value)">
+                                    <option value="DD/MM/YYYY" ${reports.dateFormat === 'DD/MM/YYYY' ? 'selected' : ''}>31/12/2024</option>
+                                    <option value="MM/DD/YYYY" ${reports.dateFormat === 'MM/DD/YYYY' ? 'selected' : ''}>12/31/2024</option>
+                                    <option value="YYYY-MM-DD" ${reports.dateFormat === 'YYYY-MM-DD' ? 'selected' : ''}>2024-12-31</option>
+                                    <option value="DD-MM-YYYY" ${reports.dateFormat === 'DD-MM-YYYY' ? 'selected' : ''}>31-12-2024</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">حجم الورق</label>
+                                <select class="form-select" id="setting-paperSize"
+                                        onchange="AppSettings.update('reports.paperSize', this.value)">
+                                    <option value="A4" ${reports.paperSize === 'A4' ? 'selected' : ''}>A4 (210 × 297 مم)</option>
+                                    <option value="Letter" ${reports.paperSize === 'Letter' ? 'selected' : ''}>Letter (8.5 × 11 بوصة)</option>
+                                    <option value="Legal" ${reports.paperSize === 'Legal' ? 'selected' : ''}>Legal (8.5 × 14 بوصة)</option>
+                                    <option value="A5" ${reports.paperSize === 'A5' ? 'selected' : ''}>A5 (148 × 210 مم)</option>
+                                    <option value="custom" ${reports.paperSize === 'custom' ? 'selected' : ''}>مخصص</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">اتجاه الصفحة</label>
+                                <select class="form-select" id="setting-orientation"
+                                        onchange="AppSettings.update('reports.orientation', this.value)">
+                                    <option value="portrait" ${reports.orientation === 'portrait' ? 'selected' : ''}>
+                                        <i class="fas fa-file"></i> عمودي
+                                    </option>
+                                    <option value="landscape" ${reports.orientation === 'landscape' ? 'selected' : ''}>
+                                        <i class="fas fa-file-landscape"></i> أفقي
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- هوامش الطباعة -->
+                        <div class="mb-3">
+                            <label class="form-label">هوامش الطباعة (مم)</label>
+                            <div class="row g-2">
+                                <div class="col-3">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">أعلى</span>
+                                        <input type="number" class="form-control" value="${reports.margins.top}"
+                                               min="0" max="50" step="5"
+                                               onchange="updateMargin('top', this.value)">
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">يمين</span>
+                                        <input type="number" class="form-control" value="${reports.margins.right}"
+                                               min="0" max="50" step="5"
+                                               onchange="updateMargin('right', this.value)">
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">أسفل</span>
+                                        <input type="number" class="form-control" value="${reports.margins.bottom}"
+                                               min="0" max="50" step="5"
+                                               onchange="updateMargin('bottom', this.value)">
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">يسار</span>
+                                        <input type="number" class="form-control" value="${reports.margins.left}"
+                                               min="0" max="50" step="5"
+                                               onchange="updateMargin('left', this.value)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- خيارات إضافية -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="setting-showPageNumbers"
+                                           ${reports.showPageNumbers ? 'checked' : ''} 
+                                           onchange="AppSettings.update('reports.showPageNumbers', this.checked)">
+                                    <label class="form-check-label" for="setting-showPageNumbers">
+                                        عرض أرقام الصفحات
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="setting-showGridLines"
+                                           ${reports.showGridLines ? 'checked' : ''} 
+                                           onchange="AppSettings.update('reports.showGridLines', this.checked)">
+                                    <label class="form-check-label" for="setting-showGridLines">
+                                        عرض خطوط الجدول
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="setting-includeCharts"
+                                           ${reports.includeCharts ? 'checked' : ''} 
+                                           onchange="AppSettings.update('reports.includeCharts', this.checked)">
+                                    <label class="form-check-label" for="setting-includeCharts">
+                                        تضمين الرسوم البيانية
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="setting-qrCode"
+                                           ${reports.qrCode ? 'checked' : ''} 
+                                           onchange="AppSettings.update('reports.qrCode', this.checked)">
+                                    <label class="form-check-label" for="setting-qrCode">
+                                        إضافة رمز QR للتحقق
+                                    </label>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">علامة مائية</label>
+                                    <input type="text" class="form-control form-control-sm" 
+                                           value="${reports.watermark}" placeholder="نص العلامة المائية"
+                                           onchange="AppSettings.update('reports.watermark', this.value)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- معاينة -->
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-eye"></i> معاينة التقرير</h6>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary" onclick="previewReportSettings()">
+                            <i class="fas fa-file-pdf"></i> معاينة تقرير تجريبي
+                        </button>
+                        <button class="btn btn-secondary ms-2" onclick="testPrintSettings()">
+                            <i class="fas fa-print"></i> اختبار الطباعة
+                        </button>
+                        <small class="d-block mt-2 text-muted">
+                            سيتم تطبيق هذه الإعدادات على جميع التقارير المصدرة
+                        </small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
      * إنشاء تبويب الأداء
      */
     function createPerformanceTab(performance) {
@@ -863,6 +1107,271 @@
         
         reader.readAsText(file);
     }
+
+    /**
+     * معالجة رفع الشعار
+     */
+    window.handleLogoUpload = function(input) {
+        const file = input.files[0];
+        if (!file) return;
+        
+        // التحقق من حجم الملف (500KB كحد أقصى)
+        if (file.size > 500 * 1024) {
+            showNotification('حجم الملف كبير جداً. الحد الأقصى 500KB', 'warning');
+            return;
+        }
+        
+        // التحقق من نوع الملف
+        if (!file.type.startsWith('image/')) {
+            showNotification('الرجاء اختيار ملف صورة', 'warning');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                // تحديد الحجم المناسب (200x200 كحد أقصى)
+                const maxSize = 200;
+                let width = img.width;
+                let height = img.height;
+                
+                if (width > maxSize || height > maxSize) {
+                    if (width > height) {
+                        height = (height * maxSize) / width;
+                        width = maxSize;
+                    } else {
+                        width = (width * maxSize) / height;
+                        height = maxSize;
+                    }
+                }
+                
+                // إنشاء canvas لتصغير الصورة
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // تحويل إلى base64
+                const base64 = canvas.toDataURL('image/png');
+                
+                // حفظ في الإعدادات
+                AppSettings.update('reports.companyLogo', base64);
+                
+                // تحديث المعاينة
+                document.getElementById('logoPreview').innerHTML = 
+                    `<img src="${base64}" style="max-width: 100%; max-height: 100%;">`;
+                
+                // إظهار زر الحذف
+                const deleteBtn = document.querySelector('#logoPreview').nextElementSibling.querySelector('.btn-outline-danger');
+                if (!deleteBtn) {
+                    document.querySelector('#logoPreview').nextElementSibling.innerHTML += 
+                        `<button class="btn btn-sm btn-outline-danger ms-1" onclick="removeLogo()">
+                            <i class="fas fa-trash"></i>
+                        </button>`;
+                }
+                
+                showNotification('تم رفع الشعار بنجاح', 'success');
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+
+    /**
+     * حذف الشعار
+     */
+    window.removeLogo = function() {
+        AppSettings.update('reports.companyLogo', '');
+        document.getElementById('logoPreview').innerHTML = '<i class="fas fa-image text-muted"></i>';
+        
+        // إخفاء زر الحذف
+        const deleteBtn = document.querySelector('#logoPreview').nextElementSibling.querySelector('.btn-outline-danger');
+        if (deleteBtn) {
+            deleteBtn.remove();
+        }
+        
+        showNotification('تم حذف الشعار', 'info');
+    };
+
+    /**
+     * تحديث الهوامش
+     */
+    window.updateMargin = function(side, value) {
+        const margins = AppSettings.get().reports.margins;
+        margins[side] = parseInt(value) || 0;
+        AppSettings.update('reports.margins', margins);
+    };
+
+    /**
+     * معاينة إعدادات التقرير
+     */
+    window.previewReportSettings = function() {
+        const settings = AppSettings.get().reports;
+        
+        // إنشاء تقرير تجريبي
+        const previewHTML = `
+            <!DOCTYPE html>
+            <html dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <title>معاينة التقرير</title>
+                <style>
+                    @page {
+                        size: ${settings.paperSize} ${settings.orientation};
+                        margin: ${settings.margins.top}mm ${settings.margins.right}mm ${settings.margins.bottom}mm ${settings.margins.left}mm;
+                    }
+                    body {
+                        font-family: Arial, sans-serif;
+                        direction: rtl;
+                        margin: 0;
+                        padding: 20px;
+                    }
+                    .header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        border-bottom: 2px solid #333;
+                        padding-bottom: 20px;
+                        margin-bottom: 20px;
+                    }
+                    .logo img {
+                        max-height: 80px;
+                    }
+                    .company-info h1 {
+                        margin: 0;
+                        color: #333;
+                    }
+                    .company-details {
+                        color: #666;
+                        font-size: 14px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        ${settings.showGridLines ? 'border: 1px solid #ddd;' : ''}
+                    }
+                    th, td {
+                        padding: 10px;
+                        text-align: right;
+                        ${settings.showGridLines ? 'border: 1px solid #ddd;' : 'border-bottom: 1px solid #eee;'}
+                    }
+                    th {
+                        background-color: #f5f5f5;
+                        font-weight: bold;
+                    }
+                    .footer {
+                        margin-top: 50px;
+                        padding-top: 20px;
+                        border-top: 1px solid #ddd;
+                        text-align: center;
+                        color: #666;
+                    }
+                    ${settings.watermark ? `
+                    body::before {
+                        content: "${settings.watermark}";
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%) rotate(-45deg);
+                        font-size: 120px;
+                        color: rgba(0,0,0,0.05);
+                        z-index: -1;
+                    }` : ''}
+                    ${settings.showPageNumbers ? `
+                    @page {
+                        @bottom-center {
+                            content: "صفحة " counter(page) " من " counter(pages);
+                        }
+                    }` : ''}
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="company-info">
+                        <h1>${settings.companyName || 'اسم الشركة'}</h1>
+                        <div class="company-details">
+                            ${settings.companyPhone ? `<div>هاتف: ${settings.companyPhone}</div>` : ''}
+                            ${settings.companyEmail ? `<div>بريد: ${settings.companyEmail}</div>` : ''}
+                            ${settings.companyAddress ? `<div>العنوان: ${settings.companyAddress}</div>` : ''}
+                            ${settings.commercialRegister ? `<div>س.ت: ${settings.commercialRegister}</div>` : ''}
+                            ${settings.taxNumber ? `<div>ر.ض: ${settings.taxNumber}</div>` : ''}
+                        </div>
+                    </div>
+                    ${settings.companyLogo ? `
+                    <div class="logo">
+                        <img src="${settings.companyLogo}" alt="شعار الشركة">
+                    </div>` : ''}
+                </div>
+                
+                <h2>تقرير المبيعات - ${moment().format(settings.dateFormat)}</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>المتجر</th>
+                            <th>المنتج</th>
+                            <th>الكمية</th>
+                            <th>السعر</th>
+                            <th>الإجمالي</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${moment().format(settings.dateFormat)}</td>
+                            <td>متجر الرئيسي</td>
+                            <td>منتج تجريبي</td>
+                            <td>10</td>
+                            <td>100 ريال</td>
+                            <td>1,000 ريال</td>
+                        </tr>
+                        <tr>
+                            <td>${moment().subtract(1, 'day').format(settings.dateFormat)}</td>
+                            <td>الفرع الأول</td>
+                            <td>منتج آخر</td>
+                            <td>5</td>
+                            <td>200 ريال</td>
+                            <td>1,000 ريال</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="5">الإجمالي</th>
+                            <th>2,000 ريال</th>
+                        </tr>
+                    </tfoot>
+                </table>
+                
+                ${settings.qrCode ? `
+                <div style="text-align: center; margin-top: 30px;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=REPORT-${Date.now()}" alt="QR Code">
+                    <div style="font-size: 12px; color: #666;">رمز التحقق</div>
+                </div>` : ''}
+                
+                <div class="footer">
+                    ${settings.reportFooter || 'شكراً لتعاملكم معنا'}
+                </div>
+            </body>
+            </html>
+        `;
+        
+        // فتح نافذة المعاينة
+        const previewWindow = window.open('', '_blank');
+        previewWindow.document.write(previewHTML);
+        previewWindow.document.close();
+    };
+
+    /**
+     * اختبار إعدادات الطباعة
+     */
+    window.testPrintSettings = function() {
+        previewReportSettings();
+        setTimeout(() => {
+            window.print();
+        }, 500);
+    };
 
     // تصدير الوظائف للاستخدام العام
     window.SettingsUI = {
