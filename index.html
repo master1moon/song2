@@ -6119,22 +6119,30 @@
         const colabCode = `# كود Python لحفظ النسخة الاحتياطية في Google Drive
 from google.colab import drive
 import json
+import os
 from datetime import datetime
 
 # ربط Google Drive
 drive.mount('/content/drive')
 
+# إنشاء مجلد "نجيب المقداد" إذا لم يكن موجوداً
+folder_path = "/content/drive/MyDrive/نجيب المقداد"
+if not os.path.exists(folder_path):
+    os.makedirs(folder_path)
+    print("✅ تم إنشاء مجلد: نجيب المقداد")
+
 # البيانات
 backup_data = '''${dataStr}'''
 
-# حفظ الملف
+# حفظ الملف داخل المجلد
 filename = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-filepath = f"/content/drive/MyDrive/{filename}"
+filepath = f"{folder_path}/{filename}"
 
 with open(filepath, 'w', encoding='utf-8') as f:
     f.write(backup_data)
 
-print(f"✅ تم حفظ النسخة في: {filename}")`;
+print(f"✅ تم حفظ النسخة في: نجيب المقداد/{filename}")
+print(f"📁 المسار الكامل: {filepath}")`;
 
         // إنشاء نافذة HTML
         const modalHTML = `

@@ -52,22 +52,30 @@
 # كود Python لحفظ النسخة الاحتياطية في Google Drive
 from google.colab import drive
 import json
+import os
 from datetime import datetime
 
 # ربط Google Drive
 drive.mount('/content/drive')
 
+# إنشاء مجلد "نجيب المقداد" إذا لم يكن موجوداً
+folder_path = "/content/drive/MyDrive/نجيب المقداد"
+if not os.path.exists(folder_path):
+    os.makedirs(folder_path)
+    print("✅ تم إنشاء مجلد: نجيب المقداد")
+
 # البيانات
 backup_data = '''${dataStr}'''
 
-# حفظ الملف
+# حفظ الملف داخل المجلد
 filename = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-filepath = f"/content/drive/MyDrive/{filename}"
+filepath = f"{folder_path}/{filename}"
 
 with open(filepath, 'w', encoding='utf-8') as f:
     f.write(backup_data)
 
-print(f"✅ تم حفظ النسخة في: {filename}")
+print(f"✅ تم حفظ النسخة في: نجيب المقداد/{filename}")
+print(f"📁 المسار الكامل: {filepath}")
                 `.trim();
 
                 return `
@@ -93,16 +101,48 @@ print(f"✅ تم حفظ النسخة في: {filename}")
             createEmailLink(backupData, filename) {
                 const dataStr = JSON.stringify(backupData, null, 2);
                 const subject = encodeURIComponent(`نسخة احتياطية - ${filename}`);
-                const body = encodeURIComponent(`النسخة الاحتياطية مرفقة أدناه:\n\n${dataStr}`);
+                
+                // إنشاء ملف للتحميل
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const dataUrl = URL.createObjectURL(blob);
                 
                 return `
                     <div class="alert alert-warning">
                         <h5>📧 طريقة بسيطة: البريد الإلكتروني</h5>
-                        <p>أرسل النسخة إلى بريدك الإلكتروني ثم احفظها في Drive:</p>
-                        <a href="mailto:your-email@gmail.com?subject=${subject}&body=${body}" class="btn btn-primary">
-                            <i class="fas fa-envelope"></i> إرسال بالبريد
-                        </a>
-                        <small class="d-block mt-2">ملاحظة: قد يكون هناك حد لحجم البيانات</small>
+                        <p>احفظ الملف أولاً ثم أرسله بالبريد:</p>
+                        
+                        <div class="mb-3">
+                            <a href="${dataUrl}" download="${filename}" class="btn btn-success">
+                                <i class="fas fa-download"></i> تحميل الملف
+                            </a>
+                        </div>
+                        
+                        <p>ثم أرسله إلى بريدك الإلكتروني:</p>
+                        <input type="email" id="emailAddress" class="form-control mb-2" placeholder="أدخل بريدك الإلكتروني">
+                        <button class="btn btn-primary" onclick="
+                            const email = document.getElementById('emailAddress').value;
+                            if(!email) {
+                                showNotification('الرجاء إدخال البريد الإلكتروني', 'warning');
+                                return;
+                            }
+                            const subject = 'نسخة احتياطية - ${filename}';
+                            const body = 'مرفق ملف النسخة الاحتياطية. الرجاء حفظه في Google Drive في مجلد: نجيب المقداد';
+                            window.open('mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body));
+                            showNotification('افتح بريدك الإلكتروني وأرفق الملف المحمّل', 'info');
+                        ">
+                            <i class="fas fa-envelope"></i> فتح البريد
+                        </button>
+                        
+                        <div class="alert alert-info mt-3">
+                            <strong>📌 خطوات حفظ الملف في Google Drive:</strong>
+                            <ol class="mb-0">
+                                <li>حمّل الملف بالضغط على زر "تحميل الملف"</li>
+                                <li>افتح البريد الإلكتروني وأرفق الملف</li>
+                                <li>أرسل البريد لنفسك</li>
+                                <li>افتح البريد من جهازك أو الويب</li>
+                                <li>احفظ المرفق في Google Drive → مجلد "نجيب المقداد"</li>
+                            </ol>
+                        </div>
                     </div>
                 `;
             }
