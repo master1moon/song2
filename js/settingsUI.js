@@ -569,6 +569,9 @@
                     <button class="btn btn-primary" onclick="if(typeof createBackup === 'function') createBackup()">
                         <i class="fas fa-save"></i> إنشاء نسخة احتياطية الآن
                     </button>
+                    <button class="btn btn-warning" onclick="if(typeof testGoogleDriveBackup === 'function') testGoogleDriveBackup()">
+                        <i class="fas fa-vial"></i> اختبار Google Drive
+                    </button>
                     
                     <button class="btn btn-secondary" onclick="document.getElementById('restoreBackupFile').click()">
                         <i class="fas fa-upload"></i> استعادة نسخة احتياطية

@@ -107,17 +107,27 @@
                 case 'drive':
                     // Google Drive - عرض الحلول المبتكرة
                     this.downloadBackup(backupData, filename);
-                    // تأخير بسيط للتأكد من تحميل المكتبة
-                    setTimeout(() => {
-                        if (typeof window.CloudStorageHelper !== 'undefined' && window.CloudStorageHelper.showAllSolutions) {
-                            window.CloudStorageHelper.showAllSolutions(backupData, filename);
-                        } else if (typeof window.showGoogleDriveInstructions === 'function') {
-                            // استخدام الحل الاحتياطي
-                            window.showGoogleDriveInstructions(backupData);
-                        } else {
-                            this.showCloudInstructions('drive', backupData, filename);
-                        }
-                    }, 100);
+                    
+                    // عرض النافذة مباشرة
+                    console.log('Showing Google Drive instructions...');
+                    
+                    // استخدام الحل المباشر فوراً
+                    if (typeof window.showGoogleDriveInstructions === 'function') {
+                        console.log('Using direct solution');
+                        window.showGoogleDriveInstructions(backupData);
+                    } else {
+                        console.log('Direct solution not found, trying alternatives...');
+                        // تأخير بسيط للتأكد من تحميل المكتبة
+                        setTimeout(() => {
+                            if (typeof window.CloudStorageHelper !== 'undefined' && window.CloudStorageHelper.showAllSolutions) {
+                                console.log('Using CloudStorageHelper');
+                                window.CloudStorageHelper.showAllSolutions(backupData, filename);
+                            } else {
+                                console.log('Using showCloudInstructions');
+                                this.showCloudInstructions('drive', backupData, filename);
+                            }
+                        }, 100);
+                    }
                     break;
                     
                 case 'dropbox':

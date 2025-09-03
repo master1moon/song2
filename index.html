@@ -6112,37 +6112,9 @@
     <script src="js/cloudStorageHelper.js"></script>
     
     <script>
-    // التأكد من تحميل نظام النسخ الاحتياطي الجديد
-    document.addEventListener('DOMContentLoaded', function() {
-        // إعادة تعريف createBackup لاستخدام النظام الجديد
-        window.createBackup = async function() {
-            console.log('Creating backup...');
-            
-            // التحقق من BackupSystem
-            if (window.BackupSystem && window.BackupSystem.createBackup) {
-                return await window.BackupSystem.createBackup();
-            } else {
-                showNotification('نظام النسخ الاحتياطي غير متاح', 'error');
-                console.error('BackupSystem not loaded');
-            }
-        };
-        
-        // تسجيل حالة التحميل
-        if (window.BackupSystem) {
-            console.log('✅ BackupSystem loaded successfully');
-        } else {
-            console.error('❌ BackupSystem not loaded');
-        }
-        
-        if (window.CloudStorageHelper) {
-            console.log('✅ CloudStorageHelper loaded successfully');
-        } else {
-            console.error('❌ CloudStorageHelper not loaded');
-        }
-    });
-    
-    // حل احتياطي: دالة بسيطة لعرض تعليمات Google Drive
+    // حل احتياطي: دالة بسيطة لعرض تعليمات Google Drive - متاحة فوراً
     window.showGoogleDriveInstructions = function(backupData) {
+        console.log('showGoogleDriveInstructions called with data:', backupData);
         const dataStr = JSON.stringify(backupData || {test: "بيانات تجريبية"}, null, 2);
         const colabCode = `# كود Python لحفظ النسخة الاحتياطية في Google Drive
 from google.colab import drive
@@ -6250,6 +6222,56 @@ print(f"✅ تم حفظ النسخة في: {filename}")`;
         document.getElementById('driveInstructionsModal').addEventListener('hidden.bs.modal', function() {
             this.remove();
         });
+    };
+    
+    // التأكد من تحميل نظام النسخ الاحتياطي الجديد
+    document.addEventListener('DOMContentLoaded', function() {
+        // إعادة تعريف createBackup لاستخدام النظام الجديد
+        window.createBackup = async function() {
+            console.log('Creating backup...');
+            
+            // التحقق من BackupSystem
+            if (window.BackupSystem && window.BackupSystem.createBackup) {
+                return await window.BackupSystem.createBackup();
+            } else {
+                showNotification('نظام النسخ الاحتياطي غير متاح', 'error');
+                console.error('BackupSystem not loaded');
+            }
+        };
+        
+        // تسجيل حالة التحميل
+        if (window.BackupSystem) {
+            console.log('✅ BackupSystem loaded successfully');
+        } else {
+            console.error('❌ BackupSystem not loaded');
+        }
+        
+        if (window.CloudStorageHelper) {
+            console.log('✅ CloudStorageHelper loaded successfully');
+        } else {
+            console.error('❌ CloudStorageHelper not loaded');
+        }
+    });
+    
+    // زر اختبار Google Drive - للتأكد من عمل النظام
+    window.testGoogleDriveBackup = function() {
+        console.log('Testing Google Drive backup...');
+        
+        // بيانات تجريبية
+        const testData = {
+            stores: [{id: 1, name: "متجر تجريبي"}],
+            sales: [{id: 1, amount: 1000}],
+            timestamp: new Date().toISOString()
+        };
+        
+        // عرض النافذة مباشرة
+        if (typeof window.showGoogleDriveInstructions === 'function') {
+            console.log('Calling showGoogleDriveInstructions directly');
+            window.showGoogleDriveInstructions(testData);
+        } else {
+            console.error('showGoogleDriveInstructions not found!');
+            alert('الدالة غير موجودة! تحقق من Console');
+        }
     };
     </script>
     
