@@ -8,9 +8,12 @@
  * - validateInput لا يدعم جميع أنواع المدخلات المطلوبة
  * - لا يوجد حماية ضد CSRF attacks
  * - المعقمات قد تكسر بعض المحتوى العربي المعقد
+ * - لا يوجد تعقيم لـ CSS/Style
+ * - لا يوجد حماية ضد SQL Injection (لا يستخدم التطبيق SQL)
  */
 
 // دوال الأمان والحماية من XSS
+// يستخدم IIFE (Immediately Invoked Function Expression) لتجنب تلويث النطاق العام
 (function() {
     'use strict';
 
@@ -19,10 +22,17 @@
      * يحول الأحرف الخاصة في HTML إلى HTML entities
      * مشكلة: قد لا يكون كافياً لجميع السياقات
      */
-    // تعقيم النص لمنع XSS
+    /**
+     * تعقيم النص لمنع هجمات XSS
+     * يحول الأحرف الخاصة في HTML إلى HTML entities
+     * مشكلة: قد لا يكون كافياً لجميع السياقات
+     * @param {*} text - النص المراد تعقيمه
+     * @returns {string} النص المعقم الآمن
+     */
     function escapeHtml(text) {
         if (text == null) return '';
         
+        // خريطة الأحرف الخطرة وبدائلها الآمنة
         const map = {
             '&': '&amp;',
             '<': '&lt;',
@@ -35,7 +45,13 @@
         return String(text).replace(/[&<>"'\/]/g, function(m) { return map[m]; });
     }
 
-    // تعقيم السمات HTML
+    /**
+     * تعقيم السمات HTML attributes
+     * يحول الأحرف الخطرة إلى رموز HTML رقمية
+     * أكثر أماناً من escapeHtml للسمات
+     * @param {*} attr - قيمة السمة المراد تعقيمها
+     * @returns {string} السمة المعقمة
+     */
     function escapeAttribute(attr) {
         if (attr == null) return '';
         return String(attr).replace(/[&<>"']/g, function(m) {
@@ -43,7 +59,15 @@
         });
     }
 
-    // إنشاء عنصر DOM بطريقة آمنة
+    /**
+     * إنشاء عنصر DOM بطريقة آمنة
+     * يتعامل مع السمات والمحتوى بشكل آمن
+     * يسمح بـ innerHTML فقط عند تحديد trusted:true
+     * @param {string} tag - اسم العنصر HTML
+     * @param {Object} attributes - سمات العنصر
+     * @param {Array} children - العناصر الفرعية
+     * @returns {HTMLElement} العنصر المنشأ بشكل آمن
+     */
     function createElement(tag, attributes = {}, children = []) {
         const element = document.createElement(tag);
         
@@ -75,9 +99,15 @@
         return element;
     }
 
-    // تعقيم HTML من المستخدم (للمحتوى الغني)
+    /**
+     * تعقيم HTML من المستخدم (للمحتوى الغني)
+     * يزيل العناصر والسمات غير الآمنة
+     * مشكلة: قائمة العناصر المسموح بها محدودة جداً
+     * @param {string} html - كود HTML المراد تعقيمه
+     * @returns {string} HTML معقم وآمن
+     */
     function sanitizeHtml(html) {
-        // قائمة العناصر المسموح بها
+        // قائمة العناصر المسموح بها - يجب توسيعها
         const allowedTags = ['b', 'i', 'em', 'strong', 'span', 'br', 'p', 'div'];
         const allowedAttributes = ['class', 'id'];
         
@@ -217,9 +247,15 @@
         return validator.test(input);
     }
 
-    // Content Security Policy meta tag
+    /**
+     * إضافة رؤوس الأمان Security Headers
+     * تضيف Content Security Policy ورؤوس أمان أخرى
+     * معطلة حالياً لتجنب التعارض مع المكتبات الخارجية
+     * يجب تفعيلها بعد التأكد من التوافق
+     */
     function addSecurityHeaders() {
-        // إضافة CSP
+        // إضافة Content Security Policy
+        // يحدد مصادر المحتوى المسموح بها
         const cspMeta = document.createElement('meta');
         cspMeta.httpEquiv = 'Content-Security-Policy';
         cspMeta.content = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://api.github.com";
@@ -266,6 +302,7 @@
     // تطبيق إعدادات الأمان عند التحميل
     document.addEventListener('DOMContentLoaded', function() {
         // addSecurityHeaders(); // مؤقتاً معطل لتجنب تعارض مع المكتبات الخارجية
+        // يجب مراجعة وتحديث CSP ليتوافق مع متطلبات التطبيق
     });
 
 })();

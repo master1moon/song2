@@ -88,12 +88,48 @@ function editPayment(id) {
  * يحدث تفاصيل المحل وجميع التقارير ذات الصلة
  * @param {string} id - معرف التسديد المراد حذفه
  */
+/**
+ * حذف تسديد من السجلات
+ * يطلب تأكيد من المستخدم قبل الحذف
+ * ينقل التسديد المحذوف إلى سلة المحذوفات
+ * يبطل كاش المحل والتقارير ذات الصلة
+ * @param {string} id - معرف التسديد المراد حذفه
+ */
 function deletePayment(id) {
-  const payment = data.payments.find(p => p.id === id); if (!payment) return;
+  const payment = data.payments.find(p => p.id === id); 
+  if (!payment) return;
   if (!confirm('هل أنت متأكد من حذف هذا التسديد؟')) return;
+  
+  // حفظ معرف المحل لإبطال الكاش
+  const storeId = payment.storeId;
+  
   data.payments = data.payments.filter(p => p.id !== id);
   saveData();
-  (async()=>{ try{ if (typeof addToTrash==='function') await addToTrash('payments', payment); }catch{}; refreshCurrentView(); showStoreDetails(payment.storeId); updateProfitReport(); generateDebtReport(); })();
+  
+  /**
+   * تحديث الكاش بعد حذف التسديد
+   * يبطل كاش رصيد المحل المتأثر
+   * يبطل كاش تقارير الديون والأرباح
+   */
+  if (typeof balanceCache !== 'undefined' && storeId) {
+    balanceCache.invalidateStore(storeId);
+    console.log(`تم تحديث كاش رصيد المحل بعد حذف التسديد: ${storeId}`);
+  }
+  
+  if (typeof reportCache !== 'undefined') {
+    reportCache.invalidate(/^report_/);
+  }
+  
+  // إضافة إلى سلة المحذوفات وتحديث العروض
+  (async()=>{ 
+    try{ 
+      if (typeof addToTrash==='function') await addToTrash('payments', payment); 
+    }catch{}; 
+    refreshCurrentView(); 
+    showStoreDetails(payment.storeId); 
+    updateProfitReport(); 
+    generateDebtReport(); 
+  })();
   showNotification('تم حذف التسديد بنجاح', 'success');
 }
 

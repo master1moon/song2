@@ -8,6 +8,8 @@
  * - مزامنة المصروفات قد تفشل بصمت دون إشعار المستخدم
  * - تطبيع التواريخ يحدث عند كل تحميل مما قد يبطئ التطبيق
  * - لا يوجد آلية للتعامل مع تجاوز حد التخزين
+ * - لا يوجد تنظيف دوري للبيانات القديمة
+ * - عدم استخدام Web Workers للعمليات الثقيلة
  */
 
 // IndexedDB storage layer with graceful fallback to localStorage
@@ -47,6 +49,8 @@
           exp = req.transaction.objectStore('expenses');
         }
         if (exp) {
+          // إنشاء فهارس لتسريع البحث في المصروفات
+          // تجاهل الأخطاء لأن الفهرس قد يكون موجوداً بالفعل
           try { exp.createIndex('date', 'date', { unique: false }); } catch(_){}
           try { exp.createIndex('type', 'type', { unique: false }); } catch(_){}
           try { exp.createIndex('date_type', ['date','type'], { unique: false }); } catch(_){}
@@ -157,7 +161,10 @@
         window.saveData();
       }
       // notify that data is loaded and normalized
-      try { document.dispatchEvent(new Event('app-data-loaded')); } catch(_) {}
+      // إرسال حدث لإعلام بقية التطبيق باكتمال تحميل البيانات
+      try { document.dispatchEvent(new Event('app-data-loaded')); } catch(_) {
+        // تجاهل أخطاء إرسال الحدث
+      }
     } catch(_) {}
     return result;
   };
@@ -170,7 +177,16 @@
    */
   window.saveData = function(){
     const result = originalSaveData();
-    try { const dref = getDataRef(); if (dref) { idbSet('root', dref); syncExpensesToIndexed(); } } catch(_){ }
+    // حفظ في IndexedDB ومزامنة المصروفات
+    try { 
+      const dref = getDataRef(); 
+      if (dref) { 
+        idbSet('root', dref); 
+        syncExpensesToIndexed(); 
+      } 
+    } catch(_){ 
+      // تجاهل أخطاء IndexedDB - سيبقى localStorage هو الأساس
+    }
     return result;
   };
 })();

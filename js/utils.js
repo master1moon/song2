@@ -7,6 +7,8 @@
  * - setupFormattedInputs معقدة وقد تحتوي على أخطاء في موضع المؤشر
  * - لا يوجد معالجة للأخطاء في بعض الدوال
  * - التبديل بين الأقسام لا يحفظ الحالة أو التاريخ
+ * - لا يوجد دعم للروابط العميقة (deep linking)
+ * - قد تحدث تسرب ذاكرة في setupFormattedInputs
  */
 
 // رقمية: تحويل الأرقام العربية/الفارسية إلى إنجليزية
@@ -172,13 +174,35 @@ function setupFormattedInputs() {
  * @param {string} message - نص الرسالة
  * @param {string} type - نوع الإشعار (success, error, warning, info)
  */
-function showNotification(message, type) {
+function showNotification(message, type, options = {}) {
   const notification = document.getElementById('notification');
   const notificationText = document.getElementById('notificationText');
   if (!notification || !notificationText) return;
+  
+  // إلغاء أي مؤقت سابق
+  if (notification.hideTimeout) {
+    clearTimeout(notification.hideTimeout);
+  }
+  
   notificationText.textContent = message;
   notification.className = `notification ${type} show`;
-  setTimeout(() => { notification.className = 'notification'; }, 3000);
+  
+  // تشغيل الصوت إذا كان مفعلاً
+  if (window.SoundSystem && (options.sound !== false)) {
+    window.SoundSystem.playNotification(type);
+  }
+  
+  // الحصول على مدة العرض من الخيارات أو استخدام الافتراضي
+  const duration = options.duration || 3000;
+  
+  // إخفاء الإشعار بعد المدة المحددة
+  notification.hideTimeout = setTimeout(() => { 
+    notification.classList.remove('show');
+    // إزالة الفئات بعد انتهاء الحركة
+    setTimeout(() => {
+      notification.className = 'notification';
+    }, 300);
+  }, duration);
 }
 
 /**
@@ -201,6 +225,7 @@ function switchSection(targetSection, labelText) {
   if (title) document.querySelector('.page-title').textContent = title;
   if (targetSection === 'reports') if (typeof generatePartnerReports === 'function') generatePartnerReports();
   if (targetSection === 'trash') if (typeof renderTrashTable === 'function') setTimeout(() => renderTrashTable(), 100);
+  if (targetSection === 'settings') if (typeof SettingsUI !== 'undefined' && SettingsUI.init) SettingsUI.init();
 }
 
 /**
@@ -276,6 +301,13 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('resize', function () { if (window.innerWidth >= 769) closeDrawer(); });
 });
 
+/**
+ * تعيين نص آمن لعنصر DOM
+ * يتحقق من وجود العنصر قبل تعيين النص
+ * يتجنب أخطاء null reference
+ * @param {HTMLElement} el - العنصر المراد تعيين نصه
+ * @param {string} text - النص المراد عرضه
+ */
 function setTextSafe(el, text){ if (el) el.textContent = text; }
 
 /**
@@ -343,6 +375,8 @@ function refreshCurrentView() {
 }
 
 // تصدير الدوال للنطاق العام
+// يجعل الدوال متاحة في جميع الملفات الأخرى
+// التحقق من وجود window لتجنب الأخطاء في بيئة Node.js
 if (typeof window !== 'undefined') {
   window.toEnglishDigits = toEnglishDigits;
   window.formatNumber = formatNumber;

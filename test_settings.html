@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار إعدادات العرض والمظهر</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        body.dark-theme {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        body.dark-theme .test-section {
+            background-color: #2d3748;
+            color: #e0e0e0;
+        }
+        
+        .color-preview {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .status {
+            background: #374151;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>اختبار إعدادات العرض والمظهر</h1>
+        
+        <div class="test-section">
+            <h2>حالة الإعدادات الحالية</h2>
+            <div id="currentSettings" class="status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>اختبارات الإعدادات</h2>
+            
+            <div class="mb-3">
+                <label class="form-label">المظهر:</label>
+                <button class="btn btn-primary" onclick="testTheme('light')">فاتح</button>
+                <button class="btn btn-dark" onclick="testTheme('dark')">داكن</button>
+                <button class="btn btn-secondary" onclick="testTheme('auto')">تلقائي</button>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">حجم الخط:</label>
+                <button class="btn btn-outline-primary" onclick="testFontSize('small')">صغير</button>
+                <button class="btn btn-outline-primary" onclick="testFontSize('medium')">متوسط</button>
+                <button class="btn btn-outline-primary" onclick="testFontSize('large')">كبير</button>
+                <button class="btn btn-outline-primary" onclick="testFontSize('xlarge')">كبير جداً</button>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">اللغة:</label>
+                <button class="btn btn-outline-success" onclick="testLanguage('ar')">عربي</button>
+                <button class="btn btn-outline-success" onclick="testLanguage('en')">English</button>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">كثافة العرض:</label>
+                <button class="btn btn-outline-info" onclick="testDensity('compact')">مضغوط</button>
+                <button class="btn btn-outline-info" onclick="testDensity('normal')">عادي</button>
+                <button class="btn btn-outline-info" onclick="testDensity('comfortable')">مريح</button>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">الألوان:</label>
+                <div>
+                    <label>اللون الرئيسي:</label>
+                    <input type="color" id="primaryColor" value="#007bff" onchange="testColor('primary', this.value)">
+                    <span class="color-preview" id="primaryPreview" style="background: #007bff;"></span>
+                </div>
+                <div>
+                    <label>لون النص:</label>
+                    <input type="color" id="textColor" value="#212529" onchange="testColor('text', this.value)">
+                    <span class="color-preview" id="textPreview" style="background: #212529;"></span>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">خيارات أخرى:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="animations" checked onchange="testAnimations(this.checked)">
+                    <label class="form-check-label" for="animations">تفعيل الحركات</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="roundedCorners" checked onchange="testRoundedCorners(this.checked)">
+                    <label class="form-check-label" for="roundedCorners">الزوايا المستديرة</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>نص للاختبار</h2>
+            <p>هذا نص عربي لاختبار حجم الخط والألوان.</p>
+            <p>This is English text to test font size and colors.</p>
+            <button class="btn btn-primary">زر أساسي</button>
+            <button class="btn btn-secondary">زر ثانوي</button>
+            <input type="text" class="form-control mt-2" placeholder="حقل إدخال للاختبار">
+        </div>
+    </div>
+    
+    <script>
+        // عرض حالة الإعدادات
+        function updateStatus() {
+            const status = {
+                theme: document.body.classList.contains('dark-theme') ? 'داكن' : 'فاتح',
+                fontSize: document.body.getAttribute('data-font-size') || 'medium',
+                language: document.documentElement.lang || 'ar',
+                density: document.body.getAttribute('data-density') || 'normal',
+                animations: !document.body.classList.contains('no-animations'),
+                roundedCorners: !document.body.classList.contains('no-rounded-corners'),
+                primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#007bff',
+                textColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color') || '#212529'
+            };
+            
+            document.getElementById('currentSettings').innerHTML = `
+                <strong>المظهر:</strong> ${status.theme}<br>
+                <strong>حجم الخط:</strong> ${status.fontSize}<br>
+                <strong>اللغة:</strong> ${status.language}<br>
+                <strong>كثافة العرض:</strong> ${status.density}<br>
+                <strong>الحركات:</strong> ${status.animations ? 'مفعلة' : 'معطلة'}<br>
+                <strong>الزوايا المستديرة:</strong> ${status.roundedCorners ? 'مفعلة' : 'معطلة'}<br>
+                <strong>اللون الرئيسي:</strong> ${status.primaryColor}<br>
+                <strong>لون النص:</strong> ${status.textColor}
+            `;
+        }
+        
+        // اختبار المظهر
+        function testTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+            } else if (theme === 'light') {
+                document.body.classList.remove('dark-theme');
+            } else if (theme === 'auto') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.body.classList.toggle('dark-theme', prefersDark);
+            }
+            updateStatus();
+        }
+        
+        // اختبار حجم الخط
+        function testFontSize(size) {
+            document.body.setAttribute('data-font-size', size);
+            const sizes = {
+                'small': '12px',
+                'medium': '14px',
+                'large': '16px',
+                'xlarge': '18px'
+            };
+            document.body.style.fontSize = sizes[size];
+            updateStatus();
+        }
+        
+        // اختبار اللغة
+        function testLanguage(lang) {
+            document.documentElement.lang = lang;
+            document.body.setAttribute('lang', lang);
+            document.documentElement.dir = lang === 'en' ? 'ltr' : 'rtl';
+            updateStatus();
+        }
+        
+        // اختبار كثافة العرض
+        function testDensity(density) {
+            document.body.setAttribute('data-density', density);
+            
+            // تطبيق أنماط الكثافة
+            const elements = document.querySelectorAll('.test-section, .btn, .form-control');
+            elements.forEach(el => {
+                if (density === 'compact') {
+                    el.style.padding = '10px';
+                } else if (density === 'comfortable') {
+                    el.style.padding = '30px';
+                } else {
+                    el.style.padding = '';
+                }
+            });
+            updateStatus();
+        }
+        
+        // اختبار الألوان
+        function testColor(type, color) {
+            if (type === 'primary') {
+                document.documentElement.style.setProperty('--primary-color', color);
+                document.getElementById('primaryPreview').style.background = color;
+                // تطبيق اللون على الأزرار
+                document.querySelectorAll('.btn-primary').forEach(btn => {
+                    btn.style.backgroundColor = color;
+                    btn.style.borderColor = color;
+                });
+            } else if (type === 'text') {
+                document.documentElement.style.setProperty('--text-color', color);
+                document.body.style.color = color;
+                document.getElementById('textPreview').style.background = color;
+            }
+            updateStatus();
+        }
+        
+        // اختبار الحركات
+        function testAnimations(enabled) {
+            document.body.classList.toggle('no-animations', !enabled);
+            if (!enabled) {
+                document.body.style.transition = 'none';
+            } else {
+                document.body.style.transition = 'all 0.3s ease';
+            }
+            updateStatus();
+        }
+        
+        // اختبار الزوايا المستديرة
+        function testRoundedCorners(enabled) {
+            document.body.classList.toggle('no-rounded-corners', !enabled);
+            const elements = document.querySelectorAll('.test-section, .btn, .form-control');
+            elements.forEach(el => {
+                el.style.borderRadius = enabled ? '' : '0';
+            });
+            updateStatus();
+        }
+        
+        // تحديث الحالة عند التحميل
+        updateStatus();
+    </script>
+</body>
+</html>

@@ -4,11 +4,12 @@
  * يدعم البحث، الترتيب، التقسيم إلى صفحات، والعمليات الجماعية
  * 
  * المشاكل المحتملة:
- * - التواريخ قد لا تُحفظ بشكل صحيح (يستخدم متغير today غير معرّف)
  * - دالة cleanupModalBackdrops غير موجودة لكن يتم استدعاؤها
  * - معالجة الأخطاء في العمليات الجماعية ضعيفة
  * - لا يوجد تحقق من صحة المبالغ المدخلة
  * - حذف المصروفات لا يمكن التراجع عنه بسهولة
+ * - لا يوجد تصدير متعدد الصيغ (CSV, JSON)
+ * - لا يوجد تصنيفات فرعية للمصروفات
  */
 
 // إدارة المصروفات
@@ -61,7 +62,22 @@ function deleteExpense(id) {
   if (!confirm('هل أنت متأكد من حذف هذا المصروف؟')) return;
   const removed = data.expenses.find(e => e.id === id);
   data.expenses = data.expenses.filter(e => e.id !== id);
+  /**
+   * حفظ التغييرات وتحديث الكاش
+   * يحفظ البيانات في التخزين المحلي
+   * يبطل كاش التقارير المتأثرة بحذف المصروف
+   */
   saveData();
+  
+  // إبطال كاش التقارير المتأثرة
+  if (typeof reportCache !== 'undefined') {
+    reportCache.invalidate(/^report_profit/);
+    reportCache.invalidate(/^report_partner/);
+    console.log('تم تحديث كاش التقارير بعد حذف المصروف');
+  }
+  
+  // إضافة إلى سلة المحذوفات وتحديث العروض
+  // يستخدم async/await للتعامل مع العمليات غير المتزامنة
   (async()=>{ try{ if (removed && typeof addToTrash==='function') await addToTrash('expenses', removed); }catch{}; refreshCurrentView(); updateProfitReport(); })();
   showNotification('تم حذف المصروف بنجاح', 'success');
 }
@@ -89,11 +105,29 @@ function saveExpense() {
     data.expenses.push({ id: newId, type, amount, notes, date, addLater });
     showNotification('تم إضافة المصروف بنجاح', 'success');
   }
+  // حفظ نوع المصروف في قائمة الأنواع المحفوظة
+  // يساعد على الإدخال السريع في المرات القادمة
   try {
     const saved = JSON.parse(localStorage.getItem('expenseTypes') || '[]');
     if (type && !saved.includes(type)) { saved.push(type); localStorage.setItem('expenseTypes', JSON.stringify(saved)); }
-  } catch (_) {}
+  } catch (_) {
+    // تجاهل أخطاء التخزين
+  }
+  
+  /**
+   * حفظ البيانات وتحديث الكاش
+   * يحفظ البيانات في التخزين المحلي
+   * يبطل كاش تقارير الأرباح لأن المصروفات تؤثر عليها
+   * يبطل كاش تقارير الشركاء لأن المصروفات تؤثر على حصصهم
+   */
   saveData();
+  
+  // إبطال كاش التقارير المتأثرة بالمصروفات
+  if (typeof reportCache !== 'undefined') {
+    reportCache.invalidate(/^report_profit/);
+    reportCache.invalidate(/^report_partner/);
+    console.log('تم تحديث كاش التقارير بعد تغيير المصروفات');
+  }
   refreshCurrentView(); // تحديث جميع العروض المرئية
   updateProfitReport(); // خاص بتقرير الأرباح
   if (typeof generatePartnerReports === 'function') generatePartnerReports();
@@ -105,6 +139,11 @@ function saveExpense() {
 /**
  * حالة جدول المصروفات
  * يحتفظ بحالة البحث، الترتيب، ورقم الصفحة الحالية
+ * search: نص البحث الحالي
+ * sortKey: مفتاح الترتيب (date, type, amount)
+ * sortDir: اتجاه الترتيب (asc تصاعدي, desc تنازلي)
+ * page: رقم الصفحة الحالية
+ * pageSize: عدد العناصر في الصفحة
  */
 const expensesState = {
   search: '',
@@ -113,8 +152,10 @@ const expensesState = {
   page: 1,
   pageSize: 10,
 };
+
 /**
  * مجموعة المصروفات المحددة للعمليات الجماعية
+ * يستخدم Set لمنع التكرارات وسرعة البحث
  */
 const expensesSelection = new Set();
 
