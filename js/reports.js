@@ -289,25 +289,284 @@ function generatePartnerReports() {
   wirePartnerExports();
 }
 
-function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, totalPays, totalExps, net, perPartner){
+/**
+ * الحصول على إعدادات التقارير
+ * يستخدم الإعدادات المحفوظة أو القيم الافتراضية
+ */
+function getReportSettings() {
+  try {
+    const settings = AppSettings.get().reports;
+    return settings;
+  } catch (e) {
+    // إعدادات افتراضية في حالة عدم توفر AppSettings
+    return {
+      companyName: '',
+      companyLogo: '',
+      companyPhone: '',
+      companyEmail: '',
+      companyAddress: '',
+      commercialRegister: '',
+      taxNumber: '',
+      reportFooter: '',
+      dateFormat: 'DD/MM/YYYY',
+      paperSize: 'A4',
+      orientation: 'portrait',
+      margins: { top: 20, right: 20, bottom: 20, left: 20 },
+      showGridLines: true,
+      showPageNumbers: true,
+      watermark: '',
+      qrCode: false
+    };
+  }
+}
+
+/**
+ * بناء رأس التقرير HTML
+ * يحتوي على معلومات الشركة والشعار
+ */
+function buildReportHeader(title = 'تقرير') {
+  const settings = getReportSettings();
+  let headerHTML = '';
+  
+  headerHTML += '<div class="report-header">';
+  headerHTML += '<div class="company-section">';
+  
+  // معلومات الشركة
+  headerHTML += '<div class="company-info">';
+  if (settings.companyName) {
+    headerHTML += `<h1 class="company-name">${settings.companyName}</h1>`;
+  }
+  headerHTML += '<div class="company-details">';
+  if (settings.companyPhone) {
+    headerHTML += `<div><i class="fas fa-phone"></i> ${settings.companyPhone}</div>`;
+  }
+  if (settings.companyEmail) {
+    headerHTML += `<div><i class="fas fa-envelope"></i> ${settings.companyEmail}</div>`;
+  }
+  if (settings.companyAddress) {
+    headerHTML += `<div><i class="fas fa-map-marker-alt"></i> ${settings.companyAddress}</div>`;
+  }
+  if (settings.commercialRegister) {
+    headerHTML += `<div>س.ت: ${settings.commercialRegister}</div>`;
+  }
+  if (settings.taxNumber) {
+    headerHTML += `<div>ر.ض: ${settings.taxNumber}</div>`;
+  }
+  headerHTML += '</div>'; // company-details
+  headerHTML += '</div>'; // company-info
+  
+  // الشعار
+  if (settings.companyLogo) {
+    headerHTML += '<div class="company-logo">';
+    headerHTML += `<img src="${settings.companyLogo}" alt="شعار الشركة">`;
+    headerHTML += '</div>';
+  }
+  
+  headerHTML += '</div>'; // company-section
+  headerHTML += `<h2 class="report-title">${title}</h2>`;
+  headerHTML += '</div>'; // report-header
+  
+  return headerHTML;
+}
+
+/**
+ * بناء تذييل التقرير
+ */
+function buildReportFooter() {
+  const settings = getReportSettings();
+  let footerHTML = '<div class="report-footer">';
+  
+  if (settings.reportFooter) {
+    footerHTML += `<div class="footer-text">${settings.reportFooter}</div>`;
+  }
+  
+  if (settings.qrCode) {
+    const qrData = `REPORT-${Date.now()}`;
+    footerHTML += '<div class="qr-section">';
+    footerHTML += `<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${qrData}" alt="QR Code">`;
+    footerHTML += '<div class="qr-label">رمز التحقق</div>';
+    footerHTML += '</div>';
+  }
+  
+  footerHTML += '</div>';
+  return footerHTML;
+}
+
+/**
+ * الحصول على أنماط CSS للتقارير
+ */
+function getReportStyles() {
+  const settings = getReportSettings();
   const baseUrl = (function () { try { return new URL('.', location.href).href; } catch (e) { return location.href.substring(0, location.href.lastIndexOf('/') + 1); } })();
   const fontUrl = baseUrl + 'fonts/Amiri-Regular.woff2';
+  
+  let styles = `
+    @font-face { 
+      font-family: 'AmiriExport'; 
+      src: url('${fontUrl}') format('woff2'); 
+      font-weight: 400; 
+      font-style: normal; 
+    }
+    @page { 
+      size: ${settings.paperSize} ${settings.orientation}; 
+      margin: ${settings.margins.top}mm ${settings.margins.right}mm ${settings.margins.bottom}mm ${settings.margins.left}mm;
+    }
+    body { 
+      font-family: 'AmiriExport', 'Arial', sans-serif; 
+      padding: 16px;
+      direction: rtl;
+      margin: 0;
+    }
+    .report-header {
+      border-bottom: 3px solid #333;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    .company-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+    .company-info {
+      flex: 1;
+    }
+    .company-name {
+      margin: 0 0 10px 0;
+      color: #333;
+      font-size: 28px;
+    }
+    .company-details {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .company-details div {
+      margin: 2px 0;
+    }
+    .company-logo {
+      margin-right: 20px;
+    }
+    .company-logo img {
+      max-height: 80px;
+      max-width: 150px;
+    }
+    .report-title {
+      margin: 10px 0;
+      color: #333;
+      font-size: 22px;
+      text-align: center;
+    }
+    .summary { 
+      display: flex; 
+      gap: 12px; 
+      justify-content: flex-end; 
+      margin: 10px 0; 
+      flex-wrap: wrap; 
+    }
+    .box { 
+      border: 1px solid #ddd; 
+      padding: 8px 12px; 
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      text-align: right; 
+      margin-top: 8px;
+      ${settings.showGridLines ? 'border: 1px solid #ccc;' : ''}
+    }
+    th, td { 
+      padding: 8px; 
+      ${settings.showGridLines ? 'border: 1px solid #ccc;' : 'border-bottom: 1px solid #eee;'}
+    }
+    th {
+      background-color: #f5f5f5;
+      font-weight: bold;
+      color: #333;
+    }
+    h3, h4 { 
+      margin: 12px 0 6px; 
+      text-align: right; 
+    }
+    .actions { 
+      display: flex; 
+      justify-content: flex-start; 
+      margin-bottom: 12px; 
+      gap: 8px; 
+    }
+    .actions button { 
+      padding: 8px 12px; 
+      border: 1px solid #2c3e50; 
+      background: #2c3e50; 
+      color: #fff; 
+      border-radius: 6px; 
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .actions button:hover {
+      background: #34495e;
+    }
+    .report-footer {
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      text-align: center;
+      color: #666;
+    }
+    .qr-section {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .qr-label {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+    @media print { 
+      .actions { display: none; }
+      body { padding: 0; }
+    }
+    ${settings.watermark ? `
+    body::before {
+      content: "${settings.watermark}";
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 120px;
+      color: rgba(0,0,0,0.05);
+      z-index: -1;
+      white-space: nowrap;
+    }` : ''}
+    ${settings.showPageNumbers ? `
+    @page {
+      @bottom-center {
+        content: "صفحة " counter(page) " من " counter(pages);
+      }
+    }` : ''}
+  `;
+  
+  return styles;
+}
+
+function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, totalPays, totalExps, net, perPartner){
+  const settings = getReportSettings();
   let html='';
   html += '<!doctype html><html lang="ar" dir="rtl">';
   html += '<head><meta charset="utf-8"><title>تقرير الشركاء</title>';
-  html += '<style>'+"@font-face { font-family:'AmiriExport'; src: url('" + fontUrl + "') format('woff2'); font-weight:400; font-style:normal; }"+
-    "body { font-family:'AmiriExport','Arial',sans-serif; padding:16px; }"+
-    '.summary{ display:flex; gap:12px; justify-content:flex-end; margin:10px 0; flex-wrap: wrap; }'+
-    '.box{ border:1px solid #ddd; padding:8px 12px; }'+
-    'table{ width:100%; border-collapse:collapse; text-align:right; margin-top:8px; }'+
-    'th,td{ border:1px solid #ccc; padding:6px; }'+
-    'h3,h4{ margin:12px 0 6px; text-align:right; }'+
-    '.actions{ display:flex; justify-content:flex-start; margin-bottom:12px; gap:8px; }'+
-    '.actions button{ padding:8px 12px; border:1px solid #2c3e50; background:#2c3e50; color:#fff; border-radius:6px; font-size:14px; }'+
-    '@media print { .actions{ display:none } }'+
-    '@page{ size:A4; margin:12mm; }'+
-    '</style></head>';
-  html += '<body>' + '<div class="actions"><button onclick="window.print()">حفظ التقرير كـ PDF</button></div>' + '<h3>تقرير الشركاء</h3>' + '<div>المدة: ' + periodText + ' | عدد الشركاء: ' + partnersCount + ' | تاريخ التصدير: ' + (new Date()).toISOString().slice(0, 10) + '</div>';
+  html += '<style>' + getReportStyles() + '</style></head>';
+  html += '<body>';
+  html += '<div class="actions"><button onclick="window.print()">حفظ التقرير كـ PDF</button></div>';
+  
+  // رأس التقرير مع معلومات الشركة
+  html += buildReportHeader('تقرير الشركاء');
+  
+  // معلومات التقرير
+  html += '<div style="text-align: center; margin: 15px 0; color: #666;">';
+  html += 'المدة: ' + periodText + ' | عدد الشركاء: ' + partnersCount + ' | تاريخ التصدير: ' + moment().format(settings.dateFormat);
+  html += '</div>';
   html += '<div class="summary">' +
     '<div class="box">إجمالي التسديدات: <span class="currency">' + (totalPays||0).toLocaleString('en-US') + '</span></div>' +
     '<div class="box">إجمالي المصروفات: <span class="currency">' + (totalExps||0).toLocaleString('en-US') + '</span></div>' +
@@ -322,6 +581,10 @@ function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, t
   };
   html += renderTable('التسديدات', ['التاريخ','المحل','المبلغ','ملاحظات'], paysList);
   html += renderTable('المصروفات', ['التاريخ','النوع','المبلغ','ملاحظات'], expsList);
+  
+  // تذييل التقرير
+  html += buildReportFooter();
+  
   html += '</body></html>';
   return html;
 }
@@ -469,8 +732,7 @@ function exportData() {
  * @returns {string} كود HTML للتقرير
  */
 function buildAccountStatementHTML(store, periodText, allTransactions, previousBalance = 0) {
-  const baseUrl = (function () { try { return new URL('.', location.href).href; } catch (e) { return location.href.substring(0, location.href.lastIndexOf('/') + 1); } })();
-  const fontUrl = baseUrl + 'fonts/Amiri-Regular.woff2';
+  const settings = getReportSettings();
   
   // التأكد من وجود الدوال المطلوبة
   const formatNumber = window.formatNumber || ((n) => n.toLocaleString('en-US'));
@@ -499,18 +761,7 @@ function buildAccountStatementHTML(store, periodText, allTransactions, previousB
     <meta charset="utf-8">
     <title>كشف حساب متحرك - ${store.name}</title>
     <style>
-        @font-face { 
-            font-family: 'AmiriExport'; 
-            src: url('${fontUrl}') format('woff2'); 
-            font-weight: 400; 
-            font-style: normal; 
-        }
-        body { 
-            font-family: 'AmiriExport', 'Arial', sans-serif; 
-            padding: 20px;
-            background: #f5f5f5;
-            margin: 0;
-        }
+        ${getReportStyles()}
         .report-container {
             background: white;
             padding: 30px;
@@ -771,7 +1022,7 @@ function buildAccountStatementHTML(store, periodText, allTransactions, previousB
             <i class="fas fa-print"></i> طباعة / حفظ كـ PDF
         </button>
         
-        <h1>كشف حساب متحرك</h1>
+        ${buildReportHeader('كشف حساب متحرك')}
         
         <div class="info-section">
             <div>
@@ -781,7 +1032,7 @@ function buildAccountStatementHTML(store, periodText, allTransactions, previousB
             </div>
             <div>
                 <strong>الفترة:</strong> ${periodText}<br>
-                <strong>تاريخ الطباعة:</strong> ${new Date().toLocaleDateString('ar-YE')}<br>
+                <strong>تاريخ الطباعة:</strong> ${moment().format(settings.dateFormat)}<br>
                 <strong>عدد العمليات:</strong> ${allTransactions.length}
             </div>
         </div>
@@ -918,41 +1169,7 @@ function buildAccountStatementHTML(store, periodText, allTransactions, previousB
             </div>
         </div>
         
-        <!-- حقوق الطبع والنشر -->
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top: 50px; padding: 30px; border-radius: 15px; color: white; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; backdrop-filter: blur(10px);">
-                <h4 style="margin: 0 0 15px 0; font-size: 18px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                    💼 نظام إدارة المبيعات والمخزون والمصروفات
-                </h4>
-                <p style="margin: 10px 0; font-size: 14px;">
-                    جميع الحقوق محفوظة © ${new Date().getFullYear()}
-                </p>
-                <div style="margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 8px;">
-                    <p style="margin: 5px 0; font-size: 16px; font-weight: bold;">
-                        👨‍💻 تم التطوير بواسطة: م / نجيب المقداد
-                    </p>
-                    <p style="margin: 10px 0; font-size: 14px;">
-                        📱 للتواصل: 
-                        <span style="background: rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 5px; margin: 0 5px; cursor: pointer; transition: all 0.3s ease;" 
-                              onclick="copyPhoneNumber('775396439')" 
-                              onmouseover="this.style.background='rgba(255,255,255,0.5)'" 
-                              onmouseout="this.style.background='rgba(255,255,255,0.3)'">
-                            775396439
-                        </span>
-                        أو
-                        <span style="background: rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 5px; margin: 0 5px; cursor: pointer; transition: all 0.3s ease;" 
-                              onclick="copyPhoneNumber('737896431')" 
-                              onmouseover="this.style.background='rgba(255,255,255,0.5)'" 
-                              onmouseout="this.style.background='rgba(255,255,255,0.3)'">
-                            737896431
-                        </span>
-                    </p>
-                </div>
-                <p style="margin: 15px 0 0 0; font-size: 12px; opacity: 0.9; font-style: italic;">
-                    ⚖️ يُحظر نسخ أو توزيع هذا النظام بدون إذن مسبق
-                </p>
-            </div>
-        </div>
+        ${buildReportFooter()}
         
         <script>
         function copyPhoneNumber(number) {
@@ -987,48 +1204,84 @@ function buildAccountStatementHTML(store, periodText, allTransactions, previousB
 }
 
 function buildStoreReportHTML(store, periodText, mappedSalesForExport, mappedPaymentsForExport, totalSales, totalPayments, remaining) {
-  const baseUrl = (function () { try { return new URL('.', location.href).href; } catch (e) { return location.href.substring(0, location.href.lastIndexOf('/') + 1); } })();
-  const fontUrl = baseUrl + 'fonts/Amiri-Regular.woff2';
-  function buildSalesRows() { let rows = ''; for (const s of mappedSalesForExport) { rows += '<tr>' + '<td>' + s.التاريخ + '</td>' + '<td>' + s.التفاصيل + '</td>' + '<td>' + s.الباقة + '</td>' + '<td>' + s.الكمية_أو_المبلغ + '</td>' + '<td class="currency">' + (s.الإجمالي || 0).toLocaleString('en-US') + '</td>' + '</tr>'; } return rows; }
-  function buildPaymentRows() { let rows = ''; for (const p of mappedPaymentsForExport) { rows += '<tr>' + '<td>' + p.التاريخ + '</td>' + '<td class="currency">' + (p.المبلغ || 0).toLocaleString('en-US') + '</td>' + '<td>' + (p.ملاحظات || '') + '</td>' + '</tr>'; } return rows; }
+  const settings = getReportSettings();
+  
+  function buildSalesRows() { 
+    let rows = ''; 
+    for (const s of mappedSalesForExport) { 
+      rows += '<tr>' + 
+        '<td>' + s.التاريخ + '</td>' + 
+        '<td>' + s.التفاصيل + '</td>' + 
+        '<td>' + s.الباقة + '</td>' + 
+        '<td>' + s.الكمية_أو_المبلغ + '</td>' + 
+        '<td class="currency">' + (s.الإجمالي || 0).toLocaleString('en-US') + '</td>' + 
+      '</tr>'; 
+    } 
+    return rows; 
+  }
+  
+  function buildPaymentRows() { 
+    let rows = ''; 
+    for (const p of mappedPaymentsForExport) { 
+      rows += '<tr>' + 
+        '<td>' + p.التاريخ + '</td>' + 
+        '<td class="currency">' + (p.المبلغ || 0).toLocaleString('en-US') + '</td>' + 
+        '<td>' + (p.ملاحظات || '') + '</td>' + 
+      '</tr>'; 
+    } 
+    return rows; 
+  }
+  
   let html = '';
   html += '<!doctype html><html lang="ar" dir="rtl">';
   html += '<head><meta charset="utf-8"><title>كشف حساب: ' + store.name + '</title>';
-  html += '<style>' + "@font-face { font-family:'AmiriExport'; src: url('" + fontUrl + "') format('woff2'); font-weight:400; font-style:normal; }" +
-    "body { font-family:'AmiriExport','Arial',sans-serif; padding:16px; }" + '.summary{ display:flex; gap:12px; justify-content:flex-end; margin:10px 0; }' + '.box{ border:1px solid #ddd; padding:8px 12px; }' + 'table{ width:100%; border-collapse:collapse; text-align:right; margin-top:8px; }' + 'th,td{ border:1px solid #ccc; padding:6px; }' + 'h3,h4{ margin:12px 0 6px; text-align:right; }' + '.actions{ display:flex; justify-content:flex-start; margin-bottom:12px; gap:8px; }' + '.actions button{ padding:8px 12px; border:1px solid #2c3e50; background:#2c3e50; color:#fff; border-radius:6px; font-size:14px; }' + '@media print { .actions{ display:none } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; } }' + '@page{ size:A4; margin:12mm; }' + '</style></head>';
-  html += '<body>' + '<div class="actions"><button onclick="window.print()">حفظ التقرير كـ PDF</button></div>' + '<h3>كشف حساب: ' + store.name + '</h3>' + '<div>الفترة: ' + periodText + ' | تاريخ التصدير: ' + (new Date()).toISOString().slice(0, 10) + '</div>' + '<div class="summary">' + '<div class="box">إجمالي المبيعات: <span class="currency">' + (totalSales || 0).toLocaleString('en-US') + '</span></div>' + '<div class="box">إجمالي التسديدات: <span class="currency">' + (totalPayments || 0).toLocaleString('en-US') + '</span></div>' + '<div class="box">المتبقي: <span class="currency">' + (remaining || 0).toLocaleString('en-US') + '</span></div>' + '</div>';
+  html += '<style>' + getReportStyles() + '</style></head>';
+  html += '<body>';
+  html += '<div class="actions"><button onclick="window.print()">حفظ التقرير كـ PDF</button></div>';
+  
+  // رأس التقرير مع معلومات الشركة
+  html += buildReportHeader('كشف حساب: ' + store.name);
+  
+  // معلومات التقرير
+  html += '<div style="text-align: center; margin: 15px 0; color: #666;">';
+  html += 'الفترة: ' + periodText + ' | تاريخ التصدير: ' + moment().format(settings.dateFormat);
+  html += '</div>';
+  
+  html += '<div class="summary">' + 
+    '<div class="box">إجمالي المبيعات: <span class="currency">' + (totalSales || 0).toLocaleString('en-US') + '</span></div>' + 
+    '<div class="box">إجمالي التسديدات: <span class="currency">' + (totalPayments || 0).toLocaleString('en-US') + '</span></div>' + 
+    '<div class="box">المتبقي: <span class="currency">' + (remaining || 0).toLocaleString('en-US') + '</span></div>' + 
+  '</div>';
+  
   html += '<h4>المبيعات</h4>';
-  if (mappedSalesForExport.length > 0) html += '<table><thead><tr><th>التاريخ</th><th>التفاصيل</th><th>الباقة</th><th>الكمية/المبلغ</th><th>الإجمالي</th></tr></thead><tbody>' + buildSalesRows() + '</tbody></table>'; else html += '<div>لا توجد مبيعات ضمن الفترة</div>';
+  if (mappedSalesForExport.length > 0) 
+    html += '<table><thead><tr><th>التاريخ</th><th>التفاصيل</th><th>الباقة</th><th>الكمية/المبلغ</th><th>الإجمالي</th></tr></thead><tbody>' + buildSalesRows() + '</tbody></table>'; 
+  else 
+    html += '<div>لا توجد مبيعات ضمن الفترة</div>';
+    
   html += '<h4>التسديدات</h4>';
-  if (mappedPaymentsForExport.length > 0) html += '<table><thead><tr><th>التاريخ</th><th>المبلغ</th><th>ملاحظات</th></tr></thead><tbody>' + buildPaymentRows() + '</tbody></table>'; else html += '<div>لا توجد تسديدات ضمن الفترة</div>';
-  // حقوق الطبع والنشر
-  html += '<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top: 50px; padding: 30px; border-radius: 15px; color: white; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">' +
-    '<div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; backdrop-filter: blur(10px);">' +
-    '<h4 style="margin: 0 0 15px 0; font-size: 18px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">💼 نظام إدارة المبيعات والمخزون والمصروفات</h4>' +
-    '<p style="margin: 10px 0; font-size: 14px;">جميع الحقوق محفوظة © ' + new Date().getFullYear() + '</p>' +
-    '<div style="margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 8px;">' +
-    '<p style="margin: 5px 0; font-size: 16px; font-weight: bold;">👨‍💻 تم التطوير بواسطة: م / نجيب المقداد</p>' +
-    '<p style="margin: 10px 0; font-size: 14px;">📱 للتواصل: ' +
-    '<span style="background: rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 5px; margin: 0 5px; cursor: pointer;" onclick="copyPhoneNumber(\'775396439\')">775396439</span>' +
-    ' أو ' +
-    '<span style="background: rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 5px; margin: 0 5px; cursor: pointer;" onclick="copyPhoneNumber(\'737896431\')">737896431</span>' +
-    '</p></div>' +
-    '<p style="margin: 15px 0 0 0; font-size: 12px; opacity: 0.9; font-style: italic;">⚖️ يُحظر نسخ أو توزيع هذا النظام بدون إذن مسبق</p>' +
-    '</div></div>' +
-    '<script>function copyPhoneNumber(number){navigator.clipboard.writeText(number).then(function(){const n=document.createElement("div");n.style.cssText="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#4CAF50;color:white;padding:15px 30px;border-radius:8px;box-shadow:0 5px 15px rgba(0,0,0,0.3);z-index:10000;font-size:16px;animation:fadeInOut 2s ease-in-out;";n.innerHTML="✅ تم نسخ الرقم: "+number;document.body.appendChild(n);const s=document.createElement("style");s.textContent="@keyframes fadeInOut{0%{opacity:0;transform:translate(-50%,-50%) scale(0.8);}20%{opacity:1;transform:translate(-50%,-50%) scale(1);}80%{opacity:1;transform:translate(-50%,-50%) scale(1);}100%{opacity:0;transform:translate(-50%,-50%) scale(0.8);}}";document.head.appendChild(s);setTimeout(function(){n.remove();s.remove();},2000);}).catch(function(err){alert("تعذر نسخ الرقم. يمكنك نسخه يدوياً: "+number);});}</script>';
+  if (mappedPaymentsForExport.length > 0) 
+    html += '<table><thead><tr><th>التاريخ</th><th>المبلغ</th><th>ملاحظات</th></tr></thead><tbody>' + buildPaymentRows() + '</tbody></table>'; 
+  else 
+    html += '<div>لا توجد تسديدات ضمن الفترة</div>';
+  
+  // تذييل التقرير
+  html += buildReportFooter();
+  
   html += '</body></html>';
   return html;
 }
 
 function buildExpensesReportHTML(expensesRows, periodText) {
-  const baseUrl = (function () { try { return new URL('.', location.href).href; } catch (e) { return location.href.substring(0, location.href.lastIndexOf('/') + 1); } })();
-  const fontUrl = baseUrl + 'fonts/Amiri-Regular.woff2';
+  const settings = getReportSettings();
   const currentMonth = moment().format('YYYY-MM');
+  
   const getMonthKey = row => {
     const d = String(row['التاريخ'] || '').slice(0, 10);
     const m = moment(d, [moment.ISO_8601, 'YYYY-MM-DD', 'YYYY-M-D'], true);
     return m.isValid() ? m.format('YYYY-MM') : (d.slice(0, 7) || '');
   };
+  
   const monthMap = new Map();
   let overallTotal = 0;
   for (const r of expensesRows) {
@@ -1043,9 +1296,18 @@ function buildExpensesReportHTML(expensesRows, periodText) {
   let html = '';
   html += '<!doctype html><html lang="ar" dir="rtl">';
   html += '<head><meta charset="utf-8"><title>تقرير المصروفات</title>';
-  html += '<style>' + "@font-face { font-family:'AmiriExport'; src: url('" + fontUrl + "') format('woff2'); font-weight:400; font-style:normal; }" +
-    "body { font-family:'AmiriExport','Arial',sans-serif; padding:16px; }" + 'table{ width:100%; border-collapse:collapse; text-align:right; margin-top:8px; }' + 'th,td{ border:1px solid #ccc; padding:6px; }' + 'h3,h4{ margin:12px 0 6px; text-align:right; }' + '.summary{ display:flex; gap:12px; justify-content:flex-end; margin:10px 0; }' + '.box{ border:1px solid #ddd; padding:8px 12px; }' + '.actions{ display:flex; justify-content:flex-start; margin-bottom:12px; gap:8px; }' + '.actions button{ padding:8px 12px; border:1px solid #2c3e50; background:#2c3e50; color:#fff; border-radius:6px; font-size:14px; }' + '@media print { .actions{ display:none } }' + '@page{ size:A4; margin:12mm; }' + '</style></head>';
-  html += '<body>' + '<div class="actions"><button onclick="window.print()">حفظ التقرير كـ PDF</button></div>' + '<h3>تقرير المصروفات</h3>' + '<div>المدة: ' + periodText + ' | تاريخ التصدير: ' + (new Date()).toISOString().slice(0, 10) + '</div>';
+  html += '<style>' + getReportStyles() + '</style></head>';
+  html += '<body>';
+  html += '<div class="actions"><button onclick="window.print()">حفظ التقرير كـ PDF</button></div>';
+  
+  // رأس التقرير مع معلومات الشركة
+  html += buildReportHeader('تقرير المصروفات');
+  
+  // معلومات التقرير
+  html += '<div style="text-align: center; margin: 15px 0; color: #666;">';
+  html += 'المدة: ' + periodText + ' | تاريخ التصدير: ' + moment().format(settings.dateFormat);
+  html += '</div>';
+  
   html += '<div class="summary"><div class="box">إجمالي المصروفات المصدّرة: <span class="currency">' + (overallTotal || 0).toLocaleString('en-US') + '</span></div></div>';
 
   const renderTable = (rows) => {
@@ -1078,22 +1340,10 @@ function buildExpensesReportHTML(expensesRows, periodText) {
     html += renderTable(rows);
   }
 
-  // حقوق الطبع والنشر
-  html += '<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top: 50px; padding: 30px; border-radius: 15px; color: white; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">' +
-    '<div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; backdrop-filter: blur(10px);">' +
-    '<h4 style="margin: 0 0 15px 0; font-size: 18px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">💼 نظام إدارة المبيعات والمخزون والمصروفات</h4>' +
-    '<p style="margin: 10px 0; font-size: 14px;">جميع الحقوق محفوظة © ' + (new Date()).getFullYear() + '</p>' +
-    '<div style="margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 8px;">' +
-    '<p style="margin: 5px 0; font-size: 16px; font-weight: bold;">👨‍💻 تم التطوير بواسطة: م / نجيب المقداد</p>' +
-    '<p style="margin: 10px 0; font-size: 14px;">📱 للتواصل: ' +
-    '<span style="background: rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 5px; margin: 0 5px; cursor: pointer;" onclick="copyPhoneNumber(\'775396439\')">775396439</span>' +
-    ' أو ' +
-    '<span style="background: rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 5px; margin: 0 5px; cursor: pointer;" onclick="copyPhoneNumber(\'737896431\')">737896431</span>' +
-    '</p></div>' +
-    '<p style="margin: 15px 0 0 0; font-size: 12px; opacity: 0.9; font-style: italic;">⚖️ يُحظر نسخ أو توزيع هذا النظام بدون إذن مسبق</p>' +
-    '</div></div>' +
-    '<script>function copyPhoneNumber(number){navigator.clipboard.writeText(number).then(function(){const n=document.createElement("div");n.style.cssText="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#4CAF50;color:white;padding:15px 30px;border-radius:8px;box-shadow:0 5px 15px rgba(0,0,0,0.3);z-index:10000;font-size:16px;animation:fadeInOut 2s ease-in-out;";n.innerHTML="✅ تم نسخ الرقم: "+number;document.body.appendChild(n);const s=document.createElement("style");s.textContent="@keyframes fadeInOut{0%{opacity:0;transform:translate(-50%,-50%) scale(0.8);}20%{opacity:1;transform:translate(-50%,-50%) scale(1);}80%{opacity:1;transform:translate(-50%,-50%) scale(1);}100%{opacity:0;transform:translate(-50%,-50%) scale(0.8);}}";document.head.appendChild(s);setTimeout(function(){n.remove();s.remove();},2000);}).catch(function(err){alert("تعذر نسخ الرقم. يمكنك نسخه يدوياً: "+number);});}</script>';
-  
+    
+  // تذييل التقرير
+  html += buildReportFooter();
+
   html += '</body></html>';
   return html;
 }
