@@ -78,8 +78,8 @@ print(f"✅ تم حفظ النسخة في: {filename}")
                             <li>أنشئ دفتر ملاحظات جديد</li>
                             <li>انسخ والصق الكود التالي:</li>
                         </ol>
-                        <pre class="bg-dark text-light p-3 rounded"><code>${this.escapeHtml(pythonCode)}</code></pre>
-                        <button class="btn btn-primary mt-2" onclick="navigator.clipboard.writeText(\`${pythonCode.replace(/`/g, '\\`')}\`); showNotification('تم نسخ الكود!', 'success')">
+                        <pre class="bg-dark text-light p-3 rounded"><code>${CloudStorageHelper.escapeHtml(pythonCode)}</code></pre>
+                        <button class="btn btn-primary mt-2" onclick="navigator.clipboard.writeText(\`${pythonCode.replace(/`/g, '\\`').replace(/'/g, "\\'")}\`); showNotification('تم نسخ الكود!', 'success')">
                             <i class="fas fa-copy"></i> نسخ الكود
                         </button>
                     </div>
@@ -192,7 +192,7 @@ const uploadFile = async (data, filename) => {
                             <li>Yandex.Disk</li>
                             <li>4shared</li>
                         </ul>
-                        <pre class="bg-dark text-light p-3 rounded"><code>${this.escapeHtml(code)}</code></pre>
+                        <pre class="bg-dark text-light p-3 rounded"><code>${CloudStorageHelper.escapeHtml(code)}</code></pre>
                     </div>
                 `;
             }
