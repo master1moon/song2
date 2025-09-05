@@ -425,11 +425,24 @@ function buildReportFooter() {
   
   // حقوق ثابتة تظهر دائماً في نهاية جميع التقارير بغض النظر عن تذييل التقارير
   const year = new Date().getFullYear();
-  footerHTML += '<div class="footer-rights">';
-  footerHTML += '<div>نظام إدارة المبيعات والمخزون والمصروفات</div>';
-  footerHTML += `<div>جميع الحقوق محفوظة © ${year} نجيب المقداد</div>`;
-  footerHTML += '<div>للتواصل: 775396439 - 737896431</div>';
-  footerHTML += '</div>';
+  footerHTML += `
+    <div class="footer-rights" style="
+      margin-top: 24px; padding: 16px; border-radius: 12px; 
+      background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+      color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    ">
+      <div style="font-size:14px; opacity:0.95; display:flex; align-items:center; gap:8px; justify-content:center;">
+        <span>💼</span>
+        <span>نظام إدارة المبيعات والمخزون والمصروفات</span>
+      </div>
+      <div style="margin-top:6px; font-weight:600; text-align:center;">جميع الحقوق محفوظة © ${year}</div>
+      <div style="margin-top:4px; display:flex; gap:16px; justify-content:center; align-items:center; flex-wrap:wrap;">
+        <span style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;" onclick="try{navigator.clipboard.writeText('775396439'); alert('✅ تم نسخ الرقم: 775396439');}catch(_){}">📱 775396439</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;" onclick="try{navigator.clipboard.writeText('737896431'); alert('✅ تم نسخ الرقم: 737896431');}catch(_){}">📱 737896431</span>
+      </div>
+      <div style="margin-top:6px; font-size:12px; opacity:0.9; text-align:center;">⚖️ يُحظر نسخ أو توزيع هذا النظام بدون إذن مسبق</div>
+    </div>
+  `;
   
   footerHTML += '</div>';
   return footerHTML;
