@@ -423,6 +423,14 @@ function buildReportFooter() {
     footerHTML += '</div>';
   }
   
+  // حقوق ثابتة تظهر دائماً في نهاية جميع التقارير بغض النظر عن تذييل التقارير
+  const year = new Date().getFullYear();
+  footerHTML += '<div class="footer-rights">';
+  footerHTML += '<div>نظام إدارة المبيعات والمخزون والمصروفات</div>';
+  footerHTML += `<div>جميع الحقوق محفوظة © ${year} نجيب المقداد</div>`;
+  footerHTML += '<div>للتواصل: 775396439 - 737896431</div>';
+  footerHTML += '</div>';
+  
   footerHTML += '</div>';
   return footerHTML;
 }
