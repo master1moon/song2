@@ -141,6 +141,11 @@ async function renderStoresList() {
  * يعيد عرض قائمة المحلات عند أي تغيير
  * يتم استدعاؤها عند تحميل الصفحة
  */
+/**
+ * ملاحظة: الدالة initStoresFilters — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function initStoresFilters() {
   const searchInput = document.getElementById('storeSearchInput');
   const priceFilter = document.getElementById('storePriceFilter');
@@ -292,6 +297,11 @@ if (typeof window !== 'undefined') {
  * يحسب إجمالي المبيعات والمدفوعات والرصيد المتبقي
  * يضيف أزرار التحكم (إضافة بيع، تسديد دفعة، تعديل، حذف)
  * @param {string} storeId - معرف المحل
+ */
+/**
+ * ملاحظة: الدالة showStoreDetails — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: storeId
+ * المخرجات: راجع التنفيذ
  */
 function showStoreDetails(storeId) {
   const store = data.stores.find(s => s.id === storeId); 
@@ -628,6 +638,11 @@ function showStoreDetails(storeId) {
  * يعيد تعيين جميع حقول النموذج إلى قيمها الافتراضية
  * يضبط التاريخ على اليوم الحالي
  */
+/**
+ * ملاحظة: الدالة addStore — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function addStore() {
   document.getElementById('storeModalTitle').textContent = 'إضافة محل جديد';
   document.getElementById('storeId').value = '';
@@ -642,6 +657,11 @@ function addStore() {
  * فتح نموذج تعديل محل موجود
  * يملأ النموذج بالبيانات الحالية للمحل
  * @param {string} id - معرف المحل المراد تعديله
+ */
+/**
+ * ملاحظة: الدالة editStore — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: id
+ * المخرجات: راجع التنفيذ
  */
 function editStore(id) {
   const store = data.stores.find(s => s.id === id); if (!store) return;
@@ -661,6 +681,11 @@ function editStore(id) {
  * ينقل المحل وجميع بياناته المرتبطة إلى سلة المحذوفات
  * يحدث جميع الجداول والتقارير المتعلقة
  * @param {string} id - معرف المحل المراد حذفه
+ */
+/**
+ * ملاحظة: الدالة deleteStore — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: id
+ * المخرجات: راجع التنفيذ
  */
 function deleteStore(id) {
   const store = data.stores.find(s => s.id === id);
@@ -733,6 +758,11 @@ function deleteStore(id) {
  * يقوم بإنشاء معرف فريد للمحلات الجديدة
  * يحدث جميع الجداول والتقارير ذات الصلة
  * يعرض إشعار بنجاح العملية
+ */
+/**
+ * ملاحظة: الدالة saveStore — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
  */
 function saveStore() {
   const id = document.getElementById('storeId').value;
@@ -810,6 +840,11 @@ function saveStore() {
   let nextAction = null; // 'sale' | 'payment'
   const selectStoreModalEl = document.getElementById('selectStoreModal');
   const selectStoreModal = selectStoreModalEl ? new bootstrap.Modal(selectStoreModalEl) : null;
+  /**
+   * ملاحظة: الدالة openSelectStore — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: actionType
+   * المخرجات: راجع التنفيذ
+   */
   function openSelectStore(actionType) {
     if (!selectStoreModal) return;
     nextAction = actionType;

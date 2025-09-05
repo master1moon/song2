@@ -32,6 +32,11 @@
    * يضيف فهارس للمصروفات لتحسين الأداء
    * @returns {Promise<IDBDatabase>} قاعدة البيانات
    */
+  /**
+   * ملاحظة: الدالة openDB — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: بدون
+   * المخرجات: راجع التنفيذ
+   */
   function openDB(){
     if (dbPromise) return dbPromise;
     dbPromise = new Promise((resolve, reject) => {
@@ -103,6 +108,11 @@
    * الحصول على مرجع بيانات التطبيق
    * يبحث عن البيانات في window.data أو data العامة
    * @returns {Object|undefined} كائن البيانات
+   */
+  /**
+   * ملاحظة: الدالة getDataRef — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: بدون
+   * المخرجات: راجع التنفيذ
    */
   function getDataRef(){
     try {

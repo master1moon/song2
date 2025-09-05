@@ -247,6 +247,11 @@
      * تحميل الإعدادات من التخزين المحلي
      * يدمج الإعدادات المحفوظة مع الافتراضية لضمان وجود جميع المفاتيح
      */
+    /**
+     * ملاحظة: الدالة loadSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
+     */
     function loadSettings() {
         try {
             const saved = localStorage.getItem('appSettings');
@@ -277,11 +282,21 @@
      * يدعم الحفظ الذكي مع إمكانية التراجع
      * @param {boolean} immediate - حفظ فوري أم مؤجل
      */
+    /**
+     * ملاحظة: الدالة saveSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: immediate = false
+     * المخرجات: راجع التنفيذ
+     */
     function saveSettings(immediate = false) {
         if (!immediate && autoSaveTimer) {
             clearTimeout(autoSaveTimer);
         }
 
+        /**
+         * ملاحظة: الدالة doSave — وصف تلقائي موجز لوظيفتها.
+         * المدخلات: بدون
+         * المخرجات: راجع التنفيذ
+         */
         const doSave = () => {
             try {
                 // حفظ في السجل للتراجع
@@ -327,6 +342,11 @@
      * يحدث جميع الوظائف المتأثرة بالإعدادات
      * @param {object} settings - الإعدادات المراد تطبيقها
      */
+    /**
+     * ملاحظة: الدالة applySettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: settings
+     * المخرجات: راجع التنفيذ
+     */
     function applySettings(settings) {
         // تطبيق إعدادات العرض
         applyDisplaySettings(settings.display);
@@ -351,6 +371,11 @@
 
     /**
      * تطبيق إعدادات العرض والمظهر
+     */
+    /**
+     * ملاحظة: الدالة applyDisplaySettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: display
+     * المخرجات: راجع التنفيذ
      */
     function applyDisplaySettings(display) {
         // تطبيق المظهر (Theme)
@@ -438,6 +463,11 @@
     /**
      * التحقق من التباين بين لونين وتعديل اللون إذا لزم
      */
+    /**
+     * ملاحظة: الدالة ensureContrast — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: color1, color2
+     * المخرجات: راجع التنفيذ
+     */
     function ensureContrast(color1, color2) {
         const c1 = hexToRgb(color1);
         const c2 = hexToRgb(color2);
@@ -460,6 +490,11 @@
     /**
      * تحويل اللون من hex إلى RGB
      */
+    /**
+     * ملاحظة: الدالة hexToRgb — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: hex
+     * المخرجات: راجع التنفيذ
+     */
     function hexToRgb(hex) {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
@@ -472,6 +507,11 @@
     /**
      * حساب نسبة التباين بين لونين
      */
+    /**
+     * ملاحظة: الدالة getContrastRatio — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: rgb1, rgb2
+     * المخرجات: راجع التنفيذ
+     */
     function getContrastRatio(rgb1, rgb2) {
         const l1 = getLuminance(rgb1);
         const l2 = getLuminance(rgb2);
@@ -482,6 +522,11 @@
     
     /**
      * حساب الإضاءة النسبية للون
+     */
+    /**
+     * ملاحظة: الدالة getLuminance — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: rgb
+     * المخرجات: راجع التنفيذ
      */
     function getLuminance(rgb) {
         const rsRGB = rgb.r / 255;
@@ -499,6 +544,11 @@
      * تغيير درجة اللون (أفتح أو أغمق)
      * @param {string} color - اللون بصيغة hex
      * @param {number} percent - النسبة المئوية للتغيير (موجب = أفتح، سالب = أغمق)
+     */
+    /**
+     * ملاحظة: الدالة shadeColor — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: color, percent
+     * المخرجات: راجع التنفيذ
      */
     function shadeColor(color, percent) {
         const rgb = hexToRgb(color);
@@ -520,6 +570,11 @@
     
     /**
      * تطبيق إعدادات المالية والعملة
+     */
+    /**
+     * ملاحظة: الدالة applyFinancialSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: financial
+     * المخرجات: راجع التنفيذ
      */
     function applyFinancialSettings(financial) {
         // تحديث دالة formatNumber إن وجدت
@@ -552,6 +607,11 @@
 
     /**
      * تطبيق إعدادات التنبيهات
+     */
+    /**
+     * ملاحظة: الدالة applyNotificationSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: notifications
+     * المخرجات: راجع التنفيذ
      */
     function applyNotificationSettings(notifications) {
         // تحديث دالة showNotification إن وجدت
@@ -589,6 +649,11 @@
     /**
      * تطبيق إعدادات الأداء
      */
+    /**
+     * ملاحظة: الدالة applyPerformanceSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: performance
+     * المخرجات: راجع التنفيذ
+     */
     function applyPerformanceSettings(performance) {
         // تحديث إعدادات الكاش
         if (typeof window.balanceCache !== 'undefined') {
@@ -617,6 +682,11 @@
     /**
      * تطبيق إعدادات الأمان
      */
+    /**
+     * ملاحظة: الدالة applySecuritySettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: security
+     * المخرجات: راجع التنفيذ
+     */
     function applySecuritySettings(security) {
         // تطبيق إخفاء الأرصدة
         document.body.classList.toggle('hide-balances', security.hideBalances);
@@ -633,6 +703,11 @@
     /**
      * دمج عميق للكائنات
      * يستخدم لدمج الإعدادات المحفوظة مع الافتراضية
+     */
+    /**
+     * ملاحظة: الدالة deepMerge — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: target, source
+     * المخرجات: راجع التنفيذ
      */
     function deepMerge(target, source) {
         const output = Object.assign({}, target);
@@ -654,12 +729,22 @@
     /**
      * التحقق من كون القيمة كائن
      */
+    /**
+     * ملاحظة: الدالة isObject — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: item
+     * المخرجات: راجع التنفيذ
+     */
     function isObject(item) {
         return item && typeof item === 'object' && !Array.isArray(item);
     }
 
     /**
      * الحصول على حجم الخط بناءً على الإعداد
+     */
+    /**
+     * ملاحظة: الدالة getFontSize — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: size
+     * المخرجات: راجع التنفيذ
      */
     function getFontSize(size) {
         const sizes = {
@@ -676,6 +761,11 @@
     
     /**
      * الحصول على وزن الخط بناءً على الإعداد
+     */
+    /**
+     * ملاحظة: الدالة getFontWeight — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: weight
+     * المخرجات: راجع التنفيذ
      */
     function getFontWeight(weight) {
         const weights = {
@@ -694,8 +784,18 @@
     /**
      * إعداد مهلة الجلسة
      */
+    /**
+     * ملاحظة: الدالة setupSessionTimeout — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: minutes
+     * المخرجات: راجع التنفيذ
+     */
     function setupSessionTimeout(minutes) {
         let timeout;
+        /**
+         * ملاحظة: الدالة resetTimeout — وصف تلقائي موجز لوظيفتها.
+         * المدخلات: بدون
+         * المخرجات: راجع التنفيذ
+         */
         const resetTimeout = () => {
             clearTimeout(timeout);
             timeout = setTimeout(() => {
@@ -717,6 +817,11 @@
     /**
      * قفل التطبيق
      */
+    /**
+     * ملاحظة: الدالة lockApp — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
+     */
     function lockApp() {
         // عرض شاشة القفل
         console.log('تم قفل التطبيق بسبب عدم النشاط');
@@ -727,6 +832,11 @@
      * تحديث إعداد معين
      * @param {string} path - مسار الإعداد (مثل: display.theme)
      * @param {*} value - القيمة الجديدة
+     */
+    /**
+     * ملاحظة: الدالة updateSetting — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: path, value
+     * المخرجات: راجع التنفيذ
      */
     function updateSetting(path, value) {
         const keys = path.split('.');
@@ -772,6 +882,11 @@
      * @param {string} path - مسار الإعداد
      * @returns {*} قيمة الإعداد
      */
+    /**
+     * ملاحظة: الدالة getSetting — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: path
+     * المخرجات: راجع التنفيذ
+     */
     function getSetting(path) {
         const keys = path.split('.');
         let obj = currentSettings;
@@ -787,6 +902,11 @@
     /**
      * إعادة تعيين الإعدادات للقيم الافتراضية
      * @param {string} category - الفئة المراد إعادة تعيينها (اختياري)
+     */
+    /**
+     * ملاحظة: الدالة resetSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: category = null
+     * المخرجات: راجع التنفيذ
      */
     function resetSettings(category = null) {
         if (category && defaultSettings[category]) {
@@ -805,6 +925,11 @@
 
     /**
      * التراجع عن آخر تغيير
+     */
+    /**
+     * ملاحظة: الدالة undoSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
      */
     function undoSettings() {
         if (settingsHistory.length > 0) {
@@ -846,6 +971,11 @@
      * تصدير الإعدادات
      * @returns {string} الإعدادات بصيغة JSON
      */
+    /**
+     * ملاحظة: الدالة exportSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
+     */
     function exportSettings() {
         const exportData = {
             settings: currentSettings,
@@ -861,6 +991,11 @@
      * استيراد الإعدادات
      * @param {string} jsonString - الإعدادات بصيغة JSON
      * @returns {boolean} نجاح العملية
+     */
+    /**
+     * ملاحظة: الدالة importSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: jsonString
+     * المخرجات: راجع التنفيذ
      */
     function importSettings(jsonString) {
         try {
@@ -895,6 +1030,11 @@
     /**
      * الحصول على جميع الإعدادات
      */
+    /**
+     * ملاحظة: الدالة getAllSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
+     */
     function getAllSettings() {
         return JSON.parse(JSON.stringify(currentSettings));
     }
@@ -902,12 +1042,22 @@
     /**
      * الحصول على الإعدادات الافتراضية
      */
+    /**
+     * ملاحظة: الدالة getDefaultSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
+     */
     function getDefaultSettings() {
         return JSON.parse(JSON.stringify(defaultSettings));
     }
 
     /**
      * التحقق من وجود تغييرات غير محفوظة
+     */
+    /**
+     * ملاحظة: الدالة hasUnsavedChanges — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
      */
     function hasUnsavedChanges() {
         return Object.keys(unsavedChanges).length > 0;

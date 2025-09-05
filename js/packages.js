@@ -22,6 +22,11 @@
  * يضيف أزرار التحكم (تعديل، حذف) لكل باقة
  * مشكلة: window.$dom غير موجود في التطبيق
  */
+/**
+ * ملاحظة: الدالة renderPackagesTable — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function renderPackagesTable() {
   const table = document.getElementById('packagesTable');
   if (!table) return; 
@@ -136,6 +141,11 @@ function renderPackagesTable() {
  * يعيد تعيين جميع حقول النموذج إلى قيمها الافتراضية
  * يضبط التاريخ على اليوم الحالي
  */
+/**
+ * ملاحظة: الدالة addPackage — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function addPackage() {
   document.getElementById('packageModalTitle').textContent = 'إضافة باقة جديدة';
   document.getElementById('packageId').value = '';
@@ -152,6 +162,11 @@ function addPackage() {
  * يملأ النموذج بالبيانات الحالية للباقة
  * ينسق الأسعار بالفواصل للعرض
  * @param {string} id - معرف الباقة المراد تعديلها
+ */
+/**
+ * ملاحظة: الدالة editPackage — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: id
+ * المخرجات: راجع التنفيذ
  */
 function editPackage(id) {
   const pkg = data.packages.find(p => p.id === id); if (!pkg) return;
@@ -172,6 +187,11 @@ function editPackage(id) {
  * يحدث جدول الباقات ولوحة المعلومات
  * @param {string} id - معرف الباقة المراد حذفها
  */
+/**
+ * ملاحظة: الدالة deletePackage — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: id
+ * المخرجات: راجع التنفيذ
+ */
 function deletePackage(id) {
   if (!confirm('هل أنت متأكد من حذف هذه الباقة؟')) return;
   const pkg = data.packages.find(p => p.id === id);
@@ -187,6 +207,11 @@ function deletePackage(id) {
  * يحول الأسعار من النص المنسق إلى أرقام
  * ينشئ معرف فريد للباقات الجديدة
  * يحدث جدول الباقات ولوحة المعلومات
+ */
+/**
+ * ملاحظة: الدالة savePackage — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
  */
 function savePackage() {
   const id = document.getElementById('packageId').value;

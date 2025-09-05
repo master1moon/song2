@@ -19,6 +19,11 @@
   const STORE = 'backup';
 
   let dbPromise = null;
+  /**
+   * ملاحظة: الدالة openDB — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: بدون
+   * المخرجات: راجع التنفيذ
+   */
   function openDB(){
     if (dbPromise) return dbPromise;
     dbPromise = new Promise((resolve, reject) => {
@@ -83,6 +88,11 @@
     } catch (_) { return false; }
   }
 
+  /**
+   * ملاحظة: الدالة updateBackupStatus — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: active
+   * المخرجات: راجع التنفيذ
+   */
   function updateBackupStatus(active){
     const el = document.getElementById('localBackupStatus');
     if (!el) return;

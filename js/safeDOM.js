@@ -29,6 +29,11 @@
      * @param {*} text - النص المراد تعقيمه
      * @returns {string} النص المعقم
      */
+    /**
+     * ملاحظة: الدالة e — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: text
+     * المخرجات: راجع التنفيذ
+     */
     function e(text) {
         if (text == null) return '';
         const map = {
@@ -49,6 +54,11 @@
      * @param {Array} data - بيانات الخلايا
      * @param {Array} buttons - تكوينات الأزرار
      * @returns {HTMLTableRowElement} عنصر الصف
+     */
+    /**
+     * ملاحظة: الدالة createTableRow — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: data, buttons = []
+     * المخرجات: راجع التنفيذ
      */
     function createTableRow(data, buttons = []) {
         const tr = document.createElement('tr');
@@ -116,6 +126,11 @@
      * @param {Array} items - عناصر المعلومات
      * @returns {HTMLDivElement} عنصر البطاقة
      */
+    /**
+     * ملاحظة: الدالة createInfoCard — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: title, items
+     * المخرجات: راجع التنفيذ
+     */
     function createInfoCard(title, items) {
         const card = document.createElement('div');
         card.className = 'info-card';
@@ -156,6 +171,11 @@
      * @param {string} defaultText - نص الخيار الافتراضي
      * @param {*} selectedValue - القيمة المحددة مسبقاً
      */
+    /**
+     * ملاحظة: الدالة fillSelect — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: selectElement, options, defaultText = 'اختر...', selectedValue = null
+     * المخرجات: راجع التنفيذ
+     */
     function fillSelect(selectElement, options, defaultText = 'اختر...', selectedValue = null) {
         // إفراغ القائمة
         while (selectElement.firstChild) {
@@ -192,6 +212,11 @@
      * @param {*} content - المحتوى الجديد
      * @param {boolean} isHtml - هل المحتوى HTML موثوق
      */
+    /**
+     * ملاحظة: الدالة safeUpdate — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: elementId, content, isHtml = false
+     * المخرجات: راجع التنفيذ
+     */
     function safeUpdate(elementId, content, isHtml = false) {
         const element = document.getElementById(elementId);
         if (!element) return;
@@ -215,6 +240,11 @@
      * @param {*} content - المحتوى
      * @param {string} tag - نوع العنصر HTML
      * @returns {HTMLElement} العنصر المنشأ
+     */
+    /**
+     * ملاحظة: الدالة createDiv — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: className, content, tag = 'div'
+     * المخرجات: راجع التنفيذ
      */
     function createDiv(className, content, tag = 'div') {
         const element = document.createElement(tag);

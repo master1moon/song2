@@ -11,6 +11,11 @@
      * تهيئة واجهة الإعدادات
      * يتم استدعاؤها عند تحميل الصفحة
      */
+    /**
+     * ملاحظة: الدالة initSettingsUI — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
+     */
     function initSettingsUI() {
         // التحقق من وجود AppSettings
         if (typeof window.AppSettings === 'undefined') {
@@ -30,6 +35,11 @@
 
     /**
      * تحميل الإعدادات الحالية في عناصر الواجهة
+     */
+    /**
+     * ملاحظة: الدالة loadSettingsToUI — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
      */
     function loadSettingsToUI() {
         const settings = AppSettings.getAll();
@@ -97,6 +107,11 @@
     /**
      * إعداد مستمعات الأحداث
      */
+    /**
+     * ملاحظة: الدالة setupEventListeners — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
+     */
     function setupEventListeners() {
         // مستمع لتبديل التبويبات
         const tabs = document.querySelectorAll('#settingsTabs .list-group-item');
@@ -122,6 +137,11 @@
 
     /**
      * تبديل التبويب النشط
+     */
+    /**
+     * ملاحظة: الدالة switchSettingsTab — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: tabName
+     * المخرجات: راجع التنفيذ
      */
     function switchSettingsTab(tabName) {
         // إخفاء جميع التبويبات
@@ -149,6 +169,11 @@
 
     /**
      * إنشاء محتوى التبويبات الديناميكي
+     */
+    /**
+     * ملاحظة: الدالة createSettingsTabs — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
      */
     function createSettingsTabs() {
         const container = document.getElementById('settingsContent');
@@ -188,6 +213,11 @@
 
     /**
      * إنشاء تبويب العرض والمظهر
+     */
+    /**
+     * ملاحظة: الدالة createDisplayTab — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: display
+     * المخرجات: راجع التنفيذ
      */
     function createDisplayTab(display) {
         return `
@@ -304,6 +334,11 @@
     /**
      * إنشاء تبويب المالية والعملة
      */
+    /**
+     * ملاحظة: الدالة createFinancialTab — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: financial
+     * المخرجات: راجع التنفيذ
+     */
     function createFinancialTab(financial) {
         return `
             <div class="settings-tab" id="financial-settings" style="display:none;">
@@ -387,6 +422,11 @@
 
     /**
      * إنشاء تبويب التنبيهات
+     */
+    /**
+     * ملاحظة: الدالة createNotificationsTab — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: notifications
+     * المخرجات: راجع التنفيذ
      */
     function createNotificationsTab(notifications) {
         return `
@@ -478,6 +518,11 @@
 
     /**
      * إنشاء تبويب النسخ الاحتياطي
+     */
+    /**
+     * ملاحظة: الدالة createBackupTab — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: backup
+     * المخرجات: راجع التنفيذ
      */
     function createBackupTab(backup) {
         return `
@@ -616,6 +661,11 @@
     /**
      * إنشاء تبويب الأمان
      */
+    /**
+     * ملاحظة: الدالة createSecurityTab — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: security
+     * المخرجات: راجع التنفيذ
+     */
     function createSecurityTab(security) {
         return `
             <div class="settings-tab" id="security-settings" style="display:none;">
@@ -708,6 +758,11 @@
 
     /**
      * إنشاء تبويب التقارير والطباعة
+     */
+    /**
+     * ملاحظة: الدالة createReportsTab — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: reports
+     * المخرجات: راجع التنفيذ
      */
     function createReportsTab(reports) {
         return `
@@ -950,6 +1005,11 @@
     /**
      * إنشاء تبويب الأداء
      */
+    /**
+     * ملاحظة: الدالة createPerformanceTab — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: performance
+     * المخرجات: راجع التنفيذ
+     */
     function createPerformanceTab(performance) {
         return `
             <div class="settings-tab" id="performance-settings" style="display:none;">
@@ -1041,6 +1101,11 @@
     /**
      * وظائف مساعدة لتعيين القيم
      */
+    /**
+     * ملاحظة: الدالة setElementValue — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: id, value
+     * المخرجات: راجع التنفيذ
+     */
     function setElementValue(id, value) {
         const element = document.getElementById(id);
         if (element) {
@@ -1048,6 +1113,11 @@
         }
     }
 
+    /**
+     * ملاحظة: الدالة setElementChecked — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: id, checked
+     * المخرجات: راجع التنفيذ
+     */
     function setElementChecked(id, checked) {
         const element = document.getElementById(id);
         if (element) {
@@ -1057,6 +1127,11 @@
 
     /**
      * تصدير الإعدادات
+     */
+    /**
+     * ملاحظة: الدالة exportSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
      */
     function exportSettings() {
         const jsonString = AppSettings.export();
@@ -1077,6 +1152,11 @@
 
     /**
      * استيراد الإعدادات
+     */
+    /**
+     * ملاحظة: الدالة importSettings — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
      */
     function importSettings() {
         const fileInput = document.getElementById('importSettingsFile');

@@ -29,6 +29,11 @@
      * @param {*} text - النص المراد تعقيمه
      * @returns {string} النص المعقم الآمن
      */
+    /**
+     * ملاحظة: الدالة escapeHtml — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: text
+     * المخرجات: راجع التنفيذ
+     */
     function escapeHtml(text) {
         if (text == null) return '';
         
@@ -52,6 +57,11 @@
      * @param {*} attr - قيمة السمة المراد تعقيمها
      * @returns {string} السمة المعقمة
      */
+    /**
+     * ملاحظة: الدالة escapeAttribute — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: attr
+     * المخرجات: راجع التنفيذ
+     */
     function escapeAttribute(attr) {
         if (attr == null) return '';
         return String(attr).replace(/[&<>"']/g, function(m) {
@@ -67,6 +77,11 @@
      * @param {Object} attributes - سمات العنصر
      * @param {Array} children - العناصر الفرعية
      * @returns {HTMLElement} العنصر المنشأ بشكل آمن
+     */
+    /**
+     * ملاحظة: الدالة createElement — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: tag, attributes = {}, children = []
+     * المخرجات: راجع التنفيذ
      */
     function createElement(tag, attributes = {}, children = []) {
         const element = document.createElement(tag);
@@ -105,6 +120,11 @@
      * مشكلة: قائمة العناصر المسموح بها محدودة جداً
      * @param {string} html - كود HTML المراد تعقيمه
      * @returns {string} HTML معقم وآمن
+     */
+    /**
+     * ملاحظة: الدالة sanitizeHtml — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: html
+     * المخرجات: راجع التنفيذ
      */
     function sanitizeHtml(html) {
         // قائمة العناصر المسموح بها - يجب توسيعها
@@ -252,6 +272,11 @@
      * تضيف Content Security Policy ورؤوس أمان أخرى
      * معطلة حالياً لتجنب التعارض مع المكتبات الخارجية
      * يجب تفعيلها بعد التأكد من التوافق
+     */
+    /**
+     * ملاحظة: الدالة addSecurityHeaders — وصف تلقائي موجز لوظيفتها.
+     * المدخلات: بدون
+     * المخرجات: راجع التنفيذ
      */
     function addSecurityHeaders() {
         // إضافة Content Security Policy
