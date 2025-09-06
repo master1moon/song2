@@ -1448,18 +1448,24 @@
         
         // فتح نافذة المعاينة
         const previewWindow = window.open('', '_blank');
-        previewWindow.document.write(previewHTML);
-        previewWindow.document.close();
+        if (!previewWindow) { return null; }
+        try {
+            previewWindow.document.open();
+            previewWindow.document.write(previewHTML);
+            previewWindow.document.close();
+        } catch(_) {}
+        return previewWindow;
     };
 
     /**
      * اختبار إعدادات الطباعة
      */
     window.testPrintSettings = function() {
-        previewReportSettings();
-        setTimeout(() => {
-            window.print();
-        }, 500);
+        const w = previewReportSettings();
+        if (w) {
+            try { w.focus(); } catch(_) {}
+            setTimeout(() => { try { w.print(); } catch(_) {} }, 500);
+        }
     };
 
     // تصدير الوظائف للاستخدام العام
@@ -1471,7 +1477,11 @@
         import: importSettings
     };
 
-    // تهيئة الواجهة عند تحميل الصفحة
-    document.addEventListener('DOMContentLoaded', initSettingsUI);
+    // تهيئة الواجهة: إن كان DOM جاهزاً الآن نفّذ مباشرة، وإلا انتظر التحميل
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSettingsUI);
+    } else {
+        initSettingsUI();
+    }
 
 })();
