@@ -1031,7 +1031,16 @@
                         <div class="mt-3">
                             <label class="form-label">أسماء الشركاء ${(AppSettings.getAll().partners?.distribution||'equal')==='percent'?'و النِّسَب':''}</label>
                             <div class="row g-2" id="partners-list-editor">
-                                ${(function(){ const s=AppSettings.getAll(); const P=(s.partners||{}); const list = P.list||[]; const isPercent=(P.distribution||'equal')==='percent'; return list.map((p,idx)=>`<div class=\"col-md-4\"><div class=\"input-group\"><span class=\"input-group-text\">${idx+1}</span><input type=\"text\" class=\"form-control\" value=\"${p.name||('الشريك '+(idx+1))}\" onchange=\"(function(i,val){ const s=AppSettings.getAll(); s.partners.list[i].name=val; AppSettings.update('partners', s.partners); })(${idx}, this.value)\"><${isPercent?'input type=\\"number\\" class=\\"form-control\\" min=\\"0\\" max=\\"100\\" step=\\"1\\" value=\\"'+(p.sharePercent??'')+'\\" placeholder=\\"%\\" onchange=\\"(function(i,val){ const s=AppSettings.getAll(); s.partners.list[i].sharePercent=val?parseFloat(val):null; AppSettings.update('partners', s.partners); })(${idx}, this.value)\\"':''}></div></div>`).join(''); })()}
+                                ${(function(){
+                                    const s=AppSettings.getAll();
+                                    const P=(s.partners||{});
+                                    const list = P.list||[];
+                                    const isPercent=(P.distribution||'equal')==='percent';
+                                    return list.map((p,idx)=>{
+                                        const percentInput = isPercent ? `<input type="number" class="form-control" min="0" max="100" step="1" value="${(p.sharePercent??'')}" placeholder="%" onchange="updatePartnerPercent(${idx}, this.value)">` : '';
+                                        return `<div class="col-md-4"><div class="input-group"><span class="input-group-text">${idx+1}</span><input type="text" class="form-control" value="${p.name||('الشريك '+(idx+1))}" onchange="updatePartnerName(${idx}, this.value)">${percentInput}</div></div>`;
+                                    }).join('');
+                                })()}
                             </div>
                             ${(function(){ const s=AppSettings.getAll(); const P=(s.partners||{}); if ((P.distribution||'equal')==='percent') { const sum=(P.list||[]).reduce((a,b)=>a+(parseFloat(b.sharePercent)||0),0); return `<small class=\"text-muted\">مجموع النِّسَب الحالية: ${sum}%</small>`; } return ''; })()}
                         </div>
@@ -1055,7 +1064,7 @@
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">&nbsp;</label>
-                                <button class="btn btn-outline-primary w-100" onclick="(function(){ try { const s=AppSettings.getAll(); const P=s.partners||(s.partners={}); const pf=(typeof getPartnersPeriodRange==='function')?getPartnersPeriodRange():{fromDate:'',toDate:'',text:''}; const periodKey = (pf.fromDate||'')+'_'+(pf.toDate||''); const list=(P.adjustments&&P.adjustments[periodKey])?P.adjustments[periodKey]:[]; const pid=document.getElementById('partnerAdjPartner').value; const amount=parseFloat(document.getElementById('partnerAdjAmount').value)||0; const date=document.getElementById('partnerAdjDate').value; if (amount>0) { list.push({ partnerId: pid, amount: amount, date: date, notes: '' }); P.adjustments = P.adjustments||{}; P.adjustments[periodKey]=list; AppSettings.update('partners', P); showNotification && showNotification('تم إضافة سحب الشريك', 'success'); } })()">إضافة</button>
+                                <button class="btn btn-outline-primary w-100" onclick="addPartnerAdjustment()">إضافة</button>
                             </div>
                         </div>
                     </div>
@@ -1186,6 +1195,55 @@
             element.checked = checked;
         }
     }
+
+    // تحديث اسم الشريك
+    window.updatePartnerName = function(index, value){
+        try {
+            const s = AppSettings.getAll();
+            s.partners = s.partners || {};
+            s.partners.list = s.partners.list || [];
+            if (s.partners.list[index]) {
+                s.partners.list[index].name = value;
+                AppSettings.update('partners', s.partners);
+            }
+        } catch(_) {}
+    };
+
+    // تحديث نسبة الشريك
+    window.updatePartnerPercent = function(index, value){
+        try {
+            const s = AppSettings.getAll();
+            s.partners = s.partners || {};
+            s.partners.list = s.partners.list || [];
+            if (s.partners.list[index]) {
+                const v = value ? parseFloat(value) : null;
+                s.partners.list[index].sharePercent = isNaN(v) ? null : v;
+                AppSettings.update('partners', s.partners);
+            }
+        } catch(_) {}
+    };
+
+    // إضافة سحب شريك للفترة الحالية
+    window.addPartnerAdjustment = function(){
+        try {
+            const s = AppSettings.getAll();
+            const P = s.partners || (s.partners = {});
+            const pf = (typeof getPartnersPeriodRange==='function')?getPartnersPeriodRange():{fromDate:'',toDate:'',text:''};
+            const periodKey = (pf.fromDate||'')+'_'+(pf.toDate||'');
+            const list = (P.adjustments && P.adjustments[periodKey]) ? P.adjustments[periodKey] : [];
+            const pid = document.getElementById('partnerAdjPartner').value;
+            const amount = parseFloat(document.getElementById('partnerAdjAmount').value)||0;
+            const date = document.getElementById('partnerAdjDate').value;
+            if (amount>0 && pid) {
+                list.push({ partnerId: pid, amount: amount, date: date, notes: '' });
+                P.adjustments = P.adjustments || {};
+                P.adjustments[periodKey] = list;
+                AppSettings.update('partners', P);
+                if (typeof showNotification==='function') showNotification('تم إضافة سحب الشريك', 'success');
+                document.getElementById('partnerAdjAmount').value = '';
+            }
+        } catch(_) {}
+    };
 
     /**
      * تصدير الإعدادات
