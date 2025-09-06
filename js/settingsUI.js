@@ -1288,7 +1288,7 @@
      * تحديث الهوامش
      */
     window.updateMargin = function(side, value) {
-        const margins = AppSettings.get().reports.margins;
+        const margins = AppSettings.getAll().reports.margins;
         margins[side] = parseInt(value) || 0;
         AppSettings.update('reports.margins', margins);
     };
@@ -1297,7 +1297,7 @@
      * معاينة إعدادات التقرير
      */
     window.previewReportSettings = function() {
-        const settings = AppSettings.get().reports;
+        const settings = AppSettings.getAll().reports;
         
         // إنشاء تقرير تجريبي
         const previewHTML = `

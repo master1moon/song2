@@ -320,7 +320,7 @@ function generatePartnerReports() {
  */
 function getReportSettings() {
   try {
-    const settings = AppSettings.get().reports;
+    const settings = AppSettings.getAll().reports;
     return settings;
   } catch (e) {
     // إعدادات افتراضية في حالة عدم توفر AppSettings
