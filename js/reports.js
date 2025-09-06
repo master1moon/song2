@@ -634,10 +634,10 @@ function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, t
   html += 'المدة: ' + periodText + ' | عدد الشركاء: ' + partnersCount + ' | تاريخ التصدير: ' + moment().format(settings.dateFormat);
   html += '</div>';
   html += '<div class="summary">' +
-    '<div class="box">إجمالي التسديدات: <span class="currency">' + (totalPays||0).toLocaleString('en-US') + '</span></div>' +
-    '<div class="box">إجمالي المصروفات: <span class="currency">' + (totalExps||0).toLocaleString('en-US') + '</span></div>' +
-    '<div class="box">صافي الأرباح: <span class="currency">' + (net||0).toLocaleString('en-US') + '</span></div>' +
-    '<div class="box">صافي لكل شريك: <span class="currency">' + (perPartner||0).toLocaleString('en-US') + '</span></div>' +
+    '<div class="box">إجمالي التسديدات: <span class="currency">' + formatNumber(totalPays||0) + '</span></div>' +
+    '<div class="box">إجمالي المصروفات: <span class="currency">' + formatNumber(totalExps||0) + '</span></div>' +
+    '<div class="box">صافي الأرباح: <span class="currency">' + formatNumber(net||0) + '</span></div>' +
+    '<div class="box">صافي لكل شريك: <span class="currency">' + formatNumber(perPartner||0) + '</span></div>' +
   '</div>';
   /**
    * ملاحظة: الدالة renderTable — وصف تلقائي موجز لوظيفتها.
@@ -831,7 +831,7 @@ function buildAccountStatementHTML(store, periodText, allTransactions, previousB
   const settings = getReportSettings();
   
   // التأكد من وجود الدوال المطلوبة
-  const formatNumber = window.formatNumber || ((n) => n.toLocaleString('en-US'));
+  const formatNumber = window.formatNumber || ((n) => (Number(n)||0).toLocaleString('en-US'));
   const formatDateEn = window.formatDateEn || ((d) => d);
   const getPriceTypeName = window.getPriceTypeName || ((t) => t);
   
@@ -1325,7 +1325,7 @@ function buildStoreReportHTML(store, periodText, mappedSalesForExport, mappedPay
         '<td>' + s.التفاصيل + '</td>' + 
         '<td>' + s.الباقة + '</td>' + 
         '<td>' + s.الكمية_أو_المبلغ + '</td>' + 
-        '<td class="currency">' + (s.الإجمالي || 0).toLocaleString('en-US') + '</td>' + 
+        '<td class="currency">' + formatNumber(s.الإجمالي || 0) + '</td>' + 
       '</tr>'; 
     } 
     return rows; 
@@ -1341,7 +1341,7 @@ function buildStoreReportHTML(store, periodText, mappedSalesForExport, mappedPay
     for (const p of mappedPaymentsForExport) { 
       rows += '<tr>' + 
         '<td>' + p.التاريخ + '</td>' + 
-        '<td class="currency">' + (p.المبلغ || 0).toLocaleString('en-US') + '</td>' + 
+        '<td class="currency">' + formatNumber(p.المبلغ || 0) + '</td>' + 
         '<td>' + (p.ملاحظات || '') + '</td>' + 
       '</tr>'; 
     } 
@@ -1364,9 +1364,9 @@ function buildStoreReportHTML(store, periodText, mappedSalesForExport, mappedPay
   html += '</div>';
   
   html += '<div class="summary">' + 
-    '<div class="box">إجمالي المبيعات: <span class="currency">' + (totalSales || 0).toLocaleString('en-US') + '</span></div>' + 
-    '<div class="box">إجمالي التسديدات: <span class="currency">' + (totalPayments || 0).toLocaleString('en-US') + '</span></div>' + 
-    '<div class="box">المتبقي: <span class="currency">' + (remaining || 0).toLocaleString('en-US') + '</span></div>' + 
+    '<div class="box">إجمالي المبيعات: <span class="currency">' + formatNumber(totalSales || 0) + '</span></div>' + 
+    '<div class="box">إجمالي التسديدات: <span class="currency">' + formatNumber(totalPayments || 0) + '</span></div>' + 
+    '<div class="box">المتبقي: <span class="currency">' + formatNumber(remaining || 0) + '</span></div>' + 
   '</div>';
   
   html += '<h4>المبيعات</h4>';
@@ -1429,7 +1429,7 @@ function buildExpensesReportHTML(expensesRows, periodText) {
   html += 'المدة: ' + periodText + ' | تاريخ التصدير: ' + moment().format(settings.dateFormat);
   html += '</div>';
   
-  html += '<div class="summary"><div class="box">إجمالي المصروفات المصدّرة: <span class="currency">' + (overallTotal || 0).toLocaleString('en-US') + '</span></div></div>';
+  html += '<div class="summary"><div class="box">إجمالي المصروفات المصدّرة: <span class="currency">' + formatNumber(overallTotal || 0) + '</span></div></div>';
 
   /**
    * ملاحظة: الدالة renderTable — وصف تلقائي موجز لوظيفتها.
@@ -1439,7 +1439,7 @@ function buildExpensesReportHTML(expensesRows, periodText) {
   const renderTable = (rows) => {
     let s = '<table><thead><tr>' + '<th>التاريخ</th>' + '<th>المبلغ</th>' + '<th>نوع المصروف</th>' + '<th>ملاحظات</th>' + '<th>الحالة</th>' + '</tr></thead><tbody>';
     for (const e of rows) {
-      s += '<tr>' + '<td>' + (e['التاريخ'] || '') + '</td>' + '<td class="currency">' + (Number(e['المبلغ'] || 0).toLocaleString('en-US')) + '</td>' + '<td>' + (e['نوع المصروف'] || '') + '</td>' + '<td>' + (e['ملاحظات'] || '') + '</td>' + '<td>' + (e['الحالة'] || '') + '</td>' + '</tr>';
+      s += '<tr>' + '<td>' + (e['التاريخ'] || '') + '</td>' + '<td class="currency">' + formatNumber(e['المبلغ'] || 0) + '</td>' + '<td>' + (e['نوع المصروف'] || '') + '</td>' + '<td>' + (e['ملاحظات'] || '') + '</td>' + '<td>' + (e['الحالة'] || '') + '</td>' + '</tr>';
     }
     s += '</tbody></table>';
     return s;
@@ -1452,7 +1452,7 @@ function buildExpensesReportHTML(expensesRows, periodText) {
       const rows = (monthMap.get(mKey) || []).slice().sort((a,b)=> String(a['التاريخ']).localeCompare(String(b['التاريخ'])));
       const monthTotal = rows.reduce((sum, r) => sum + Number(r['المبلغ'] || 0), 0);
       html += '<h4>مصروفات شهر ' + mKey + '</h4>';
-      html += '<div class="summary"><div class="box">إجمالي الشهر: <span class="currency">' + (monthTotal || 0).toLocaleString('en-US') + '</span></div></div>';
+      html += '<div class="summary"><div class="box">إجمالي الشهر: <span class="currency">' + formatNumber(monthTotal || 0) + '</span></div></div>';
       html += renderTable(rows);
     });
   } else {
@@ -1461,7 +1461,7 @@ function buildExpensesReportHTML(expensesRows, periodText) {
     const monthTotal = rows.reduce((sum, r) => sum + Number(r['المبلغ'] || 0), 0);
     if (monthKey) {
       html += '<h4>مصروفات شهر ' + monthKey + '</h4>';
-      html += '<div class="summary"><div class="box">إجمالي الشهر: <span class="currency">' + (monthTotal || 0).toLocaleString('en-US') + '</span></div></div>';
+      html += '<div class="summary"><div class="box">إجمالي الشهر: <span class="currency">' + formatNumber(monthTotal || 0) + '</span></div></div>';
     }
     html += renderTable(rows);
   }
