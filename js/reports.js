@@ -219,89 +219,93 @@ function generatePartnerReports() {
   const totalPays = pays.reduce((s,x)=> s + (Number(x.amount)||0), 0);
   const totalExps = exps.reduce((s,x)=> s + (Number(x.amount)||0), 0);
   const net = totalPays - totalExps;
-  const partners = getPartnersCount();
-  const perPartner = net / partners;
+
+  // إعدادات الشركاء من الإعدادات (اختياري)
+  let partnersCfg = null;
+  try { partnersCfg = (typeof AppSettings!=='undefined') ? (AppSettings.getAll().partners||null) : null; } catch(_) { partnersCfg = null; }
+
+  let partnersCount = getPartnersCount();
+  let partnersList = [];
+  let distribution = 'equal';
+  let adjustmentsForPeriod = [];
+  let carryover = {};
+
+  if (partnersCfg) {
+    partnersCount = parseInt(partnersCfg.count)||partnersCount||1;
+    partnersList = Array.isArray(partnersCfg.list) && partnersCfg.list.length ? partnersCfg.list.slice(0, partnersCount) : [];
+    distribution = partnersCfg.distribution||'equal';
+    const periodKey = `${fromDate||''}_${toDate||''}`;
+    adjustmentsForPeriod = (partnersCfg.adjustments && partnersCfg.adjustments[periodKey]) ? partnersCfg.adjustments[periodKey] : [];
+    carryover = partnersCfg.carryover || {};
+  }
+
+  // حساب الأنصبة الأساسية
+  let baseShares = [];
+  if (distribution === 'percent' && partnersList.length && partnersList.some(p=>p.sharePercent)) {
+    const totalPercent = partnersList.reduce((s,p)=> s + (parseFloat(p.sharePercent)||0), 0) || 100;
+    baseShares = partnersList.map(p=> ({ id: p.id, name: p.name, base: (net * ((parseFloat(p.sharePercent)||0) / totalPercent)) }));
+  } else {
+    const per = partnersCount>0 ? net / partnersCount : net;
+    if (partnersList.length) {
+      baseShares = partnersList.map(p=> ({ id: p.id, name: p.name, base: per }));
+    } else {
+      // fallback أسماء افتراضية
+      baseShares = Array.from({length: partnersCount}).map((_,i)=> ({ id: `p${i+1}`, name: `الشريك ${i+1}`, base: per }));
+    }
+  }
+
+  // خصومات السحوبات + الترحيل
+  const withdrawalsByPartner = {};
+  adjustmentsForPeriod.forEach(adj => {
+    const pid = adj.partnerId; const amt = Number(adj.amount)||0;
+    withdrawalsByPartner[pid] = (withdrawalsByPartner[pid]||0) + amt;
+  });
+
+  const rowsHtml = baseShares.map(p => {
+    const w = withdrawalsByPartner[p.id]||0;
+    const co = Number(carryover[p.id]||0);
+    const final = (p.base - w + co);
+    const status = final < 0 ? 'مدين' : 'دائن';
+    return `
+      <tr>
+        <td>${p.name||''}</td>
+        ${distribution==='percent' && partnersList.some(x=>x.id===p.id && x.sharePercent!=null) ? `<td>${(partnersList.find(x=>x.id===p.id)?.sharePercent)||0}%</td>` : `<td>متساوٍ</td>`}
+        <td class="currency">${formatNumber(p.base)}</td>
+        <td class="currency">${formatNumber(w)}</td>
+        <td class="currency">${formatNumber(co)}</td>
+        <td class="currency ${final<0?'text-danger':'text-success'}">${formatNumber(Math.abs(final))}</td>
+        <td>${status}</td>
+      </tr>`;
+  }).join('');
+
   const html = `
     <div class="partner-report-card">
       <div class="partner-report-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="partner-report-title mb-0">تقرير الشركاء</h5>
-        <div class="partner-report-dates">المدة: ${text} | الشركاء: ${partners}</div>
+        <div class="partner-report-dates">المدة: ${text} | الشركاء: ${partnersCount}</div>
       </div>
       <div class="partner-report-summary d-flex flex-wrap gap-3 my-2">
         <div class="summary-item"><div class="summary-value currency">${formatNumber(totalPays)}</div><div class="summary-label">إجمالي التسديدات</div></div>
         <div class="summary-item"><div class="summary-value currency">${formatNumber(totalExps)}</div><div class="summary-label">إجمالي المصروفات</div></div>
         <div class="summary-item"><div class="summary-value currency ${net<0?'profit-negative':''}">${formatNumber(net)}</div><div class="summary-label">صافي الأرباح</div></div>
-        <div class="summary-item"><div class="summary-value currency">${formatNumber(perPartner)}</div><div class="summary-label">صافي لكل شريك</div></div>
       </div>
-      <div class="row g-3">
-        <div class="col-12 col-md-6">
-          <h6>جميع التسديدات</h6>
-          <div class="table-responsive">
-            <table class="table table-sm align-middle">
-              <thead>
-                <tr>
-                  <th>التاريخ</th>
-                  <th>المحل</th>
-                  <th>المبلغ</th>
-                  <th>ملاحظات</th>
-                  <th width="100">إجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${pays.map((p, idx) => `
-                  <tr data-payment-id="${p.id}">
-                    <td>${formatDateEn(p.date)}</td>
-                    <td>${(data.stores.find(s=>s.id===p.storeId)?.name)||''}</td>
-                    <td class="currency">${formatNumber(p.amount||0)}</td>
-                    <td>${p.notes||''}</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-primary" onclick="editPaymentFromPartner('${p.id}')" title="تعديل">
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      <button class="btn btn-sm btn-outline-danger" onclick="deletePaymentFromPartner('${p.id}')" title="حذف">
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="col-12 col-md-6">
-          <h6>جميع المصروفات</h6>
-          <div class="table-responsive">
-            <table class="table table-sm align-middle">
-              <thead>
-                <tr>
-                  <th>التاريخ</th>
-                  <th>النوع</th>
-                  <th>المبلغ</th>
-                  <th>ملاحظات</th>
-                  <th width="100">إجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${exps.map((e, idx) => `
-                  <tr data-expense-id="${e.id}">
-                    <td>${formatDateEn(e.date)}</td>
-                    <td>${e.type||''}</td>
-                    <td class="currency">${formatNumber(e.amount||0)}</td>
-                    <td>${e.notes||''}</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-primary" onclick="editExpenseFromPartner('${e.id}')" title="تعديل">
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      <button class="btn btn-sm btn-outline-danger" onclick="deleteExpenseFromPartner('${e.id}')" title="حذف">
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th>الشريك</th>
+              <th>التوزيع</th>
+              <th>النصيب الأساسي</th>
+              <th>سحوبات الفترة</th>
+              <th>ترحيل سابق</th>
+              <th>الصافي</th>
+              <th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
       </div>
     </div>`;
   container.innerHTML = html;
@@ -2055,7 +2059,7 @@ function getPartnersPeriodRange(){
   return { fromDate, toDate, text: `${fromDate} إلى ${toDate}` };
 }
 
-function getPartnersCount(){ const el = document.getElementById('partnersCount'); const n = parseInt(el && el.value, 10); return isNaN(n) || n<1 ? 1 : n; }
+function getPartnersCount(){ try{ if (typeof AppSettings!=='undefined'){ const c = AppSettings.getAll().partners?.count; if (c && c>0) return c; } }catch(_){} const el = document.getElementById('partnersCount'); const n = parseInt(el && el.value, 10); return isNaN(n) || n<1 ? 1 : n; }
 
 /**
  * ملاحظة: الدالة exportPartners — وصف تلقائي موجز لوظيفتها.

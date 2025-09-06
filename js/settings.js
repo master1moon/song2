@@ -141,6 +141,17 @@
             watermark: '',                        // العلامة المائية
             qrCode: false                         // رمز QR للتحقق
         },
+        // إعدادات الشركاء (جديدة)
+        partners: {
+            count: 2,                            // عدد الشركاء
+            list: [                              // قائمة الشركاء (أسماء ونِسَب اختيارية)
+                { id: 'p1', name: 'الشريك 1', sharePercent: null },
+                { id: 'p2', name: 'الشريك 2', sharePercent: null }
+            ],
+            distribution: 'equal',               // equal | percent
+            adjustments: {},                     // سحوبات الشركاء حسب الفترة { periodKey: [{partnerId, amount, date, notes}] }
+            carryover: {}                        // أرصدة مرحّلة لكل شريك { partnerId: number }
+        },
 
         // إعدادات الأداء والكاش
         performance: {

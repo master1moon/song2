@@ -1007,6 +1007,59 @@
                         </small>
                     </div>
                 </div>
+
+                <!-- الشركاء -->
+                <div class="card mt-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="fas fa-users"></i> الشركاء</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label">عدد الشركاء</label>
+                                <input type="number" class="form-control" id="setting-partners-count" min="1" value="${(reports.partners && reports.partners.count) || (AppSettings.getAll().partners?.count) || 2}" onchange="(function(v){ v = parseInt(v)||1; const s=AppSettings.getAll(); s.partners = s.partners||{}; s.partners.count=v; const list=(s.partners.list||[]).slice(0,v); while(list.length<v){ list.push({ id:'p'+(list.length+1), name:'الشريك '+(list.length+1), sharePercent:null }); } s.partners.list=list; AppSettings.update('partners', s.partners); SettingsUI.reload(); })(this.value)">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">طريقة التوزيع</label>
+                                <select class="form-select" id="setting-partners-distribution" onchange="(function(val){ const s=AppSettings.getAll(); s.partners = s.partners||{}; s.partners.distribution=val; AppSettings.update('partners', s.partners); SettingsUI.reload(); })(this.value)">
+                                    <option value="equal" ${(AppSettings.getAll().partners?.distribution||'equal')==='equal'?'selected':''}>تقسيم متساوٍ</option>
+                                    <option value="percent" ${(AppSettings.getAll().partners?.distribution||'equal')==='percent'?'selected':''}>حسب نسب</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label">أسماء الشركاء ${(AppSettings.getAll().partners?.distribution||'equal')==='percent'?'و النِّسَب':''}</label>
+                            <div class="row g-2" id="partners-list-editor">
+                                ${(function(){ const s=AppSettings.getAll(); const P=(s.partners||{}); const list = P.list||[]; const isPercent=(P.distribution||'equal')==='percent'; return list.map((p,idx)=>`<div class=\"col-md-4\"><div class=\"input-group\"><span class=\"input-group-text\">${idx+1}</span><input type=\"text\" class=\"form-control\" value=\"${p.name||('الشريك '+(idx+1))}\" onchange=\"(function(i,val){ const s=AppSettings.getAll(); s.partners.list[i].name=val; AppSettings.update('partners', s.partners); })(${idx}, this.value)\"><${isPercent?'input type=\\"number\\" class=\\"form-control\\" min=\\"0\\" max=\\"100\\" step=\\"1\\" value=\\"'+(p.sharePercent??'')+'\\" placeholder=\\"%\\" onchange=\\"(function(i,val){ const s=AppSettings.getAll(); s.partners.list[i].sharePercent=val?parseFloat(val):null; AppSettings.update('partners', s.partners); })(${idx}, this.value)\\"':''}></div></div>`).join(''); })()}
+                            </div>
+                            ${(function(){ const s=AppSettings.getAll(); const P=(s.partners||{}); if ((P.distribution||'equal')==='percent') { const sum=(P.list||[]).reduce((a,b)=>a+(parseFloat(b.sharePercent)||0),0); return `<small class=\"text-muted\">مجموع النِّسَب الحالية: ${sum}%</small>`; } return ''; })()}
+                        </div>
+
+                        <hr>
+                        <h6 class="mb-2">سحوبات الشركاء (للفترة المختارة في التقارير)</h6>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label">الشريك</label>
+                                <select class="form-select" id="partnerAdjPartner">
+                                    ${(function(){ const s=AppSettings.getAll(); const list=(s.partners?.list)||[]; return list.map(p=>`<option value=\"${p.id}\">${p.name}</option>`).join(''); })()}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">المبلغ</label>
+                                <input type="number" class="form-control" id="partnerAdjAmount" min="0">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">التاريخ</label>
+                                <input type="date" class="form-control" id="partnerAdjDate" value="${(new Date()).toISOString().slice(0,10)}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <button class="btn btn-outline-primary w-100" onclick="(function(){ try { const s=AppSettings.getAll(); const P=s.partners||(s.partners={}); const pf=(typeof getPartnersPeriodRange==='function')?getPartnersPeriodRange():{fromDate:'',toDate:'',text:''}; const periodKey = (pf.fromDate||'')+'_'+(pf.toDate||''); const list=(P.adjustments&&P.adjustments[periodKey])?P.adjustments[periodKey]:[]; const pid=document.getElementById('partnerAdjPartner').value; const amount=parseFloat(document.getElementById('partnerAdjAmount').value)||0; const date=document.getElementById('partnerAdjDate').value; if (amount>0) { list.push({ partnerId: pid, amount: amount, date: date, notes: '' }); P.adjustments = P.adjustments||{}; P.adjustments[periodKey]=list; AppSettings.update('partners', P); showNotification && showNotification('تم إضافة سحب الشريك', 'success'); } })()">إضافة</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
     }
