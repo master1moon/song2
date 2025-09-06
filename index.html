@@ -320,6 +320,24 @@
             margin-bottom: 20px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
+        /* دعم الوضع الداكن لتقرير الشركاء */
+        body.dark-theme .partner-report-card {
+            background: linear-gradient(135deg, #1f2937, #111827);
+            color: #e5e7eb;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+        body.dark-theme .partner-report-card .table th,
+        body.dark-theme .partner-report-card .table td {
+            color: #e5e7eb;
+            border-color: rgba(255,255,255,0.12);
+        }
+        body.dark-theme .partner-report-card .table thead th { background-color: rgba(255,255,255,0.06); }
+        body.dark-theme .partner-report-card .partner-report-title { color: #f9fafb; }
+        body.dark-theme .partner-report-card .partner-report-dates { color: #cbd5e1; }
+        body.dark-theme .partner-report-card .btn-outline-primary { border-color: #60a5fa; color: #93c5fd; }
+        body.dark-theme .partner-report-card .btn-outline-primary:hover { background-color: #3b82f6; color: #fff; }
+        body.dark-theme .partner-report-card .btn-outline-danger { border-color: #f87171; color: #fca5a5; }
+        body.dark-theme .partner-report-card .btn-outline-danger:hover { background-color: #ef4444; color: #fff; }
         
         /* أنماط أزرار الإجراءات في تقرير الشركاء */
         .partner-report-card .btn-sm {
@@ -2416,9 +2434,33 @@
                         </div>
                         <div class="card-body">
                             <div class="row g-2 align-items-end mb-3">
-                                <div class="col-12 col-md-auto">
-                                    <label class="form-label mb-1">عدد الشركاء</label>
-                                    <input type="number" id="partnersCount" class="form-control form-control-sm" value="2" min="1" style="width:120px" />
+                                <!-- إدارة الشركاء داخل تقرير الشركاء -->
+                                <div class="col-12">
+                                    <div class="border rounded p-2 bg-light">
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-12 col-md-3">
+                                                <label class="form-label mb-1">عدد الشركاء</label>
+                                                <input type="number" id="partnersEditorCount" class="form-control form-control-sm" min="1" style="width:140px" />
+                                            </div>
+                                            <div class="col-12 col-md-3">
+                                                <label class="form-label mb-1">طريقة التوزيع</label>
+                                                <select id="partnersEditorDistribution" class="form-select form-select-sm" style="width:160px">
+                                                    <option value="equal">تقسيم متساوٍ</option>
+                                                    <option value="percent">حسب نسب</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label mb-1">سحب جديد (الشريك/المبلغ/التاريخ)</label>
+                                                <div class="d-flex gap-2 flex-wrap">
+                                                    <select id="partnersAdjPartner" class="form-select form-select-sm" style="max-width:220px"></select>
+                                                    <input type="number" id="partnersAdjAmount" class="form-control form-control-sm" placeholder="المبلغ" min="0" style="max-width:150px" />
+                                                    <input type="date" id="partnersAdjDate" class="form-control form-control-sm" style="max-width:170px" />
+                                                    <button class="btn btn-sm btn-outline-primary" id="partnersAdjAdd">إضافة</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2" id="partnersEditorList"></div>
+                                    </div>
                                 </div>
                                 <div class="col-12 col-md-auto">
                                     <label class="form-label mb-1">المدة</label>
@@ -3509,6 +3551,63 @@
             
             container.appendChild(report);
         }
+
+        // واجهة إدارة الشركاء داخل بطاقة التقرير
+        (function wirePartnersInlineEditor(){
+            function getCfg(){ try{ return (typeof AppSettings!=='undefined')? (AppSettings.getAll().partners||{}):{}; }catch(_){ return {}; } }
+            function setCfg(cfg){ try{ AppSettings.update('partners', cfg); } catch(_){} }
+            function periodKey(){ try{ const pf = (typeof getPartnersPeriodRange==='function')?getPartnersPeriodRange():{fromDate:'',toDate:''}; return (pf.fromDate||'')+'_'+(pf.toDate||''); }catch(_){ return '_'; } }
+            function refreshEditors(){
+                const cfg = getCfg();
+                const countEl = document.getElementById('partnersEditorCount');
+                const distEl = document.getElementById('partnersEditorDistribution');
+                const listWrap = document.getElementById('partnersEditorList');
+                const selAdj = document.getElementById('partnersAdjPartner');
+                const dateAdj = document.getElementById('partnersAdjDate');
+                if (!countEl || !distEl || !listWrap || !selAdj) return;
+                const count = parseInt(cfg.count)|| (cfg.list?cfg.list.length:2) || 2;
+                countEl.value = count;
+                const distribution = cfg.distribution || 'equal';
+                distEl.value = distribution;
+                const list = Array.isArray(cfg.list)&&cfg.list.length? cfg.list.slice(0, count) : Array.from({length:count}).map((_,i)=>({ id:'p'+(i+1), name:'الشريك '+(i+1), sharePercent:null }));
+                cfg.list = list; setCfg(cfg);
+                // أسماء الشركاء
+                listWrap.innerHTML = '';
+                const row = document.createElement('div'); row.className = 'row g-2 mt-2';
+                list.forEach((p,idx)=>{
+                    const col = document.createElement('div'); col.className='col-12 col-md-4';
+                    col.innerHTML = '<div class="input-group input-group-sm">\
+                        <span class="input-group-text">'+(idx+1)+'</span>\
+                        <input type="text" class="form-control" value="'+(p.name||('الشريك '+(idx+1)))+'" data-idx="'+idx+'" data-role="name">\
+                        '+(distribution==='percent'?'<input type="number" class="form-control" min="0" max="100" step="1" value="'+(p.sharePercent??'')+'" placeholder="%" data-idx="'+idx+'" data-role="percent">':'')+'\
+                    </div>';
+                    row.appendChild(col);
+                });
+                listWrap.appendChild(row);
+                // قائمة الشريك في السحب
+                selAdj.innerHTML = list.map(p=>'<option value="'+p.id+'">'+(p.name||'')+'</option>').join('');
+                if (dateAdj && !dateAdj.value) { try { dateAdj.value = (new Date()).toISOString().slice(0,10); } catch(_){} }
+            }
+
+            document.addEventListener('DOMContentLoaded', function(){
+                const card = document.getElementById('partnerReportsCard'); if (!card) return;
+                const countEl = document.getElementById('partnersEditorCount');
+                const distEl = document.getElementById('partnersEditorDistribution');
+                const listWrap = document.getElementById('partnersEditorList');
+                const btnAdd = document.getElementById('partnersAdjAdd');
+                const selAdj = document.getElementById('partnersAdjPartner');
+                const amtAdj = document.getElementById('partnersAdjAmount');
+                const dateAdj = document.getElementById('partnersAdjDate');
+                if (!countEl) return;
+                refreshEditors();
+                countEl.addEventListener('change', function(){
+                    const cfg = getCfg(); const v = parseInt(this.value)||1; cfg.count = v; const list = (cfg.list||[]).slice(0,v); while(list.length<v){ list.push({ id:'p'+(list.length+1), name:'الشريك '+(list.length+1), sharePercent:null }); } cfg.list=list; setCfg(cfg); refreshEditors(); generatePartnerReports();
+                });
+                distEl.addEventListener('change', function(){ const cfg=getCfg(); cfg.distribution=this.value; setCfg(cfg); refreshEditors(); generatePartnerReports(); });
+                listWrap.addEventListener('change', function(e){ const t=e.target; const role=t && t.getAttribute('data-role'); if(!role) return; const idx=parseInt(t.getAttribute('data-idx')); const cfg=getCfg(); if(!cfg.list||!cfg.list[idx]) return; if(role==='name'){ cfg.list[idx].name = t.value; } else if (role==='percent'){ cfg.list[idx].sharePercent = t.value?parseFloat(t.value):null; } setCfg(cfg); generatePartnerReports(); });
+                if (btnAdd) btnAdd.addEventListener('click', function(){ const cfg=getCfg(); const pk=periodKey(); const list=(cfg.adjustments&&cfg.adjustments[pk])?cfg.adjustments[pk]:[]; const pid=selAdj.value; const amount=parseFloat(amtAdj.value)||0; const date=dateAdj.value; if (pid && amount>0){ list.push({ partnerId: pid, amount: amount, date: date, notes: '' }); cfg.adjustments = cfg.adjustments||{}; cfg.adjustments[pk]=list; setCfg(cfg); amtAdj.value=''; if (typeof showNotification==='function') showNotification('تم إضافة سحب الشريك', 'success'); generatePartnerReports(); } });
+            });
+        })();
         
         // تصدير تقرير الشركاء
         function exportPartnerReport() {
@@ -5285,7 +5384,7 @@
             const message = encodeURIComponent(
                 `السلام عليكم،\n` +
                 `محل: ${storeName}\n` +
-                `الرصيد الحالي: ${formatNumber(Math.abs(balance))} ريال\n` +
+                `الرصيد الحالي: ${formatNumber(Math.abs(balance))}\n` +
                 `الحالة: ${status}\n` +
                 `تاريخ: ${new Date().toLocaleDateString('ar-YE')}`
             );
@@ -5309,9 +5408,9 @@
             const reportText = 
                 `تقرير محل: ${store.name}\n` +
                 `━━━━━━━━━━━━━\n` +
-                `إجمالي المبيعات: ${formatNumber(totalSales)} ريال\n` +
-                `إجمالي المدفوعات: ${formatNumber(totalPayments)} ريال\n` +
-                `الرصيد الحالي: ${formatNumber(Math.abs(balance))} ريال ${balance >= 0 ? 'دائن' : 'مدين'}\n\n` +
+                `إجمالي المبيعات: ${formatNumber(totalSales)}\n` +
+                `إجمالي المدفوعات: ${formatNumber(totalPayments)}\n` +
+                `الرصيد الحالي: ${formatNumber(Math.abs(balance))} ${balance >= 0 ? 'دائن' : 'مدين'}\n\n` +
                 `تاريخ التقرير: ${new Date().toLocaleDateString('ar-YE')}\n\n` +
                 `تم إنشاء هذا التقرير بواسطة نظام إدارة المبيعات`;
             
@@ -5518,7 +5617,7 @@
             
             // إضافة الرصيد السابق إن وجد
             if (runningBalance !== 0 && dateFrom) {
-                report += `💳 *رصيد سابق:* ${formatNumber(Math.abs(runningBalance))} ريال ${runningBalance >= 0 ? '(دائن)' : '(مدين)'}\n`;
+                report += `💳 *رصيد سابق:* ${formatNumber(Math.abs(runningBalance))} ${runningBalance >= 0 ? '(دائن)' : '(مدين)'}\n`;
                 report += `────────────────────────────\n\n`;
             }
             
@@ -5533,8 +5632,8 @@
                 if (previousBalance > 0 && dayTransactions.payments.length > 0) {
                     dayTransactions.payments.forEach(payment => {
                         runningBalance -= payment.amount;
-                        report += `💵 *تسديد:* ${formatNumber(payment.amount)} ريال\n`;
-                        report += `   ← الرصيد: ${formatNumber(Math.abs(runningBalance))} ريال ${runningBalance >= 0 ? '(دائن)' : '(مدين)'}\n\n`;
+                        report += `💵 *تسديد:* ${formatNumber(payment.amount)}\n`;
+                        report += `   ← الرصيد: ${formatNumber(Math.abs(runningBalance))} ${runningBalance >= 0 ? '(دائن)' : '(مدين)'}\n\n`;
                     });
                 }
                 
@@ -5550,16 +5649,16 @@
                     }
                     
                     report += `🛍️ *بيع:* ${packageName}\n`;
-                    report += `   الكمية: ${sale.quantity || 1} | المبلغ: ${formatNumber(sale.total)} ريال\n`;
-                    report += `   ← الرصيد: ${formatNumber(Math.abs(runningBalance))} ريال ${runningBalance >= 0 ? '(دائن)' : '(مدين)'}\n\n`;
+                    report += `   الكمية: ${sale.quantity || 1} | المبلغ: ${formatNumber(sale.total)}\n`;
+                    report += `   ← الرصيد: ${formatNumber(Math.abs(runningBalance))} ${runningBalance >= 0 ? '(دائن)' : '(مدين)'}\n\n`;
                 });
                 
                 // إذا لم يكن هناك رصيد دائن سابق، نعرض التسديدات بعد المبيعات
                 if (previousBalance <= 0 && dayTransactions.payments.length > 0) {
                     dayTransactions.payments.forEach(payment => {
                         runningBalance -= payment.amount;
-                        report += `💵 *تسديد:* ${formatNumber(payment.amount)} ريال\n`;
-                        report += `   ← الرصيد: ${formatNumber(Math.abs(runningBalance))} ريال ${runningBalance >= 0 ? '(دائن)' : '(مدين)'}\n\n`;
+                        report += `💵 *تسديد:* ${formatNumber(payment.amount)}\n`;
+                        report += `   ← الرصيد: ${formatNumber(Math.abs(runningBalance))} ${runningBalance >= 0 ? '(دائن)' : '(مدين)'}\n\n`;
                     });
                 }
                 
@@ -5571,9 +5670,9 @@
             const periodPayments = payments.reduce((sum, p) => sum + p.amount, 0);
             
             report += `*📊 الملخص:*\n`;
-            report += `• مبيعات الفترة: ${formatNumber(periodSales)} ريال\n`;
-            report += `• تسديدات الفترة: ${formatNumber(periodPayments)} ريال\n`;
-            report += `• الرصيد النهائي: ${formatNumber(Math.abs(runningBalance))} ريال ${runningBalance >= 0 ? '(دائن)' : '(مدين)'}\n\n`;
+            report += `• مبيعات الفترة: ${formatNumber(periodSales)}\n`;
+            report += `• تسديدات الفترة: ${formatNumber(periodPayments)}\n`;
+            report += `• الرصيد النهائي: ${formatNumber(Math.abs(runningBalance))} ${runningBalance >= 0 ? '(دائن)' : '(مدين)'}\n\n`;
             report += `📅 تاريخ التقرير: ${new Date().toLocaleDateString('ar-YE')}`;
             
             // استخدام Web Share API إذا كان متاحاً

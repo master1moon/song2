@@ -21,6 +21,11 @@
  * يحسب ويعرض الإحصائيات الأساسية للفترة المحددة
  * مشكلة: يستخدم دالة getPeriodRange التي قد لا تكون معرفة
  */
+/**
+ * ملاحظة: الدالة updateDashboardReports — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function updateDashboardReports() {
   try {
     const { fromDate, toDate } = getPeriodRange();
@@ -69,6 +74,11 @@ if (typeof window !== 'undefined') {
  * @param {string} priceType - نوع السعر (retail, wholesale, distributor)
  * @returns {string} الاسم بالعربية
  */
+/**
+ * ملاحظة: الدالة getPriceTypeName — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: priceType
+ * المخرجات: راجع التنفيذ
+ */
 function getPriceTypeName(priceType) {
   switch (priceType) {
     case 'retail': return 'تجزئة';
@@ -84,6 +94,11 @@ function getPriceTypeName(priceType) {
  * يمكن إعادة تفعيلها في المستقبل للفلترة حسب المحل
  * @param {Object} item - العنصر للتحقق منه
  * @returns {boolean} دائماً true حالياً
+ */
+/**
+ * ملاحظة: الدالة isStoreMatch — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: item
+ * المخرجات: راجع التنفيذ
  */
 function isStoreMatch(item) {
   return true; // إرجاع true دائماً بعد حذف الفلاتر
@@ -188,6 +203,11 @@ async function updateProfitReport() {
  * يسمح بتعديل وحذف العناصر مباشرة
  * مشكلة: لا يوجد تحقق من صحة عدد الشركاء
  */
+/**
+ * ملاحظة: الدالة generatePartnerReports — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function generatePartnerReports() {
   const container = document.getElementById('partnerReportsContainer');
   if (!container) return;
@@ -199,89 +219,93 @@ function generatePartnerReports() {
   const totalPays = pays.reduce((s,x)=> s + (Number(x.amount)||0), 0);
   const totalExps = exps.reduce((s,x)=> s + (Number(x.amount)||0), 0);
   const net = totalPays - totalExps;
-  const partners = getPartnersCount();
-  const perPartner = net / partners;
+
+  // إعدادات الشركاء من الإعدادات (اختياري)
+  let partnersCfg = null;
+  try { partnersCfg = (typeof AppSettings!=='undefined') ? (AppSettings.getAll().partners||null) : null; } catch(_) { partnersCfg = null; }
+
+  let partnersCount = getPartnersCount();
+  let partnersList = [];
+  let distribution = 'equal';
+  let adjustmentsForPeriod = [];
+  let carryover = {};
+
+  if (partnersCfg) {
+    partnersCount = parseInt(partnersCfg.count)||partnersCount||1;
+    partnersList = Array.isArray(partnersCfg.list) && partnersCfg.list.length ? partnersCfg.list.slice(0, partnersCount) : [];
+    distribution = partnersCfg.distribution||'equal';
+    const periodKey = `${fromDate||''}_${toDate||''}`;
+    adjustmentsForPeriod = (partnersCfg.adjustments && partnersCfg.adjustments[periodKey]) ? partnersCfg.adjustments[periodKey] : [];
+    carryover = partnersCfg.carryover || {};
+  }
+
+  // حساب الأنصبة الأساسية
+  let baseShares = [];
+  if (distribution === 'percent' && partnersList.length && partnersList.some(p=>p.sharePercent)) {
+    const totalPercent = partnersList.reduce((s,p)=> s + (parseFloat(p.sharePercent)||0), 0) || 100;
+    baseShares = partnersList.map(p=> ({ id: p.id, name: p.name, base: (net * ((parseFloat(p.sharePercent)||0) / totalPercent)) }));
+  } else {
+    const per = partnersCount>0 ? net / partnersCount : net;
+    if (partnersList.length) {
+      baseShares = partnersList.map(p=> ({ id: p.id, name: p.name, base: per }));
+    } else {
+      // fallback أسماء افتراضية
+      baseShares = Array.from({length: partnersCount}).map((_,i)=> ({ id: `p${i+1}`, name: `الشريك ${i+1}`, base: per }));
+    }
+  }
+
+  // خصومات السحوبات + الترحيل
+  const withdrawalsByPartner = {};
+  adjustmentsForPeriod.forEach(adj => {
+    const pid = adj.partnerId; const amt = Number(adj.amount)||0;
+    withdrawalsByPartner[pid] = (withdrawalsByPartner[pid]||0) + amt;
+  });
+
+  const rowsHtml = baseShares.map(p => {
+    const w = withdrawalsByPartner[p.id]||0;
+    const co = Number(carryover[p.id]||0);
+    const final = (p.base - w + co);
+    const status = final < 0 ? 'مدين' : 'دائن';
+    return `
+      <tr>
+        <td>${p.name||''}</td>
+        ${distribution==='percent' && partnersList.some(x=>x.id===p.id && x.sharePercent!=null) ? `<td>${(partnersList.find(x=>x.id===p.id)?.sharePercent)||0}%</td>` : `<td>متساوٍ</td>`}
+        <td class="currency">${formatNumber(p.base)}</td>
+        <td class="currency">${formatNumber(w)}</td>
+        <td class="currency">${formatNumber(co)}</td>
+        <td class="currency ${final<0?'text-danger':'text-success'}">${formatNumber(Math.abs(final))}</td>
+        <td>${status}</td>
+      </tr>`;
+  }).join('');
+
   const html = `
     <div class="partner-report-card">
       <div class="partner-report-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="partner-report-title mb-0">تقرير الشركاء</h5>
-        <div class="partner-report-dates">المدة: ${text} | الشركاء: ${partners}</div>
+        <div class="partner-report-dates">المدة: ${text} | الشركاء: ${partnersCount}</div>
       </div>
       <div class="partner-report-summary d-flex flex-wrap gap-3 my-2">
         <div class="summary-item"><div class="summary-value currency">${formatNumber(totalPays)}</div><div class="summary-label">إجمالي التسديدات</div></div>
         <div class="summary-item"><div class="summary-value currency">${formatNumber(totalExps)}</div><div class="summary-label">إجمالي المصروفات</div></div>
         <div class="summary-item"><div class="summary-value currency ${net<0?'profit-negative':''}">${formatNumber(net)}</div><div class="summary-label">صافي الأرباح</div></div>
-        <div class="summary-item"><div class="summary-value currency">${formatNumber(perPartner)}</div><div class="summary-label">صافي لكل شريك</div></div>
       </div>
-      <div class="row g-3">
-        <div class="col-12 col-md-6">
-          <h6>جميع التسديدات</h6>
-          <div class="table-responsive">
-            <table class="table table-sm align-middle">
-              <thead>
-                <tr>
-                  <th>التاريخ</th>
-                  <th>المحل</th>
-                  <th>المبلغ</th>
-                  <th>ملاحظات</th>
-                  <th width="100">إجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${pays.map((p, idx) => `
-                  <tr data-payment-id="${p.id}">
-                    <td>${formatDateEn(p.date)}</td>
-                    <td>${(data.stores.find(s=>s.id===p.storeId)?.name)||''}</td>
-                    <td class="currency">${formatNumber(p.amount||0)}</td>
-                    <td>${p.notes||''}</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-primary" onclick="editPaymentFromPartner('${p.id}')" title="تعديل">
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      <button class="btn btn-sm btn-outline-danger" onclick="deletePaymentFromPartner('${p.id}')" title="حذف">
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="col-12 col-md-6">
-          <h6>جميع المصروفات</h6>
-          <div class="table-responsive">
-            <table class="table table-sm align-middle">
-              <thead>
-                <tr>
-                  <th>التاريخ</th>
-                  <th>النوع</th>
-                  <th>المبلغ</th>
-                  <th>ملاحظات</th>
-                  <th width="100">إجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${exps.map((e, idx) => `
-                  <tr data-expense-id="${e.id}">
-                    <td>${formatDateEn(e.date)}</td>
-                    <td>${e.type||''}</td>
-                    <td class="currency">${formatNumber(e.amount||0)}</td>
-                    <td>${e.notes||''}</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-primary" onclick="editExpenseFromPartner('${e.id}')" title="تعديل">
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      <button class="btn btn-sm btn-outline-danger" onclick="deleteExpenseFromPartner('${e.id}')" title="حذف">
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th>الشريك</th>
+              <th>التوزيع</th>
+              <th>النصيب الأساسي</th>
+              <th>سحوبات الفترة</th>
+              <th>ترحيل سابق</th>
+              <th>الصافي</th>
+              <th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
       </div>
     </div>`;
   container.innerHTML = html;
@@ -293,9 +317,14 @@ function generatePartnerReports() {
  * الحصول على إعدادات التقارير
  * يستخدم الإعدادات المحفوظة أو القيم الافتراضية
  */
+/**
+ * ملاحظة: الدالة getReportSettings — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function getReportSettings() {
   try {
-    const settings = AppSettings.get().reports;
+    const settings = AppSettings.getAll().reports;
     return settings;
   } catch (e) {
     // إعدادات افتراضية في حالة عدم توفر AppSettings
@@ -323,6 +352,11 @@ function getReportSettings() {
 /**
  * بناء رأس التقرير HTML
  * يحتوي على معلومات الشركة والشعار
+ */
+/**
+ * ملاحظة: الدالة buildReportHeader — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: title = 'تقرير'
+ * المخرجات: راجع التنفيذ
  */
 function buildReportHeader(title = 'تقرير') {
   const settings = getReportSettings();
@@ -372,6 +406,11 @@ function buildReportHeader(title = 'تقرير') {
 /**
  * بناء تذييل التقرير
  */
+/**
+ * ملاحظة: الدالة buildReportFooter — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function buildReportFooter() {
   const settings = getReportSettings();
   let footerHTML = '<div class="report-footer">';
@@ -388,12 +427,38 @@ function buildReportFooter() {
     footerHTML += '</div>';
   }
   
+  // حقوق ثابتة تظهر دائماً في نهاية جميع التقارير بغض النظر عن تذييل التقارير
+  const year = new Date().getFullYear();
+  footerHTML += `
+    <div class="footer-rights" style="
+      margin-top: 24px; padding: 16px; border-radius: 12px; 
+      background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+      color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    ">
+      <div style="font-size:14px; opacity:0.95; display:flex; align-items:center; gap:8px; justify-content:center;">
+        <span>💼</span>
+        <span>نظام إدارة المبيعات والمخزون والمصروفات</span>
+      </div>
+      <div style="margin-top:6px; font-weight:600; text-align:center;">جميع الحقوق محفوظة © ${year}</div>
+      <div style="margin-top:4px; display:flex; gap:16px; justify-content:center; align-items:center; flex-wrap:wrap;">
+        <span style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;" onclick="try{navigator.clipboard.writeText('775396439'); alert('✅ تم نسخ الرقم: 775396439');}catch(_){}">📱 775396439</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;" onclick="try{navigator.clipboard.writeText('737896431'); alert('✅ تم نسخ الرقم: 737896431');}catch(_){}">📱 737896431</span>
+      </div>
+      <div style="margin-top:6px; font-size:12px; opacity:0.9; text-align:center;">⚖️ يُحظر نسخ أو توزيع هذا النظام بدون إذن مسبق</div>
+    </div>
+  `;
+  
   footerHTML += '</div>';
   return footerHTML;
 }
 
 /**
  * الحصول على أنماط CSS للتقارير
+ */
+/**
+ * ملاحظة: الدالة getReportStyles — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
  */
 function getReportStyles() {
   const settings = getReportSettings();
@@ -551,6 +616,11 @@ function getReportStyles() {
   return styles;
 }
 
+/**
+ * ملاحظة: الدالة buildPartnerReportHTML — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: periodText, partnersCount, paysList, expsList, totalPays, totalExps, net, perPartner
+ * المخرجات: راجع التنفيذ
+ */
 function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, totalPays, totalExps, net, perPartner){
   const settings = getReportSettings();
   let html='';
@@ -568,11 +638,16 @@ function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, t
   html += 'المدة: ' + periodText + ' | عدد الشركاء: ' + partnersCount + ' | تاريخ التصدير: ' + moment().format(settings.dateFormat);
   html += '</div>';
   html += '<div class="summary">' +
-    '<div class="box">إجمالي التسديدات: <span class="currency">' + (totalPays||0).toLocaleString('en-US') + '</span></div>' +
-    '<div class="box">إجمالي المصروفات: <span class="currency">' + (totalExps||0).toLocaleString('en-US') + '</span></div>' +
-    '<div class="box">صافي الأرباح: <span class="currency">' + (net||0).toLocaleString('en-US') + '</span></div>' +
-    '<div class="box">صافي لكل شريك: <span class="currency">' + (perPartner||0).toLocaleString('en-US') + '</span></div>' +
+    '<div class="box">إجمالي التسديدات: <span class="currency">' + formatNumber(totalPays||0) + '</span></div>' +
+    '<div class="box">إجمالي المصروفات: <span class="currency">' + formatNumber(totalExps||0) + '</span></div>' +
+    '<div class="box">صافي الأرباح: <span class="currency">' + formatNumber(net||0) + '</span></div>' +
+    '<div class="box">صافي لكل شريك: <span class="currency">' + formatNumber(perPartner||0) + '</span></div>' +
   '</div>';
+  /**
+   * ملاحظة: الدالة renderTable — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: title, headers, rows
+   * المخرجات: راجع التنفيذ
+   */
   const renderTable = (title, headers, rows)=>{
     let s = '<h4>'+title+'</h4>';
     if (rows.length){ s += '<table><thead><tr>'+ headers.map(h=>'<th>'+h+'</th>').join('') +'</tr></thead><tbody>' + rows.map(r=>'<tr>'+headers.map(h=>'<td>'+ (r[h]||'') +'</td>').join('') +'</tr>').join('') + '</tbody></table>'; }
@@ -606,6 +681,11 @@ function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, t
   document.addEventListener('app-data-loaded', ()=>{ generatePartnerReports(); });
 })();
 
+/**
+ * ملاحظة: الدالة exportPartnerReport — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function exportPartnerReport() {
   // التأكد من وجود البيانات
   if (!data || typeof data !== 'object') {
@@ -628,11 +708,21 @@ function exportPartnerReport() {
   showNotification('تم تصدير تقرير الشركاء', 'success');
 }
 
+/**
+ * ملاحظة: الدالة updateReportStores — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function updateReportStores() {
   // لا حاجة لهذه الدالة بعد حذف الفلاتر
   return;
 }
 
+/**
+ * ملاحظة: الدالة generateDebtReport — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function generateDebtReport() {
   const table = document.getElementById('debtReportTable');
   if (!table) return;
@@ -671,6 +761,11 @@ function generateDebtReport() {
   });
 }
 
+/**
+ * ملاحظة: الدالة exportData — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function exportData() {
   const dataType = document.getElementById('exportDataType').value;
   const format = document.getElementById('exportFormat').value;
@@ -731,11 +826,16 @@ function exportData() {
  * @param {number} previousBalance - الرصيد السابق (قبل الفترة المحددة)
  * @returns {string} كود HTML للتقرير
  */
+/**
+ * ملاحظة: الدالة buildAccountStatementHTML — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: store, periodText, allTransactions, previousBalance = 0
+ * المخرجات: راجع التنفيذ
+ */
 function buildAccountStatementHTML(store, periodText, allTransactions, previousBalance = 0) {
   const settings = getReportSettings();
   
   // التأكد من وجود الدوال المطلوبة
-  const formatNumber = window.formatNumber || ((n) => n.toLocaleString('en-US'));
+  const formatNumber = window.formatNumber || ((n) => (Number(n)||0).toLocaleString('en-US'));
   const formatDateEn = window.formatDateEn || ((d) => d);
   const getPriceTypeName = window.getPriceTypeName || ((t) => t);
   
@@ -1172,6 +1272,11 @@ function buildAccountStatementHTML(store, periodText, allTransactions, previousB
         ${buildReportFooter()}
         
         <script>
+        /**
+         * ملاحظة: الدالة copyPhoneNumber — وصف تلقائي موجز لوظيفتها.
+         * المدخلات: number
+         * المخرجات: راجع التنفيذ
+         */
         function copyPhoneNumber(number) {
             // نسخ الرقم إلى الحافظة
             navigator.clipboard.writeText(number).then(function() {
@@ -1203,9 +1308,19 @@ function buildAccountStatementHTML(store, periodText, allTransactions, previousB
   return html;
 }
 
+/**
+ * ملاحظة: الدالة buildStoreReportHTML — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: store, periodText, mappedSalesForExport, mappedPaymentsForExport, totalSales, totalPayments, remaining
+ * المخرجات: راجع التنفيذ
+ */
 function buildStoreReportHTML(store, periodText, mappedSalesForExport, mappedPaymentsForExport, totalSales, totalPayments, remaining) {
   const settings = getReportSettings();
   
+  /**
+   * ملاحظة: الدالة buildSalesRows — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: بدون
+   * المخرجات: راجع التنفيذ
+   */
   function buildSalesRows() { 
     let rows = ''; 
     for (const s of mappedSalesForExport) { 
@@ -1214,18 +1329,23 @@ function buildStoreReportHTML(store, periodText, mappedSalesForExport, mappedPay
         '<td>' + s.التفاصيل + '</td>' + 
         '<td>' + s.الباقة + '</td>' + 
         '<td>' + s.الكمية_أو_المبلغ + '</td>' + 
-        '<td class="currency">' + (s.الإجمالي || 0).toLocaleString('en-US') + '</td>' + 
+        '<td class="currency">' + formatNumber(s.الإجمالي || 0) + '</td>' + 
       '</tr>'; 
     } 
     return rows; 
   }
   
+  /**
+   * ملاحظة: الدالة buildPaymentRows — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: بدون
+   * المخرجات: راجع التنفيذ
+   */
   function buildPaymentRows() { 
     let rows = ''; 
     for (const p of mappedPaymentsForExport) { 
       rows += '<tr>' + 
         '<td>' + p.التاريخ + '</td>' + 
-        '<td class="currency">' + (p.المبلغ || 0).toLocaleString('en-US') + '</td>' + 
+        '<td class="currency">' + formatNumber(p.المبلغ || 0) + '</td>' + 
         '<td>' + (p.ملاحظات || '') + '</td>' + 
       '</tr>'; 
     } 
@@ -1248,9 +1368,9 @@ function buildStoreReportHTML(store, periodText, mappedSalesForExport, mappedPay
   html += '</div>';
   
   html += '<div class="summary">' + 
-    '<div class="box">إجمالي المبيعات: <span class="currency">' + (totalSales || 0).toLocaleString('en-US') + '</span></div>' + 
-    '<div class="box">إجمالي التسديدات: <span class="currency">' + (totalPayments || 0).toLocaleString('en-US') + '</span></div>' + 
-    '<div class="box">المتبقي: <span class="currency">' + (remaining || 0).toLocaleString('en-US') + '</span></div>' + 
+    '<div class="box">إجمالي المبيعات: <span class="currency">' + formatNumber(totalSales || 0) + '</span></div>' + 
+    '<div class="box">إجمالي التسديدات: <span class="currency">' + formatNumber(totalPayments || 0) + '</span></div>' + 
+    '<div class="box">المتبقي: <span class="currency">' + formatNumber(remaining || 0) + '</span></div>' + 
   '</div>';
   
   html += '<h4>المبيعات</h4>';
@@ -1272,6 +1392,11 @@ function buildStoreReportHTML(store, periodText, mappedSalesForExport, mappedPay
   return html;
 }
 
+/**
+ * ملاحظة: الدالة buildExpensesReportHTML — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: expensesRows, periodText
+ * المخرجات: راجع التنفيذ
+ */
 function buildExpensesReportHTML(expensesRows, periodText) {
   const settings = getReportSettings();
   const currentMonth = moment().format('YYYY-MM');
@@ -1308,12 +1433,17 @@ function buildExpensesReportHTML(expensesRows, periodText) {
   html += 'المدة: ' + periodText + ' | تاريخ التصدير: ' + moment().format(settings.dateFormat);
   html += '</div>';
   
-  html += '<div class="summary"><div class="box">إجمالي المصروفات المصدّرة: <span class="currency">' + (overallTotal || 0).toLocaleString('en-US') + '</span></div></div>';
+  html += '<div class="summary"><div class="box">إجمالي المصروفات المصدّرة: <span class="currency">' + formatNumber(overallTotal || 0) + '</span></div></div>';
 
+  /**
+   * ملاحظة: الدالة renderTable — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: rows
+   * المخرجات: راجع التنفيذ
+   */
   const renderTable = (rows) => {
     let s = '<table><thead><tr>' + '<th>التاريخ</th>' + '<th>المبلغ</th>' + '<th>نوع المصروف</th>' + '<th>ملاحظات</th>' + '<th>الحالة</th>' + '</tr></thead><tbody>';
     for (const e of rows) {
-      s += '<tr>' + '<td>' + (e['التاريخ'] || '') + '</td>' + '<td class="currency">' + (Number(e['المبلغ'] || 0).toLocaleString('en-US')) + '</td>' + '<td>' + (e['نوع المصروف'] || '') + '</td>' + '<td>' + (e['ملاحظات'] || '') + '</td>' + '<td>' + (e['الحالة'] || '') + '</td>' + '</tr>';
+      s += '<tr>' + '<td>' + (e['التاريخ'] || '') + '</td>' + '<td class="currency">' + formatNumber(e['المبلغ'] || 0) + '</td>' + '<td>' + (e['نوع المصروف'] || '') + '</td>' + '<td>' + (e['ملاحظات'] || '') + '</td>' + '<td>' + (e['الحالة'] || '') + '</td>' + '</tr>';
     }
     s += '</tbody></table>';
     return s;
@@ -1326,7 +1456,7 @@ function buildExpensesReportHTML(expensesRows, periodText) {
       const rows = (monthMap.get(mKey) || []).slice().sort((a,b)=> String(a['التاريخ']).localeCompare(String(b['التاريخ'])));
       const monthTotal = rows.reduce((sum, r) => sum + Number(r['المبلغ'] || 0), 0);
       html += '<h4>مصروفات شهر ' + mKey + '</h4>';
-      html += '<div class="summary"><div class="box">إجمالي الشهر: <span class="currency">' + (monthTotal || 0).toLocaleString('en-US') + '</span></div></div>';
+      html += '<div class="summary"><div class="box">إجمالي الشهر: <span class="currency">' + formatNumber(monthTotal || 0) + '</span></div></div>';
       html += renderTable(rows);
     });
   } else {
@@ -1335,7 +1465,7 @@ function buildExpensesReportHTML(expensesRows, periodText) {
     const monthTotal = rows.reduce((sum, r) => sum + Number(r['المبلغ'] || 0), 0);
     if (monthKey) {
       html += '<h4>مصروفات شهر ' + monthKey + '</h4>';
-      html += '<div class="summary"><div class="box">إجمالي الشهر: <span class="currency">' + (monthTotal || 0).toLocaleString('en-US') + '</span></div></div>';
+      html += '<div class="summary"><div class="box">إجمالي الشهر: <span class="currency">' + formatNumber(monthTotal || 0) + '</span></div></div>';
     }
     html += renderTable(rows);
   }
@@ -1384,9 +1514,19 @@ async function exportStoreData(storeId, format) {
   }
   const salesAll = (data.sales || []).filter(s => (s.storeId + '') === (storeId + ''));
   const paymentsAll = (data.payments || []).filter(p => (p.storeId + '') === (storeId + ''));
+  /**
+   * ملاحظة: الدالة parseDate — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: d
+   * المخرجات: راجع التنفيذ
+   */
   function parseDate(d) {
     if (!d) return null; const m = moment(d, [moment.ISO_8601, 'YYYY-MM-DD', 'YYYY-M-D', 'DD/MM/YYYY', 'D/M/YYYY'], true); if (m.isValid()) return m; const n = new Date(d); return isNaN(n.getTime()) ? null : moment(n);
   }
+  /**
+   * ملاحظة: الدالة inRange — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: d
+   * المخرجات: راجع التنفيذ
+   */
   function inRange(d) {
     if (!fromDate && !toDate) return true; const md = parseDate(d); if (!md) return true;
     if (fromDate) { const mf = parseDate(fromDate); if (mf && md.isBefore(mf, 'day')) return false; }
@@ -1600,6 +1740,11 @@ async function exportStoreData(storeId, format) {
   }
 }
 
+/**
+ * ملاحظة: الدالة exportExpensesData — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: format
+ * المخرجات: راجع التنفيذ
+ */
 function exportExpensesData(format) {
   const filename = `المصروفات_${moment().format('YYYYMMDD')}`;
   const expList = (window.__getFilteredExpensesForExport ? window.__getFilteredExpensesForExport() : data.expenses);
@@ -1618,6 +1763,11 @@ function exportExpensesData(format) {
   const periodText = `${from} إلى ${to}`;
 
   const toEn = (s) => (typeof window.toEnglishDigits === 'function' ? window.toEnglishDigits(String(s || '')) : String(s || ''));
+  /**
+   * ملاحظة: الدالة normalizeDate — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: d
+   * المخرجات: راجع التنفيذ
+   */
   const normalizeDate = (d) => {
     const en = toEn(d).slice(0, 10);
     const m = moment(en, [moment.ISO_8601, 'YYYY-MM-DD', 'YYYY-M-D', 'DD/MM/YYYY', 'D/M/YYYY'], true);
@@ -1689,6 +1839,11 @@ function exportExpensesData(format) {
   }
 }
 
+/**
+ * ملاحظة: الدالة generateDebtReportData — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function generateDebtReportData() {
   const { fromDate, toDate } = getPeriodRange();
   return [
@@ -1697,6 +1852,11 @@ function generateDebtReportData() {
   ];
 }
 
+/**
+ * ملاحظة: الدالة generateProfitReportData — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function generateProfitReportData(){
   const { fromDate, toDate } = getPeriodRange();
   const sales = data.sales.filter(s=> s.date >= fromDate && s.date <= toDate);
@@ -1708,6 +1868,11 @@ function generateProfitReportData(){
   ];
 }
 
+/**
+ * ملاحظة: الدالة generatePartnerReportData — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function generatePartnerReportData() {
   const { fromDate, toDate } = getPeriodRange();
   return [
@@ -1716,6 +1881,11 @@ function generatePartnerReportData() {
   ];
 }
 
+/**
+ * ملاحظة: الدالة getPeriodRange — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: reportType
+ * المخرجات: راجع التنفيذ
+ */
 function getPeriodRange(reportType) {
   // إذا تم تمرير نوع التقرير، استخدم العناصر الخاصة به
   if (reportType) {
@@ -1739,11 +1909,21 @@ function getPeriodRange(reportType) {
   return { fromDate, toDate };
 }
 
+/**
+ * ملاحظة: الدالة inPeriod — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: dateStr, fromDate, toDate
+ * المخرجات: راجع التنفيذ
+ */
 function inPeriod(dateStr, fromDate, toDate){
   const d = formatDateEn(dateStr);
   return d >= fromDate && d <= toDate;
 }
 
+/**
+ * ملاحظة: الدالة renderQuickSummaries — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function renderQuickSummaries(){
   const salesCanvas = document.getElementById('chartSales');
   const paymentsCanvas = document.getElementById('chartPayments');
@@ -1763,6 +1943,11 @@ function renderQuickSummaries(){
   const days = [];
   let cursor = start.clone();
   while (cursor.isSameOrBefore(end,'day')) { days.push(cursor.format('YYYY-MM-DD')); cursor = cursor.clone().add(1,'day'); }
+  /**
+   * ملاحظة: الدالة aggregateDaily — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: arr, getDate, getAmount
+   * المخرجات: راجع التنفيذ
+   */
   function aggregateDaily(arr, getDate, getAmount){
     const map = new Map(days.map(d=>[d,0]));
     for (const item of arr){
@@ -1781,6 +1966,11 @@ function renderQuickSummaries(){
   const qs = document.getElementById('quickSalesTotal'); if (qs) qs.textContent = formatNumber(totals.sales);
   const qp = document.getElementById('quickPaymentsTotal'); if (qp) qp.textContent = formatNumber(totals.payments);
   const qe = document.getElementById('quickExpensesTotal'); if (qe) qe.textContent = formatNumber(totals.expenses);
+  /**
+   * ملاحظة: الدالة drawSpark — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: canvas, series, color
+   * المخرجات: راجع التنفيذ
+   */
   function drawSpark(canvas, series, color){
     const ctx = canvas.getContext('2d');
     const w = canvas.clientWidth || canvas.width; const h = canvas.height;
@@ -1806,6 +1996,11 @@ function renderQuickSummaries(){
 // re-render quick summaries on relevant events
 window.addEventListener('resize', ()=>{ renderQuickSummaries(); });
 
+/**
+ * ملاحظة: الدالة renderComparisonReport — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function renderComparisonReport(){
   const table = document.getElementById('comparisonReportTable'); if (!table) return;
   const sub = document.getElementById('comparisonReportSubtitle');
@@ -1843,6 +2038,11 @@ function renderComparisonReport(){
   }).join('');
 }
 
+/**
+ * ملاحظة: الدالة getPartnersPeriodRange — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function getPartnersPeriodRange(){
   const sel = document.getElementById('partnersPeriod');
   const f = document.getElementById('partnersFromDate');
@@ -1859,8 +2059,13 @@ function getPartnersPeriodRange(){
   return { fromDate, toDate, text: `${fromDate} إلى ${toDate}` };
 }
 
-function getPartnersCount(){ const el = document.getElementById('partnersCount'); const n = parseInt(el && el.value, 10); return isNaN(n) || n<1 ? 1 : n; }
+function getPartnersCount(){ try{ if (typeof AppSettings!=='undefined'){ const c = AppSettings.getAll().partners?.count; if (c && c>0) return c; } }catch(_){} const el = document.getElementById('partnersCount'); const n = parseInt(el && el.value, 10); return isNaN(n) || n<1 ? 1 : n; }
 
+/**
+ * ملاحظة: الدالة exportPartners — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: format
+ * المخرجات: راجع التنفيذ
+ */
 function exportPartners(format){
   const { fromDate, toDate, text } = getPartnersPeriodRange();
   const byStore = x => true; // لا توجد فلاتر بعد الآن
@@ -1898,6 +2103,11 @@ function exportPartners(format){
   }
 }
 
+/**
+ * ملاحظة: الدالة wirePartnerExports — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function wirePartnerExports(){
   const excelBtn = document.getElementById('exportPartnersExcel');
   const txtBtn = document.getElementById('exportPartnersTxt');
@@ -1912,6 +2122,11 @@ function wirePartnerExports(){
 // Lazy rendering state for detailed reports
 const renderedEntities = new Set();
 
+/**
+ * ملاحظة: الدالة renderReportsAccordingToSelection — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function renderReportsAccordingToSelection(){
   const sel = document.getElementById('reportsSectionFilter');
   const section = sel ? sel.value : 'payments';
@@ -1921,22 +2136,42 @@ function renderReportsAccordingToSelection(){
   console.log('تم اختيار القسم:', section);
 }
 
+/**
+ * ملاحظة: الدالة setupReportsLazyObserver — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function setupReportsLazyObserver(){
   // هذه الدالة كانت تستخدم IntersectionObserver لتحميل التقارير عند الحاجة
   // حالياً معطلة لأن renderDetailedReport غير موجودة
   return;
 }
 
+/**
+ * ملاحظة: الدالة __populateReportsStores — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function __populateReportsStores(){
 	// لا حاجة لهذه الدالة بعد حذف الفلاتر
 	return;
 }
 
+/**
+ * ملاحظة: الدالة __syncReportsCustomVisibility — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function __syncReportsCustomVisibility(){
 	// لا حاجة لهذه الدالة بعد حذف الفلاتر
 	return;
 }
 
+/**
+ * ملاحظة: الدالة __reRenderReports — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function __reRenderReports(){
 	try {
 		updateProfitReport();
@@ -1947,6 +2182,11 @@ function __reRenderReports(){
 	} catch(_) {}
 }
 
+/**
+ * ملاحظة: الدالة initReportsControls — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function initReportsControls(){
 	// لا حاجة لمعالجات الأحداث بعد حذف الفلاتر
 	__reRenderReports();
@@ -1958,6 +2198,11 @@ function initReportsControls(){
  * يدعم: Excel, TXT, PDF (صفحة طباعة), Print
  * ملاحظة: PDF لا ينشئ ملف PDF حقيقي، بل يفتح صفحة HTML قابلة للطباعة
  * @param {string} format - صيغة التصدير المطلوبة
+ */
+/**
+ * ملاحظة: الدالة exportSummaries — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: format
+ * المخرجات: راجع التنفيذ
  */
 function exportSummaries(format) {
   const { fromDate, toDate } = getPeriodRange('summaries');
@@ -2001,6 +2246,11 @@ function exportSummaries(format) {
  * ملاحظة: PDF لا ينشئ ملف PDF حقيقي، بل يفتح صفحة HTML قابلة للطباعة
  * @param {string} format - صيغة التصدير المطلوبة
  */
+/**
+ * ملاحظة: الدالة exportDebts — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: format
+ * المخرجات: راجع التنفيذ
+ */
 function exportDebts(format) {
   const { fromDate, toDate } = getPeriodRange('debts');
   const debtData = generateDebtReportDataForExport();
@@ -2022,6 +2272,11 @@ function exportDebts(format) {
   }
 }
 
+/**
+ * ملاحظة: الدالة exportProfit — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: format
+ * المخرجات: راجع التنفيذ
+ */
 function exportProfit(format) {
   const { fromDate, toDate } = getPeriodRange('profit');
   const profitData = generateProfitReportDataForExport();
@@ -2103,11 +2358,21 @@ function openSummariesPrintPage(fromDate, toDate, totalSales, totalPayments, tot
   openPrintWindow(html);
 }
 
+/**
+ * ملاحظة: الدالة openDebtsPrintPage — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: fromDate, toDate, debtData
+ * المخرجات: راجع التنفيذ
+ */
 function openDebtsPrintPage(fromDate, toDate, debtData) {
   const html = buildPrintPageHTML('تقرير الديون', `${fromDate} إلى ${toDate}`, debtData, 'debts');
   openPrintWindow(html);
 }
 
+/**
+ * ملاحظة: الدالة openProfitPrintPage — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: fromDate, toDate, profitData
+ * المخرجات: راجع التنفيذ
+ */
 function openProfitPrintPage(fromDate, toDate, profitData) {
   const html = buildPrintPageHTML('تقرير الأرباح والخسائر', `${fromDate} إلى ${toDate}`, profitData, 'profit');
   openPrintWindow(html);
@@ -2122,6 +2387,11 @@ function openProfitPrintPage(fromDate, toDate, profitData) {
  * @param {Array|Object} data - بيانات التقرير
  * @param {string} type - نوع التقرير (debts, profit, إلخ)
  * @returns {string} كود HTML للصفحة
+ */
+/**
+ * ملاحظة: الدالة buildPrintPageHTML — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: title, period, data, type
+ * المخرجات: راجع التنفيذ
  */
 function buildPrintPageHTML(title, period, data, type) {
   let html = `<!DOCTYPE html>
@@ -2246,6 +2516,11 @@ function generateDebtReportDataForExport() {
   return data;
 }
 
+/**
+ * ملاحظة: الدالة generateProfitReportDataForExport — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function generateProfitReportDataForExport() {
   const totalSales = parseFormattedNumber(document.getElementById('totalSalesReport')?.textContent || '0');
   const totalPayments = parseFormattedNumber(document.getElementById('totalPaymentsReport')?.textContent || '0');
@@ -2413,6 +2688,11 @@ function editPaymentFromPartner(paymentId) {
   }
 }
 
+/**
+ * ملاحظة: الدالة deletePaymentFromPartner — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: paymentId
+ * المخرجات: راجع التنفيذ
+ */
 function deletePaymentFromPartner(paymentId) {
   if (!confirm('هل أنت متأكد من حذف هذا التسديد؟')) return;
   
@@ -2432,6 +2712,11 @@ function deletePaymentFromPartner(paymentId) {
   }
 }
 
+/**
+ * ملاحظة: الدالة editExpenseFromPartner — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: expenseId
+ * المخرجات: راجع التنفيذ
+ */
 function editExpenseFromPartner(expenseId) {
   const expense = data.expenses.find(e => e.id === expenseId);
   if (!expense) {
@@ -2447,6 +2732,11 @@ function editExpenseFromPartner(expenseId) {
   }
 }
 
+/**
+ * ملاحظة: الدالة deleteExpenseFromPartner — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: expenseId
+ * المخرجات: راجع التنفيذ
+ */
 function deleteExpenseFromPartner(expenseId) {
   if (!confirm('هل أنت متأكد من حذف هذا المصروف؟')) return;
   

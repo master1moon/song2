@@ -21,6 +21,11 @@ let githubSettings = { token: '', gistId: '', fileName: 'network-cards.json', au
  * يحاول أولاً تحميل الإعدادات المشفرة، ثم يعود للتحميل العادي إذا فشل
  * يقوم بترحيل البيانات غير المشفرة إلى التشفير إذا كان متاحاً
  */
+/**
+ * ملاحظة: الدالة loadGithubSettings — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function loadGithubSettings() {
     try {
         // محاولة تحميل الإعدادات المشفرة
@@ -54,6 +59,11 @@ function loadGithubSettings() {
  * يحاول الحفظ بشكل مشفر أولاً، ثم يعود للحفظ العادي إذا فشل
  * يعرض إشعاراً بنجاح أو فشل العملية
  */
+/**
+ * ملاحظة: الدالة saveGithubSettings — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function saveGithubSettings() {
     // حفظ مشفر إذا كان متاحاً
     if (window.DataEncryption && window.DataEncryption.saveEncrypted) {
@@ -76,6 +86,11 @@ function saveGithubSettings() {
 /**
  * ملء نموذج إعدادات GitHub بالقيم المحفوظة
  * يتحقق من وجود جميع عناصر النموذج قبل تعبئتها
+ */
+/**
+ * ملاحظة: الدالة populateGithubModal — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
  */
 function populateGithubModal() {
     const tokenEl = document.getElementById('githubToken');

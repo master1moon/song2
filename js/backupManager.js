@@ -20,6 +20,11 @@
   const STORE_BACKUP = 'backup'; // keep for compatibility
 
   let dbPromise = null;
+  /**
+   * ملاحظة: الدالة openDB — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: بدون
+   * المخرجات: راجع التنفيذ
+   */
   function openDB(){
     if (dbPromise) return dbPromise;
     dbPromise = new Promise((resolve, reject) => {
@@ -48,11 +53,21 @@
     try { const db = await openDB(); return await new Promise((res, rej)=>{ const tx=db.transaction(store,'readonly'); const os=tx.objectStore(store); const r=os.getAll(); r.onsuccess=()=>res(r.result||[]); r.onerror=()=>rej(r.error); }); } catch { return []; }
   }
 
+  /**
+   * ملاحظة: الدالة checksum — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: obj
+   * المخرجات: راجع التنفيذ
+   */
   function checksum(obj){
     try { const s = JSON.stringify(obj); let h = 2166136261; for (let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h += (h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24); } return (h>>>0).toString(16); } catch { return '' }
   }
 
   const defaultSettings = { autoOnSave: false, retention: 10 };
+  /**
+   * ملاحظة: الدالة loadSettings — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: بدون
+   * المخرجات: راجع التنفيذ
+   */
   function loadSettings(){
     try { return Object.assign({}, defaultSettings, JSON.parse(localStorage.getItem('backupSettings')||'{}')); } catch { return Object.assign({}, defaultSettings); }
   }
@@ -110,6 +125,11 @@
 
   async function deleteSnapshot(id){ await idbDelete(STORE_SNAPSHOTS, id); }
 
+  /**
+   * ملاحظة: الدالة exportSnapshot — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: snap
+   * المخرجات: راجع التنفيذ
+   */
   function exportSnapshot(snap){
     const filename = `backup_${(snap.createdAt||'').replace(/[:T\-]/g,'').slice(0, 15)}.json`;
     const dataStr = JSON.stringify(snap.content, null, 2);

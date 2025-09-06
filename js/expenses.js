@@ -20,6 +20,11 @@
  * يضبط التاريخ على اليوم الحالي
  * مشكلة: متغير today قد لا يكون معرفاً
  */
+/**
+ * ملاحظة: الدالة addExpense — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function addExpense() {
   document.getElementById('expenseModalTitle').textContent = 'إضافة مصروف جديد';
   document.getElementById('expenseId').value = '';
@@ -37,6 +42,11 @@ function addExpense() {
  * فتح نموذج تعديل مصروف موجود
  * يملأ النموذج بالبيانات الحالية للمصروف
  * @param {string} id - معرف المصروف المراد تعديله
+ */
+/**
+ * ملاحظة: الدالة editExpense — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: id
+ * المخرجات: راجع التنفيذ
  */
 function editExpense(id) {
   const expense = data.expenses.find(e => e.id === id); if (!expense) return;
@@ -57,6 +67,11 @@ function editExpense(id) {
  * ينقل المصروف المحذوف إلى سلة المحذوفات
  * يحدث جميع الجداول والتقارير المتعلقة
  * @param {string} id - معرف المصروف المراد حذفه
+ */
+/**
+ * ملاحظة: الدالة deleteExpense — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: id
+ * المخرجات: راجع التنفيذ
  */
 function deleteExpense(id) {
   if (!confirm('هل أنت متأكد من حذف هذا المصروف؟')) return;
@@ -87,6 +102,11 @@ function deleteExpense(id) {
  * يتحقق من صحة البيانات المدخلة
  * يحفظ نوع المصروف في قائمة الأنواع المحفوظة
  * يحدث جميع الجداول والتقارير ذات الصلة
+ */
+/**
+ * ملاحظة: الدالة saveExpense — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
  */
 function saveExpense() {
   const id = document.getElementById('expenseId').value;
@@ -167,6 +187,11 @@ const expensesSelection = new Set();
  * @param {Array} items - قائمة العناصر للمعالجة
  * @returns {Object} كائن يحتوي على عناصر الصفحة، الإجمالي، وعدد الصفحات
  */
+/**
+ * ملاحظة: الدالة applySearchSortPaginate — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: items
+ * المخرجات: راجع التنفيذ
+ */
 function applySearchSortPaginate(items){
   const q = (expensesState.search || '').toLowerCase();
   let arr = items.filter(e => {
@@ -193,6 +218,11 @@ function applySearchSortPaginate(items){
  * يعرض عدد العناصر المحددة وأزرار العمليات الجماعية
  * @param {number} total - إجمالي عدد العناصر
  * @param {number} pages - عدد الصفحات
+ */
+/**
+ * ملاحظة: الدالة renderExpensesControls — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: total, pages
+ * المخرجات: راجع التنفيذ
  */
 function renderExpensesControls(total, pages){
   let footer = document.getElementById('expensesFooter');
@@ -221,6 +251,11 @@ function renderExpensesControls(total, pages){
   const bulkTypeInp = document.createElement('input'); bulkTypeInp.type='text'; bulkTypeInp.placeholder='نوع جديد'; bulkTypeInp.className='form-control'; bulkTypeInp.style.maxWidth='180px'; bulkTypeInp.style.display='none';
   bulkSel.addEventListener('change', ()=>{ bulkTypeInp.style.display = bulkSel.value==='change_type' ? 'block' : 'none'; });
   const bulkBtn = document.createElement('button'); bulkBtn.className='btn btn-outline-danger'; bulkBtn.textContent='تطبيق';
+  /**
+   * ملاحظة: الدالة applyBulk — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: بدون
+   * المخرجات: راجع التنفيذ
+   */
   function applyBulk(){
     if (expensesSelection.size === 0) { showNotification('لم يتم تحديد سجلات', 'error'); return; }
     const ids = Array.from(expensesSelection);
@@ -256,6 +291,11 @@ function renderExpensesControls(total, pages){
   footer.appendChild(left); footer.appendChild(right);
 }
 
+/**
+ * ملاحظة: الدالة startInlineEditExpense — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: tr, expense
+ * المخرجات: راجع التنفيذ
+ */
 function startInlineEditExpense(tr, expense){
   tr.innerHTML = '';
   const tdSelect = document.createElement('td');
@@ -285,6 +325,11 @@ function startInlineEditExpense(tr, expense){
   cancelBtn.addEventListener('click', ()=>{ renderExpensesTable(); });
 }
 
+/**
+ * ملاحظة: الدالة getFilteredExpensesForExport — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function getFilteredExpensesForExport(){
   const periodSel = document.getElementById('expensesPeriod');
   const period = periodSel ? periodSel.value : 'from_start';
@@ -316,6 +361,11 @@ if (typeof window !== 'undefined') {
   window.deleteExpense = deleteExpense;
 }
 
+/**
+ * ملاحظة: الدالة renderExpensesTable — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function renderExpensesTable() {
   try {
     const table = document.getElementById('expensesTable'); if (!table) return;
@@ -403,6 +453,11 @@ function renderExpensesTable() {
   function loadSavedExpenseTypes() { try { return JSON.parse(localStorage.getItem('expenseTypes') || '[]'); } catch { return []; } }
   function saveExpenseTypes(types) { localStorage.setItem('expenseTypes', JSON.stringify(Array.from(new Set(types)))); }
   function getAllExpenseTypes() { return Array.from(new Set([...(loadSavedExpenseTypes()), ...defaultExpenseTypes])); }
+  /**
+   * ملاحظة: الدالة renderExpenseTypeChips — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: selected
+   * المخرجات: راجع التنفيذ
+   */
   function renderExpenseTypeChips(selected) {
     const wrap = document.getElementById('expenseTypeChips'); if (!wrap) return; wrap.innerHTML = '';
     getAllExpenseTypes().forEach(t => {

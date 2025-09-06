@@ -23,6 +23,11 @@
  * مشكلة: إضافة مستمع أحداث جديد في كل مرة قد يسبب تكرار
  * @param {string} storeId - معرف المحل الذي سيتم إضافة البيع له
  */
+/**
+ * ملاحظة: الدالة addSale — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: storeId
+ * المخرجات: راجع التنفيذ
+ */
 function addSale(storeId) {
   const select = document.getElementById('salePackage');
   select.innerHTML = '';
@@ -56,6 +61,11 @@ function addSale(storeId) {
  * يخصم الكمية من المخزون للمبيعات غير المخصصة
  * يتحقق من انخفاض المخزون ويعرض تحذيراً إذا لزم الأمر
  * يحدث جميع الجداول والتقارير المتعلقة
+ */
+/**
+ * ملاحظة: الدالة saveSale — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
  */
 function saveSale() {
   const id = document.getElementById('saleId').value;
@@ -136,6 +146,11 @@ function saveSale() {
  * يضبط ظهور الحقول بناءً على نوع البيع
  * @param {string} id - معرف البيع المراد تعديله
  */
+/**
+ * ملاحظة: الدالة editSale — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: id
+ * المخرجات: راجع التنفيذ
+ */
 function editSale(id) {
   const sale = data.sales.find(s => s.id === id); if (!sale) return;
   const select = document.getElementById('salePackage');
@@ -173,6 +188,11 @@ function editSale(id) {
  * ينقل البيع المحذوف إلى سلة المحذوفات إذا كانت متاحة
  * يحدث جميع الجداول والتقارير المتعلقة
  * @param {string} id - معرف البيع المراد حذفه
+ */
+/**
+ * ملاحظة: الدالة deleteSale — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: id
+ * المخرجات: راجع التنفيذ
  */
 function deleteSale(id) {
   const sale = data.sales.find(s => s.id === id); if (!sale) return;

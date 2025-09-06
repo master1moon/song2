@@ -17,6 +17,11 @@
   function loadSavedExpenseTypes(){ try { return JSON.parse(localStorage.getItem('expenseTypes')||'[]'); } catch { return []; } }
   function saveExpenseTypes(types){ localStorage.setItem('expenseTypes', JSON.stringify(Array.from(new Set(types)))); }
 
+  /**
+   * ملاحظة: الدالة renderTypes — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: بدون
+   * المخرجات: راجع التنفيذ
+   */
   function renderTypes(){
     const tbody = document.getElementById('expenseTypesTable'); if (!tbody) return;
     const types = loadSavedExpenseTypes();

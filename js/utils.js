@@ -19,6 +19,11 @@
  * @param {*} input - المدخل الذي قد يحتوي على أرقام عربية/فارسية
  * @returns {string} النص بأرقام إنجليزية
  */
+/**
+ * ملاحظة: الدالة toEnglishDigits — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: input
+ * المخرجات: راجع التنفيذ
+ */
 function toEnglishDigits(input) {
   if (input === null || input === undefined) return '';
   return String(input)
@@ -32,6 +37,11 @@ function toEnglishDigits(input) {
  * @param {*} num - الرقم المراد تنسيقه
  * @returns {string} الرقم منسق بفواصل إنجليزية
  */
+/**
+ * ملاحظة: الدالة formatNumber — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: num
+ * المخرجات: راجع التنفيذ
+ */
 function formatNumber(num) {
   if (num === null || num === undefined) return '';
   const n = Number(toEnglishDigits(num)) || 0;
@@ -43,6 +53,11 @@ function formatNumber(num) {
  * يحول الأرقام إلى إنجليزية ويزيل الفواصل
  * @param {string} str - النص المحتوي على رقم منسق
  * @returns {number} الرقم العشري
+ */
+/**
+ * ملاحظة: الدالة parseFormattedNumber — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: str
+ * المخرجات: راجع التنفيذ
  */
 function parseFormattedNumber(str) {
   if (!str) return 0;
@@ -56,6 +71,11 @@ function parseFormattedNumber(str) {
  * يدعم عدة صيغ للتاريخ المدخل
  * @param {string} dateStr - نص التاريخ
  * @returns {string} التاريخ بصيغة YYYY-MM-DD
+ */
+/**
+ * ملاحظة: الدالة formatDateEn — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: dateStr
+ * المخرجات: راجع التنفيذ
  */
 function formatDateEn(dateStr) {
   if (!dateStr) return '';
@@ -120,6 +140,11 @@ function formatDateEn(dateStr) {
  * يحافظ على موضع المؤشر أثناء التنسيق
  * يدعم الأرقام السالبة والكسور العشرية
  */
+/**
+ * ملاحظة: الدالة setupFormattedInputs — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function setupFormattedInputs() {
   document.querySelectorAll('.formatted-input').forEach(input => {
     input.addEventListener('focus', function () {
@@ -174,6 +199,11 @@ function setupFormattedInputs() {
  * @param {string} message - نص الرسالة
  * @param {string} type - نوع الإشعار (success, error, warning, info)
  */
+/**
+ * ملاحظة: الدالة showNotification — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: message, type, options = {}
+ * المخرجات: راجع التنفيذ
+ */
 function showNotification(message, type, options = {}) {
   const notification = document.getElementById('notification');
   const notificationText = document.getElementById('notificationText');
@@ -213,6 +243,11 @@ function showNotification(message, type, options = {}) {
  * يستدعي دوال تحديث خاصة لبعض الأقسام
  * @param {string} targetSection - معرف القسم المراد عرضه
  * @param {string} labelText - عنوان الصفحة (اختياري)
+ */
+/**
+ * ملاحظة: الدالة switchSection — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: targetSection, labelText
+ * المخرجات: راجع التنفيذ
  */
 function switchSection(targetSection, labelText) {
   const allLinks = document.querySelectorAll('.sidebar .nav-link, #mobileDrawer .nav-link');
@@ -265,6 +300,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const toggleBtn = document.getElementById('mobileSidebarToggle');
   const closeBtn = document.getElementById('drawerClose');
 
+  /**
+   * ملاحظة: الدالة openDrawer — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: بدون
+   * المخرجات: راجع التنفيذ
+   */
   function openDrawer() {
     const drawer = document.getElementById('mobileDrawer');
     const backdrop = document.getElementById('drawerBackdrop');
@@ -272,6 +312,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (backdrop) backdrop.classList.add('show');
     document.body.classList.add('drawer-open');
   }
+  /**
+   * ملاحظة: الدالة closeDrawer — وصف تلقائي موجز لوظيفتها.
+   * المدخلات: بدون
+   * المخرجات: راجع التنفيذ
+   */
   function closeDrawer() {
     const drawer = document.getElementById('mobileDrawer');
     const backdrop = document.getElementById('drawerBackdrop');
@@ -315,6 +360,11 @@ function setTextSafe(el, text){ if (el) el.textContent = text; }
  * يستخدم كقيمة افتراضية عندما لا يكون هناك تاريخ محدد
  * @returns {string} التاريخ الحالي بصيغة YYYY-MM-DD
  */
+/**
+ * ملاحظة: الدالة getTodayDate — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
+ */
 function getTodayDate() {
   const today = new Date();
   const year = today.getFullYear();
@@ -328,6 +378,11 @@ function getTodayDate() {
  * يحدث القوائم والجداول والتقارير بناءً على القسم النشط
  * يستخدم بعد أي عملية تعديل للبيانات لضمان ظهور التغييرات مباشرة
  * آمن للاستخدام - يتحقق من وجود الدوال قبل استدعائها
+ */
+/**
+ * ملاحظة: الدالة refreshCurrentView — وصف تلقائي موجز لوظيفتها.
+ * المدخلات: بدون
+ * المخرجات: راجع التنفيذ
  */
 function refreshCurrentView() {
   // تحديث قائمة المحلات دائماً (قد تكون في الشريط الجانبي)
