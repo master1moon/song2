@@ -31,6 +31,15 @@
 
         // إنشاء محتوى التبويبات الديناميكي
         createSettingsTabs();
+
+        // إذا كان هناك تبويب محدد مسبقاً كـ active في قائمة #settingsTabs، افتحه افتراضياً
+        try {
+            const preActive = document.querySelector('#settingsTabs .list-group-item.active');
+            const initialTab = preActive && preActive.getAttribute('data-tab') ? preActive.getAttribute('data-tab') : 'display';
+            if (typeof switchSettingsTab === 'function') {
+                switchSettingsTab(initialTab);
+            }
+        } catch (_) {}
     }
 
     /**
