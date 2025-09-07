@@ -319,7 +319,7 @@ function generatePartnerReports() {
       <!-- 2) سحوبات الشركاء -->
       ${(adjustmentsForPeriod && adjustmentsForPeriod.length) ? `
       <div class="card border-0 mb-3">
-        <div class="card-header bg-light">سحوبات الشركاء ضمن الفترة</div>
+        <div class="card-header bg-light">تفاصيل سحوبات الشركاء ضمن الفترة</div>
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-sm align-middle mb-0">
