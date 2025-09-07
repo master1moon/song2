@@ -245,17 +245,13 @@ function generatePartnerReports() {
 
   // حساب الأنصبة الأساسية
   let baseShares = [];
-  if (distribution === 'percent' && partnersList.length && partnersList.some(p=>p.sharePercent)) {
+  if (distribution === 'percent' && partnersList.length && partnersList.some(p=>p.sharePercent!=null)) {
     const totalPercent = partnersList.reduce((s,p)=> s + (parseFloat(p.sharePercent)||0), 0) || 100;
     baseShares = partnersList.map(p=> ({ id: p.id, name: p.name, base: (net * ((parseFloat(p.sharePercent)||0) / totalPercent)) }));
   } else {
     const per = partnersCount>0 ? net / partnersCount : net;
-    if (partnersList.length) {
-      baseShares = partnersList.map(p=> ({ id: p.id, name: p.name, base: per }));
-    } else {
-      // fallback أسماء افتراضية
-      baseShares = Array.from({length: partnersCount}).map((_,i)=> ({ id: `p${i+1}`, name: `الشريك ${i+1}`, base: per }));
-    }
+    const listForEqual = partnersList.length ? partnersList : Array.from({length: partnersCount}).map((_,i)=> ({ id: `p${i+1}`, name: `الشريك ${i+1}` }));
+    baseShares = listForEqual.map(p=> ({ id: p.id, name: p.name, base: per }));
   }
 
   // خصومات السحوبات + الترحيل
@@ -310,13 +306,35 @@ function generatePartnerReports() {
         <h5 class="partner-report-title mb-0">تقرير الشركاء</h5>
         <div class="partner-report-dates">المدة: ${text} | الشركاء: ${partnersCount}</div>
       </div>
+      <!-- 1) الملخص -->
       <div class="partner-report-summary d-flex flex-wrap gap-3 my-2">
         <div class="summary-item"><div class="summary-value currency">${formatNumber(totalPays)}</div><div class="summary-label">إجمالي التسديدات</div></div>
         <div class="summary-item"><div class="summary-value currency">${formatNumber(totalExps)}</div><div class="summary-label">إجمالي المصروفات</div></div>
         <div class="summary-item"><div class="summary-value currency ${net<0?'profit-negative':''}">${formatNumber(net)}</div><div class="summary-label">صافي الأرباح</div></div>
-        ${distribution!=='percent' ? `<div class="summary-item"><div class="summary-value currency">${formatNumber(partnersCount>0 ? (net/partnersCount) : net)}</div><div class="summary-label">صافي لكل شريك</div></div>` : ''}
+        ${distribution==='percent' ? '' : `<div class="summary-item"><div class="summary-value currency">${formatNumber(partnersCount>0 ? (net/partnersCount) : net)}</div><div class="summary-label">صافي لكل شريك</div></div>`}
       </div>
       ${warnings.length ? `<div class="${net<0 ? 'alert alert-danger' : 'alert alert-warning'} mb-2 small"><ul class="mb-0 ps-3">${warnings.map(w=>`<li>${w}</li>`).join('')}</ul></div>` : ''}
+
+      <!-- 2) سحوبات الشركاء -->
+      ${(adjustmentsForPeriod && adjustmentsForPeriod.length) ? `
+      <div class="card border-0 mb-3">
+        <div class="card-header bg-light">سحوبات الشركاء ضمن الفترة</div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+              <thead><tr><th>الشريك</th><th>المبلغ</th><th>التاريخ</th><th>ملاحظات</th></tr></thead>
+              <tbody>
+                ${adjustmentsForPeriod.map(adj=>{
+                  const nm = (partnersList.find(x=>x.id===adj.partnerId)||{}).name || adj.partnerId;
+                  return `<tr><td>${nm}</td><td class="currency">${formatNumber(Number(adj.amount)||0)}</td><td>${adj.date||''}</td><td>${adj.notes||''}</td></tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>` : ''}
+
+      <!-- 3) صافي الشركاء -->
       <div class="table-responsive">
         <table class="table table-sm align-middle">
           <thead>
@@ -334,6 +352,32 @@ function generatePartnerReports() {
             ${rowsHtml}
           </tbody>
         </table>
+      </div>
+
+      <!-- 4) التسديدات -->
+      <div class="card border-0 mt-3">
+        <div class="card-header bg-light">تفاصيل التسديدات ضمن الفترة</div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+              <thead><tr><th>التاريخ</th><th>المحل</th><th>المبلغ</th><th>ملاحظات</th></tr></thead>
+              <tbody>${pays.map(p=> `<tr><td>${formatDateEn(p.date)}</td><td>${(data.stores.find(s=>s.id===p.storeId)||{}).name||''}</td><td class="currency">${formatNumber(Number(p.amount)||0)}</td><td>${p.notes||''}</td></tr>`).join('') || '<tr><td colspan="4" class="text-muted">لا توجد تسديدات</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5) المصروفات -->
+      <div class="card border-0 mt-3">
+        <div class="card-header bg-light">تفاصيل المصروفات ضمن الفترة</div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+              <thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>ملاحظات</th></tr></thead>
+              <tbody>${exps.map(e=> `<tr><td>${formatDateEn(e.date)}</td><td>${e.type||''}</td><td class="currency">${formatNumber(Number(e.amount)||0)}</td><td>${e.notes||''}</td></tr>`).join('') || '<tr><td colspan="4" class="text-muted">لا توجد مصروفات</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>
       </div>
       <div class="row g-3 mt-3">
         <div class="col-12 col-lg-6">

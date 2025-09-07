@@ -3606,7 +3606,7 @@
                 const distribution = cfg.distribution || 'equal';
                 distEl.value = distribution;
                 const list = Array.isArray(cfg.list)&&cfg.list.length? cfg.list.slice(0, count) : Array.from({length:count}).map((_,i)=>({ id:'p'+(i+1), name:'الشريك '+(i+1), sharePercent:null }));
-                cfg.list = list; setCfg(cfg);
+                cfg.count = count; cfg.list = list; setCfg(cfg);
                 // أسماء الشركاء
                 listWrap.innerHTML = '';
                 const row = document.createElement('div'); row.className = 'row g-2 mt-2';
