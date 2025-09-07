@@ -2198,7 +2198,21 @@ function getPartnersPeriodRange(){
   const t = document.getElementById('partnersToDate');
   const period = sel ? sel.value : 'this_month';
   let fromDate, toDate;
-  if (period === 'from_start') { fromDate = '0000-01-01'; toDate = moment().format('YYYY-MM-DD'); }
+  if (period === 'from_start') {
+    // احسب أقدم تاريخ فعلي من البيانات بدل 0000-01-01
+    let earliest = null;
+    try {
+      const collect = [];
+      (data && Array.isArray(data.sales) ? data.sales : []).forEach(s=>{ const d = formatDateEn(s.date); if (d) collect.push(d); });
+      (data && Array.isArray(data.payments) ? data.payments : []).forEach(p=>{ const d = formatDateEn(p.date); if (d) collect.push(d); });
+      (data && Array.isArray(data.expenses) ? data.expenses : []).forEach(e=>{ const d = formatDateEn(e.date); if (d) collect.push(d); });
+      collect.sort();
+      earliest = collect.length ? collect[0] : null;
+    } catch(_) {}
+    fromDate = earliest || moment().startOf('year').format('YYYY-MM-DD');
+    toDate = moment().format('YYYY-MM-DD');
+    return { fromDate, toDate, text: `من البداية إلى ${toDate}` };
+  }
   else if (period === 'day') { fromDate = moment().startOf('day').format('YYYY-MM-DD'); toDate = moment().format('YYYY-MM-DD'); }
   else if (period === 'week') { fromDate = moment().startOf('week').format('YYYY-MM-DD'); toDate = moment().format('YYYY-MM-DD'); }
   else if (period === 'month') { fromDate = moment().subtract(1,'month').add(1,'day').format('YYYY-MM-DD'); toDate = moment().format('YYYY-MM-DD'); }
