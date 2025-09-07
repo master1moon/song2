@@ -716,10 +716,11 @@ function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, t
   html += 'المدة: ' + periodText + ' | عدد الشركاء: ' + partnersCount + ' | تاريخ التصدير: ' + moment().format(settings.dateFormat);
   html += '</div>';
 
-  // سطر الأشهر المحددة بخط واضح وملون
-  if (Array.isArray(monthsData) && monthsData.length > 1) {
+  // سطر الأشهر المحددة بخط واضح وملون (حتى لو شهر واحد)
+  if (Array.isArray(monthsData) && monthsData.length >= 1) {
     const monthsLine = monthsData.map(m => m.label).join(' • ');
-    html += '<div style="text-align:center; font-size:18px; font-weight:700; color:#0ea5e9; margin:8px 0 14px;">الأشهر: ' + monthsLine + '</div>';
+    const labelPrefix = monthsData.length > 1 ? 'الأشهر: ' : 'الشهر: ';
+    html += '<div style="text-align:center; font-size:20px; font-weight:800; color:#0ea5e9; margin:8px 0 14px;">' + labelPrefix + monthsLine + '</div>';
   }
 
   // دالة مساعدة لبناء جدول HTML (مرفوعة/hoisted بتعريف دالة)
@@ -2326,9 +2327,17 @@ function exportPartners(format){
         paysIn.forEach(p=>{ const k=keyOf(p.date); if(!k) return; const o=monthMap.get(k)||{pays:[],exps:[],adjs:[]}; o.pays.push(p); monthMap.set(k,o); });
         expsIn.forEach(e=>{ const k=keyOf(e.date); if(!k) return; const o=monthMap.get(k)||{pays:[],exps:[],adjs:[]}; o.exps.push(e); monthMap.set(k,o); });
         adjsIn.forEach(a=>{ const k=keyOf(a.date); if(!k) return; const o=monthMap.get(k)||{pays:[],exps:[],adjs:[]}; o.adjs.push(a); monthMap.set(k,o); });
-        let keys = Array.from(monthMap.keys()).sort();
-        // حماية من كثرة الشهور: حد أقصى 36 شهرًا
+        let keys = Array.from(monthMap.keys());
+        // أضف الأشهر الناقصة ضمن المدى الزمني حتى لو لا توجد بيانات
         const MAX_MONTHS = 36;
+        const startM = moment(fromDate, 'YYYY-MM-DD').startOf('month');
+        const endM = moment(toDate, 'YYYY-MM-DD').startOf('month');
+        const monthsDiff = Math.max(0, endM.diff(startM, 'months'));
+        for (let i=0; i<=monthsDiff && i<MAX_MONTHS; i++) {
+          const k = startM.clone().add(i,'months').format('YYYY-MM');
+          if (!keys.includes(k)) keys.push(k);
+        }
+        keys.sort();
         if (keys.length > MAX_MONTHS) keys = keys.slice(-MAX_MONTHS);
         keys.forEach(k=>{
           const o = monthMap.get(k) || {pays:[],exps:[],adjs:[]};
