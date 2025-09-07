@@ -588,17 +588,8 @@ function getReportStyles() {
       size: ${settings.paperSize} ${settings.orientation}; 
       margin: ${settings.margins.top}mm ${settings.margins.right}mm ${settings.margins.bottom}mm ${settings.margins.left}mm;
     }
-    body { 
-      font-family: 'Arial', sans-serif; 
-      padding: 16px;
-      direction: rtl;
-      margin: 0;
-    }
-    .report-header {
-      border-bottom: 3px solid #333;
-      padding-bottom: 20px;
-      margin-bottom: 20px;
-    }
+    body { font-family: 'Arial', sans-serif; padding: 16px; direction: rtl; margin: 0; background:#f8fafc; }
+    .report-header { border-bottom: 3px solid #0ea5e9; padding-bottom: 20px; margin-bottom: 20px; background:linear-gradient(90deg,#e0f2fe,#f0f9ff); }
     .company-section {
       display: flex;
       justify-content: space-between;
@@ -634,35 +625,13 @@ function getReportStyles() {
       font-size: 22px;
       text-align: center;
     }
-    .summary { 
-      display: flex; 
-      gap: 12px; 
-      justify-content: flex-end; 
-      margin: 10px 0; 
-      flex-wrap: wrap; 
-    }
-    .box { 
-      border: 1px solid #ddd; 
-      padding: 8px 12px; 
-      background: #f9f9f9;
-      border-radius: 4px;
-    }
-    table { 
-      width: 100%; 
-      border-collapse: collapse; 
-      text-align: right; 
-      margin-top: 8px;
-      ${settings.showGridLines ? 'border: 1px solid #ccc;' : ''}
-    }
-    th, td { 
-      padding: 8px; 
-      ${settings.showGridLines ? 'border: 1px solid #ccc;' : 'border-bottom: 1px solid #eee;'}
-    }
-    th {
-      background-color: #f5f5f5;
-      font-weight: bold;
-      color: #333;
-    }
+    .summary { display: flex; gap: 12px; justify-content: flex-end; margin: 10px 0; flex-wrap: wrap; }
+    .box { border: 1px solid #e2e8f0; padding: 10px 14px; background: #ffffff; border-radius: 8px; box-shadow:0 1px 1px rgba(0,0,0,0.03); }
+    table { width: 100%; border-collapse: collapse; text-align: right; margin-top: 8px; ${settings.showGridLines ? 'border: 1px solid #cbd5e1;' : ''} background:#fff; border-radius:8px; overflow:hidden; }
+    th, td { padding: 10px; ${settings.showGridLines ? 'border: 1px solid #cbd5e1;' : 'border-bottom: 1px solid #e2e8f0;'} }
+    th { background-color: #f8fafc; font-weight: bold; color: #0f172a; }
+    tbody tr:nth-child(odd){ background:#fcfdff; }
+    tbody tr:hover { background:#f1f5f9; }
     h3, h4 { 
       margin: 12px 0 6px; 
       text-align: right; 
@@ -701,10 +670,7 @@ function getReportStyles() {
       color: #999;
       margin-top: 5px;
     }
-    @media print { 
-      .actions { display: none; }
-      body { padding: 0; }
-    }
+    @media print { .actions { display: none; } body { padding: 0; background:#fff; } }
     ${settings.watermark ? `
     body::before {
       content: "${settings.watermark}";
@@ -2235,16 +2201,19 @@ function exportPartners(format){
     const wb = XLSX.utils.book_new();
     const meta = [{ المدة: text, عدد_الشركاء: partners, إجمالي_التسديدات: totalPays, إجمالي_المصروفات: totalExps, صافي_الأرباح: net, صافي_لكل_شريك: perPartner }];
     // ترتيب الأوراق: سحوبات الشركاء -> صافي الشركاء -> الملخص -> التسديدات -> المصروفات
+    // الملخص أولاً
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(meta), 'الملخص');
+    // ثم سحوبات الشركاء
     if (adjustments.length) {
       const partnersMap = (partnersList||[]).reduce((m,p)=>{ m[p.id]=p.name||p.id; return m; },{});
       const adjSheet = adjustments.map(a=> ({ الشريك: partnersMap[a.partnerId]||a.partnerId, المبلغ: a.amount, التاريخ: a.date, ملاحظات: a.notes||'' }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(adjSheet), 'سحوبات الشركاء');
     }
+    // ثم صافي الشركاء
     if (partnerSharesRows.length) {
       const sharesSheet = partnerSharesRows.map(r=> ({ الشريك:r.الشريك, التوزيع:r.التوزيع, النصيب_الأساسي:r.النصيب_الأساسي, السحوبات:r.السحوبات, الترحيل:r.الترحيل, الصافي:r.الصافي, الوضع:r.الوضع }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sharesSheet), 'صافي الشركاء');
     }
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(meta), 'الملخص');
     if (listPays.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(listPays), 'التسديدات');
     if (listExps.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(listExps), 'المصروفات');
     XLSX.writeFile(wb, `تقرير_الشركاء_${moment().format('YYYYMMDD')}.xlsx`);
