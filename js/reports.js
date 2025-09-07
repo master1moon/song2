@@ -535,21 +535,16 @@ function buildReportFooter() {
 function getReportStyles() {
   const settings = getReportSettings();
   const baseUrl = (function () { try { return new URL('.', location.href).href; } catch (e) { return location.href.substring(0, location.href.lastIndexOf('/') + 1); } })();
-  const fontUrl = baseUrl + 'fonts/Amiri-Regular.woff2';
+  const fontUrl = null; // تعطيل خط Amiri مؤقتاً
   
   let styles = `
-    @font-face { 
-      font-family: 'AmiriExport'; 
-      src: url('${fontUrl}') format('woff2'); 
-      font-weight: 400; 
-      font-style: normal; 
-    }
+    ${fontUrl ? `@font-face { font-family: 'AmiriExport'; src: url('${fontUrl}') format('woff2'); font-weight: 400; font-style: normal; }` : ''}
     @page { 
       size: ${settings.paperSize} ${settings.orientation}; 
       margin: ${settings.margins.top}mm ${settings.margins.right}mm ${settings.margins.bottom}mm ${settings.margins.left}mm;
     }
     body { 
-      font-family: 'AmiriExport', 'Arial', sans-serif; 
+      font-family: 'Arial', sans-serif; 
       padding: 16px;
       direction: rtl;
       margin: 0;

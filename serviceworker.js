@@ -24,7 +24,7 @@ const CRITICAL_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './fonts/Amiri-Regular.woff2',
+  // './fonts/Amiri-Regular.woff2', // معطل مؤقتاً لكونه غير صالح
   './app.js',
   './js/security.js',
   './js/encryption.js',

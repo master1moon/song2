@@ -6,7 +6,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
-    <link rel="preload" as="font" type="font/woff2" href="./fonts/Amiri-Regular.woff2" crossorigin>
+    <!-- تعطيل تحميل خط Amiri مؤقتاً لتفادي تحذير OTS -->
+    <!-- <link rel="preload" as="font" type="font/woff2" href="./fonts/Amiri-Regular.woff2" crossorigin> -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام إدارة كروت الشبكات اللاسلكية</title>
@@ -22,6 +23,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
+        /* @font-face مؤقتاً معطل بسبب ملف خط غير صالح
         @font-face {
             font-family: 'AmiriExport';
             font-style: normal;
@@ -29,7 +31,7 @@
             src: url('./fonts/Amiri-Regular.woff2') format('woff2');
             font-display: swap;
             unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
-        }
+        } */
         :root {
             --primary-color: #2c3e50;
             --secondary-color: #3498db;
