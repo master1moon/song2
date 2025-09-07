@@ -3566,6 +3566,26 @@
             function getCfg(){ try{ return (typeof AppSettings!=='undefined')? ((AppSettings.getAll().reports||{}).partners||{}):{}; }catch(_){ return {}; } }
             function setCfg(cfg){ try{ AppSettings.update('reports.partners', cfg); } catch(_){} }
             function periodKey(){ try{ const pf = (typeof getPartnersPeriodRange==='function')?getPartnersPeriodRange():{fromDate:'',toDate:''}; return (pf.fromDate||'')+'_'+(pf.toDate||''); }catch(_){ return '_'; } }
+            function renderAdjustments(){
+                const cfg = getCfg();
+                const pk = periodKey();
+                const list = (cfg.adjustments && cfg.adjustments[pk]) ? cfg.adjustments[pk] : [];
+                const wrap = document.getElementById('partnersAdjustmentsList'); if (!wrap) return;
+                const partners = (cfg.list||[]).reduce((m,p)=>{ m[p.id]=p.name||p.id; return m; },{});
+                if (!list.length){ wrap.innerHTML = '<div class="text-muted">لا توجد سحوبات ضمن الفترة الحالية</div>'; return; }
+                let html = '<div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>الشريك</th><th>المبلغ</th><th>التاريخ</th><th>ملاحظات</th><th>إجراءات</th></tr></thead><tbody>';
+                list.forEach((it,idx)=>{
+                    html += '<tr data-idx="'+idx+'">'
+                        + '<td>'+ (partners[it.partnerId]||it.partnerId) +'</td>'
+                        + '<td><input type="number" class="form-control form-control-sm" value="'+(it.amount||0)+'" data-role="amount"></td>'
+                        + '<td><input type="date" class="form-control form-control-sm" value="'+(it.date||'')+'" data-role="date"></td>'
+                        + '<td><input type="text" class="form-control form-control-sm" value="'+(it.notes||'')+'" placeholder="ملاحظات" data-role="notes"></td>'
+                        + '<td><button class="btn btn-sm btn-outline-success" data-action="save">حفظ</button> <button class="btn btn-sm btn-outline-danger" data-action="delete">حذف</button></td>'
+                        + '</tr>';
+                });
+                html += '</tbody></table></div>';
+                wrap.innerHTML = html;
+            }
             function refreshEditors(){
                 const cfg = getCfg();
                 const countEl = document.getElementById('partnersEditorCount');
