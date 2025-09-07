@@ -3582,9 +3582,9 @@
                 listed.forEach((it,idx)=>{
                     html += '<tr data-key="'+it.__i+'">'
                         + '<td>'+ (partners[it.partnerId]||it.partnerId) +'</td>'
-                        + '<td><input type="text" class="form-control formatted-input" inputmode="decimal" value="'+(typeof formatNumber==='function'?formatNumber(Number(it.amount)||0):(it.amount||0))+'" data-role="amount"></td>'
+                        + '<td><input type="text" class="form-control formatted-input" inputmode="decimal" dir="ltr" value="'+(typeof formatNumber==='function'?formatNumber(Number(it.amount)||0):(it.amount||0))+'" data-role="amount"></td>'
                         + '<td><input type="date" class="form-control" value="'+(it.date||'')+'" data-role="date"></td>'
-                        + '<td><input type="text" class="form-control" value="'+(it.notes||'')+'" placeholder="ملاحظات" data-role="notes"></td>'
+                        + '<td><textarea class="form-control" rows="2" placeholder="ملاحظات" data-role="notes">'+(it.notes||'')+'</textarea></td>'
                         + '<td><button class="btn btn-sm btn-outline-success" data-action="save">حفظ</button> <button class="btn btn-sm btn-outline-danger" data-action="delete">حذف</button></td>'
                         + '</tr>';
                 });
@@ -3670,11 +3670,13 @@
                 if (adjWrap) adjWrap.addEventListener('click', function(e){ const btn = e.target.closest('button'); if (!btn) return; const tr = btn.closest('tr'); if (!tr) return; const key = parseInt(tr.getAttribute('data-key')); const cfg = getCfg(); const listAll = Array.isArray(cfg.adjustmentsAll)?cfg.adjustmentsAll:[]; if (isNaN(key) || key<0 || key>=listAll.length) return; if (btn.getAttribute('data-action')==='delete') { listAll.splice(key,1); cfg.adjustmentsAll = listAll; setCfg(cfg); renderAdjustments(); generatePartnerReports(); return; } if (btn.getAttribute('data-action')==='save') { const amt = tr.querySelector('[data-role="amount"]'); const dt = tr.querySelector('[data-role="date"]'); const nt = tr.querySelector('[data-role="notes"]'); const updated = Object.assign({}, listAll[key]); updated.amount = amt && amt.value ? parseFormattedNumber(amt.value)||0 : 0; updated.date = dt ? dt.value : updated.date; updated.notes = nt ? nt.value : updated.notes; listAll[key] = updated; cfg.adjustmentsAll = listAll; setCfg(cfg); if (typeof showNotification==='function') showNotification('تم حفظ السحب', 'success'); generatePartnerReports(); renderAdjustments(); return; } });
                 // تحسين تجربة الجوال لحقول جدول السحوبات
                 const style = document.createElement('style');
-                style.textContent = `@media (max-width: 480px) {
+                style.textContent = `
+                #partnersAdjustmentsList input.form-control { font-size:16px; height:44px; white-space:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+                #partnersAdjustmentsList textarea.form-control { font-size:16px; min-height:56px; max-height:120px; overflow:auto; resize:vertical; }
+                @media (max-width: 480px) {
                   #partnersAdjustmentsList table thead { display: none; }
                   #partnersAdjustmentsList table tbody tr { display: block; margin-bottom: 10px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px; background: #fff; }
-                  #partnersAdjustmentsList table tbody td { display: block; padding: 6px 4px; border: none; }
-                  #partnersAdjustmentsList input.form-control { font-size: 16px; height: 44px; }
+                  #partnersAdjustmentsList table tbody td { display: block; padding: 6px 4px; border: none; word-break: break-word; }
                 }`;
                 document.head.appendChild(style);
                 // تلميح بصيغة منسقة للأرقام في المدخلات
