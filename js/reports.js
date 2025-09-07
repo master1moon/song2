@@ -235,7 +235,11 @@ function generatePartnerReports() {
     partnersList = Array.isArray(partnersCfg.list) && partnersCfg.list.length ? partnersCfg.list.slice(0, partnersCount) : [];
     distribution = partnersCfg.distribution||'equal';
     const periodKey = `${fromDate||''}_${toDate||''}`;
-    adjustmentsForPeriod = (partnersCfg.adjustments && partnersCfg.adjustments[periodKey]) ? partnersCfg.adjustments[periodKey] : [];
+    if (Array.isArray(partnersCfg.adjustmentsAll)) {
+      adjustmentsForPeriod = partnersCfg.adjustmentsAll.filter(adj => inPeriod(adj.date, fromDate, toDate));
+    } else {
+      adjustmentsForPeriod = (partnersCfg.adjustments && partnersCfg.adjustments[periodKey]) ? partnersCfg.adjustments[periodKey] : [];
+    }
     carryover = partnersCfg.carryover || {};
   }
 
@@ -283,7 +287,7 @@ function generatePartnerReports() {
     const w = withdrawalsByPartner[p.id]||0;
     const co = Number(carryover[p.id]||0);
     const final = (p.base - w + co);
-    const status = final < 0 ? 'مدين' : 'دائن';
+    const status = final < 0 ? 'عليه' : 'له';
     return `
       <tr>
         <td>${p.name||''}</td>
@@ -319,7 +323,7 @@ function generatePartnerReports() {
               <th>سحوبات الفترة</th>
               <th>ترحيل سابق</th>
               <th>الصافي</th>
-              <th>الحالة</th>
+              <th>الوضع</th>
             </tr>
           </thead>
           <tbody>
@@ -327,6 +331,21 @@ function generatePartnerReports() {
           </tbody>
         </table>
       </div>
+      ${adjustmentsForPeriod.length ? `
+      <div class="mt-3">
+        <h6 class="mb-2">تفاصيل سحوبات الشركاء ضمن الفترة</h6>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead><tr><th>الشريك</th><th>المبلغ</th><th>التاريخ</th><th>ملاحظات</th></tr></thead>
+            <tbody>
+              ${adjustmentsForPeriod.map(adj=>{
+                const partnerName = (partnersList.find(x=>x.id===adj.partnerId)||baseShares.find(x=>x.id===adj.partnerId)||{}).name || adj.partnerId;
+                return `<tr><td>${partnerName}</td><td class="currency">${formatNumber(Number(adj.amount)||0)}</td><td>${adj.date||''}</td><td>${adj.notes||''}</td></tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>` : ''}
     </div>`;
   container.innerHTML = html;
   // attach export handlers (ensure wired to recompute fresh data)
