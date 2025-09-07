@@ -760,7 +760,15 @@ function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, t
     }
     return s;
   }
-  // إبراز سحوبات الشركاء أولاً ثم صافي الشركاء ثم ملخص الأرباح
+  // 1) الملخص أولاً
+  const hasPercent = Array.isArray(partnersList) && partnersList.length && partnersList.some(p=>p.sharePercent!=null);
+  html += '<div class="summary">' +
+    '<div class="box">إجمالي التسديدات: <span class="currency">' + formatNumber(totalPays||0) + '</span></div>' +
+    '<div class="box">إجمالي المصروفات: <span class="currency">' + formatNumber(totalExps||0) + '</span></div>' +
+    '<div class="box">صافي الأرباح: <span class="currency">' + formatNumber(net||0) + '</span></div>' +
+    (hasPercent ? '' : ('<div class="box">صافي لكل شريك: <span class="currency">' + formatNumber(perPartner||0) + '</span></div>')) +
+  '</div>';
+  // 2) سحوبات الشركاء ضمن الفترة
   if (adjustments && adjustments.length){
     const map = (partnersList||[]).reduce((m,p)=>{ m[p.id]=p.name||p.id; return m; },{});
     html += '<div class="summary" style="background:#fff7ed;border-color:#fdba74">' +
@@ -770,18 +778,12 @@ function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, t
       adjustments.map(a=> '<tr><td>'+ (map[a.partnerId]||a.partnerId) +'</td><td class="currency">'+ formatNumber(Number(a.amount)||0) +'</td><td>'+ (a.date||'') +'</td><td>'+ (a.notes||'') +'</td></tr>').join('') +
     '</tbody></table>';
   }
-  // صافي الشركاء (بالأسماء)
+  // 3) صافي الشركاء (بالأسماء)
   if (Array.isArray(partnerSharesRows) && partnerSharesRows.length){
     const sharesRows = partnerSharesRows.map(r=> ({ 'الشريك': r.الشريك, 'التوزيع': r.التوزيع, 'النصيب الأساسي': formatNumber(Number(r.النصيب_الأساسي)||0), 'سحوبات الفترة': formatNumber(Number(r.السحوبات)||0), 'ترحيل سابق': formatNumber(Number(r.الترحيل)||0), 'الصافي': formatNumber(Number(r.الصافي)||0), 'الوضع': r.الوضع }));
     html += '<h3 style="margin-top:18px;margin-bottom:8px;color:#2c3e50;border-right:4px solid #2c3e50;padding-right:8px;">صافي الشركاء</h3>';
     html += renderTable(' ', ['الشريك','التوزيع','النصيب الأساسي','سحوبات الفترة','ترحيل سابق','الصافي','الوضع'], sharesRows);
   }
-  html += '<div class="summary">' +
-    '<div class="box">إجمالي التسديدات: <span class="currency">' + formatNumber(totalPays||0) + '</span></div>' +
-    '<div class="box">إجمالي المصروفات: <span class="currency">' + formatNumber(totalExps||0) + '</span></div>' +
-    '<div class="box">صافي الأرباح: <span class="currency">' + formatNumber(net||0) + '</span></div>' +
-    '<div class="box">صافي لكل شريك: <span class="currency">' + formatNumber(perPartner||0) + '</span></div>' +
-  '</div>';
   html += renderTable('التسديدات', ['التاريخ','المحل','المبلغ','ملاحظات'], paysList);
   html += renderTable('المصروفات', ['التاريخ','النوع','المبلغ','ملاحظات'], expsList);
   
