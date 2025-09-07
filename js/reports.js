@@ -699,7 +699,7 @@ function getReportStyles() {
  * المدخلات: periodText, partnersCount, paysList, expsList, totalPays, totalExps, net, perPartner
  * المخرجات: راجع التنفيذ
  */
-function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, totalPays, totalExps, net, perPartner, adjustments = [], partnersList = [], partnerSharesRows = []){
+function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, totalPays, totalExps, net, perPartner, adjustments = [], partnersList = [], partnerSharesRows = [], monthsData = []){
   const settings = getReportSettings();
   let html='';
   html += '<!doctype html><html lang="ar" dir="rtl">';
@@ -715,6 +715,12 @@ function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, t
   html += '<div style="text-align: center; margin: 15px 0; color: #666;">';
   html += 'المدة: ' + periodText + ' | عدد الشركاء: ' + partnersCount + ' | تاريخ التصدير: ' + moment().format(settings.dateFormat);
   html += '</div>';
+
+  // سطر الأشهر المحددة بخط واضح وملون
+  if (Array.isArray(monthsData) && monthsData.length > 1) {
+    const monthsLine = monthsData.map(m => m.label).join(' • ');
+    html += '<div style="text-align:center; font-size:18px; font-weight:700; color:#0ea5e9; margin:8px 0 14px;">الأشهر: ' + monthsLine + '</div>';
+  }
 
   // دالة مساعدة لبناء جدول HTML (مرفوعة/hoisted بتعريف دالة)
   function renderTable(title, headers, rows){
@@ -734,6 +740,53 @@ function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, t
     '<div class="box">صافي الأرباح: <span class="currency">' + formatNumber(net||0) + '</span></div>' +
     (hasPercent ? '' : ('<div class="box">صافي لكل شريك: <span class="currency">' + formatNumber(perPartner||0) + '</span></div>')) +
   '</div>';
+
+  // ملخص شهري في حال عدة أشهر
+  if (Array.isArray(monthsData) && monthsData.length > 1) {
+    const headers = ['الشهر','إجمالي التسديدات','إجمالي المصروفات','صافي الأرباح'];
+    const rows = monthsData.map(m => ({ 'الشهر': m.label, 'إجمالي التسديدات': formatNumber(m.totalPays||0), 'إجمالي المصروفات': formatNumber(m.totalExps||0), 'صافي الأرباح': formatNumber((m.totalPays||0)-(m.totalExps||0)) }));
+    const sums = monthsData.reduce((a,m)=>{ a.p+=(m.totalPays||0); a.e+=(m.totalExps||0); return a; }, {p:0,e:0});
+    rows.push({ 'الشهر': 'الإجمالي', 'إجمالي التسديدات': formatNumber(sums.p), 'إجمالي المصروفات': formatNumber(sums.e), 'صافي الأرباح': formatNumber(sums.p - sums.e) });
+    html += renderTable('ملخص الأشهر', headers, rows);
+
+    // سحوبات الشركاء لكل شهر + الإجمالي
+    const wHeaders = ['الشهر','إجمالي سحوبات الشركاء'];
+    const wRows = monthsData.map(m => ({ 'الشهر': m.label, 'إجمالي سحوبات الشركاء': formatNumber(m.totalWithdrawals||0) }));
+    const wSum = monthsData.reduce((s,m)=> s + (m.totalWithdrawals||0), 0);
+    wRows.push({ 'الشهر': 'الإجمالي', 'إجمالي سحوبات الشركاء': formatNumber(wSum) });
+    html += renderTable('سحوبات الشركاء حسب الأشهر', wHeaders, wRows);
+
+    // صافي الشركاء لكل شهر (جدول محوري: صفوف=أشهر، أعمدة=شركاء)
+    const partnerNames = (partnersList||[]).map(p=> p.name||p.id);
+    if (partnerNames.length) {
+      const shHeaders = ['الشهر'].concat(partnerNames).concat(['إجمالي الشهر']);
+      const shRows = monthsData.map(m => {
+        const row = { 'الشهر': m.label };
+        let rowSum = 0;
+        (partnersList||[]).forEach(p=>{
+          const share = ((m.partnerShares||[]).find(x=> x.الشريك === (p.name||p.id)) || {الصافي:0}).الصافي || 0;
+          row[p.name||p.id] = formatNumber(share);
+          rowSum += share;
+        });
+        row['إجمالي الشهر'] = formatNumber(rowSum);
+        return row;
+      });
+      // صف الإجمالي العام لكل شريك
+      const totalsRow = { 'الشهر': 'الإجمالي' };
+      let grand = 0;
+      (partnersList||[]).forEach(p=>{
+        const sum = monthsData.reduce((s,m)=>{
+          const found = (m.partnerShares||[]).find(x=> x.الشريك === (p.name||p.id));
+          return s + ((found && found.الصافي) || 0);
+        }, 0);
+        totalsRow[p.name||p.id] = formatNumber(sum);
+        grand += sum;
+      });
+      totalsRow['إجمالي الشهر'] = formatNumber(grand);
+      shRows.push(totalsRow);
+      html += renderTable('صافي الشركاء حسب الأشهر', shHeaders, shRows);
+    }
+  }
   // 2) سحوبات الشركاء ضمن الفترة
   if (adjustments && adjustments.length){
     const map = (partnersList||[]).reduce((m,p)=>{ m[p.id]=p.name||p.id; return m; },{});
@@ -2246,7 +2299,42 @@ function exportPartners(format){
         });
         return shares;
       })();
-      const html = buildPartnerReportHTML(text, partners, listPays, listExps, totalPays, totalExps, net, perPartner, adjustments, partnersList, partnerSharesRows);
+      // حساب بيانات الأشهر إن كانت الفترة تغطي أكثر من شهر
+      let monthsData = [];
+      try {
+        const start = moment(fromDate, 'YYYY-MM-DD').startOf('month');
+        const end = moment(toDate, 'YYYY-MM-DD').endOf('month');
+        let cursor = start.clone();
+        const cfgAll = (typeof AppSettings!=='undefined') ? (AppSettings.getAll().reports?.partners||{}) : {};
+        const adjAll = Array.isArray(cfgAll.adjustmentsAll) ? cfgAll.adjustmentsAll : [];
+        while (cursor.isSameOrBefore(end, 'month')) {
+          const mf = moment.max(cursor.clone().startOf('month'), moment(fromDate, 'YYYY-MM-DD')).format('YYYY-MM-DD');
+          const mt = moment.min(cursor.clone().endOf('month'), moment(toDate, 'YYYY-MM-DD')).format('YYYY-MM-DD');
+          const monthPays = data.payments.filter(p=> inPeriod(p.date, mf, mt));
+          const monthExps = data.expenses.filter(e=> inPeriod(e.date, mf, mt));
+          const mTotalPays = monthPays.reduce((s,x)=> s + (Number(x.amount)||0), 0);
+          const mTotalExps = monthExps.reduce((s,x)=> s + (Number(x.amount)||0), 0);
+          const mNet = mTotalPays - mTotalExps;
+          const mAdjustments = adjAll.filter(a=> inPeriod(a.date, mf, mt));
+          const mWithdrawalsByPartner = {};
+          mAdjustments.forEach(adj=>{ const pid=adj.partnerId; const amt=Number(adj.amount)||0; mWithdrawalsByPartner[pid]=(mWithdrawalsByPartner[pid]||0)+amt; });
+          const hasPercentM = (AppSettings.getAll().reports?.partners?.distribution)==='percent' && (partnersList||[]).some(p=>p.sharePercent!=null);
+          const totalPercent = hasPercentM ? (partnersList||[]).reduce((s,p)=> s+(parseFloat(p.sharePercent)||0),0)||100 : 100;
+          const perM = partners>0 ? mNet/partners : mNet;
+          const mPartnerShares = (partnersList.length?partnersList:Array.from({length:partners}).map((_,i)=>({id:`p${i+1}`,name:`الشريك ${i+1}`}))).map(p=>{
+            const base = hasPercentM ? (mNet * ((parseFloat(p.sharePercent)||0)/totalPercent)) : perM;
+            const w = mWithdrawalsByPartner[p.id]||0; const co = 0; const final = base - w + co;
+            return { الشريك: p.name||'', التوزيع: hasPercentM ? `${p.sharePercent||0}%` : 'متساوٍ', النصيب_الأساسي: base, السحوبات: w, الترحيل: co, الصافي: Math.abs(final), الوضع: final<0?'عليه':'له' };
+          });
+          const label = 'شهر ' + cursor.format('M') + ' (' + cursor.locale('ar').format('MMMM') + ') ' + cursor.format('YYYY');
+          const monthListPays = monthPays.map(p=> ({ التاريخ: formatDateEn(p.date), المحل: (data.stores.find(s=>s.id===p.storeId)?.name)||'', المبلغ: Number(p.amount)||0, ملاحظات: p.notes||'' }));
+          const monthListExps = monthExps.map(e=> ({ التاريخ: formatDateEn(e.date), النوع: e.type||'', المبلغ: Number(e.amount)||0, ملاحظات: e.notes||'' }));
+          const mTotalWithdrawals = mAdjustments.reduce((s,a)=> s + (Number(a.amount)||0), 0);
+          monthsData.push({ label, totalPays: mTotalPays, totalExps: mTotalExps, totalWithdrawals: mTotalWithdrawals, partnerShares: mPartnerShares, listPays: monthListPays, listExps: monthListExps, adjustments: mAdjustments });
+          cursor.add(1,'month');
+        }
+      } catch(_) {}
+      const html = buildPartnerReportHTML(text, partners, listPays, listExps, totalPays, totalExps, net, perPartner, adjustments, partnersList, partnerSharesRows, monthsData);
       const win = window.open('', '_blank'); if (!win || !win.document) { showNotification('يمنع المتصفح النوافذ المنبثقة. الرجاء السماح بها.', 'error'); return; }
       win.document.open(); win.document.write(html); win.document.close();
       showNotification(format==='pdf' ? 'تم فتح صفحة الطباعة. اضغط حفظ كـ PDF.' : 'تم فتح صفحة التقرير.', 'success');
