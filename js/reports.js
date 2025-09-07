@@ -261,6 +261,24 @@ function generatePartnerReports() {
     withdrawalsByPartner[pid] = (withdrawalsByPartner[pid]||0) + amt;
   });
 
+  // بناء تحذيرات التحقق
+  const warnings = [];
+  if (distribution === 'percent' && partnersList.length) {
+    const sumPercent = partnersList.reduce((s,p)=> s + (parseFloat(p.sharePercent)||0), 0);
+    if (Math.abs(sumPercent - 100) > 0.001) {
+      warnings.push(`مجموع النِّسَب الحالية ${sumPercent}% (يجب أن يساوي 100%)`);
+    }
+  }
+  const overWithdrawals = baseShares
+    .filter(p => (withdrawalsByPartner[p.id]||0) > p.base)
+    .map(p => ({ name: p.name, extra: (withdrawalsByPartner[p.id]||0) - p.base }));
+  if (overWithdrawals.length) {
+    warnings.push('سحوبات أعلى من الأنصبة الأساسية: ' + overWithdrawals.map(x => `${x.name} (+${formatNumber(x.extra)})`).join('، '));
+  }
+  if (net < 0) {
+    warnings.push('تنبيه: صافي الأرباح لهذه الفترة سالب؛ سيتم توزيع الخسارة.');
+  }
+
   const rowsHtml = baseShares.map(p => {
     const w = withdrawalsByPartner[p.id]||0;
     const co = Number(carryover[p.id]||0);
@@ -288,7 +306,9 @@ function generatePartnerReports() {
         <div class="summary-item"><div class="summary-value currency">${formatNumber(totalPays)}</div><div class="summary-label">إجمالي التسديدات</div></div>
         <div class="summary-item"><div class="summary-value currency">${formatNumber(totalExps)}</div><div class="summary-label">إجمالي المصروفات</div></div>
         <div class="summary-item"><div class="summary-value currency ${net<0?'profit-negative':''}">${formatNumber(net)}</div><div class="summary-label">صافي الأرباح</div></div>
+        ${distribution!=='percent' ? `<div class="summary-item"><div class="summary-value currency">${formatNumber(partnersCount>0 ? (net/partnersCount) : net)}</div><div class="summary-label">صافي لكل شريك</div></div>` : ''}
       </div>
+      ${warnings.length ? `<div class="${net<0 ? 'alert alert-danger' : 'alert alert-warning'} mb-2 small"><ul class="mb-0 ps-3">${warnings.map(w=>`<li>${w}</li>`).join('')}</ul></div>` : ''}
       <div class="table-responsive">
         <table class="table table-sm align-middle">
           <thead>
