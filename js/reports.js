@@ -2299,25 +2299,30 @@ function exportPartners(format){
         });
         return shares;
       })();
-      // حساب بيانات الأشهر إن كانت الفترة تغطي أكثر من شهر
+      // حساب بيانات الأشهر إن كانت الفترة تغطي أكثر من شهر (تجميع سريع بدون حلقة عبر آلاف الأشهر)
       let monthsData = [];
       try {
-        const start = moment(fromDate, 'YYYY-MM-DD').startOf('month');
-        const end = moment(toDate, 'YYYY-MM-DD').endOf('month');
-        let cursor = start.clone();
         const cfgAll = (typeof AppSettings!=='undefined') ? (AppSettings.getAll().reports?.partners||{}) : {};
         const adjAll = Array.isArray(cfgAll.adjustmentsAll) ? cfgAll.adjustmentsAll : [];
-        while (cursor.isSameOrBefore(end, 'month')) {
-          const mf = moment.max(cursor.clone().startOf('month'), moment(fromDate, 'YYYY-MM-DD')).format('YYYY-MM-DD');
-          const mt = moment.min(cursor.clone().endOf('month'), moment(toDate, 'YYYY-MM-DD')).format('YYYY-MM-DD');
-          const monthPays = data.payments.filter(p=> inPeriod(p.date, mf, mt));
-          const monthExps = data.expenses.filter(e=> inPeriod(e.date, mf, mt));
-          const mTotalPays = monthPays.reduce((s,x)=> s + (Number(x.amount)||0), 0);
-          const mTotalExps = monthExps.reduce((s,x)=> s + (Number(x.amount)||0), 0);
+        const paysIn = (data.payments||[]).filter(p=> inPeriod(p.date, fromDate, toDate));
+        const expsIn = (data.expenses||[]).filter(e=> inPeriod(e.date, fromDate, toDate));
+        const adjsIn = adjAll.filter(a=> inPeriod(a.date, fromDate, toDate));
+        const monthMap = new Map(); // key YYYY-MM -> {pays:[], exps:[], adjs:[]}
+        const keyOf = (d)=>{ const s = formatDateEn(d); return s ? s.slice(0,7) : ''; };
+        paysIn.forEach(p=>{ const k=keyOf(p.date); if(!k) return; const o=monthMap.get(k)||{pays:[],exps:[],adjs:[]}; o.pays.push(p); monthMap.set(k,o); });
+        expsIn.forEach(e=>{ const k=keyOf(e.date); if(!k) return; const o=monthMap.get(k)||{pays:[],exps:[],adjs:[]}; o.exps.push(e); monthMap.set(k,o); });
+        adjsIn.forEach(a=>{ const k=keyOf(a.date); if(!k) return; const o=monthMap.get(k)||{pays:[],exps:[],adjs:[]}; o.adjs.push(a); monthMap.set(k,o); });
+        let keys = Array.from(monthMap.keys()).sort();
+        // حماية من كثرة الشهور: حد أقصى 36 شهرًا
+        const MAX_MONTHS = 36;
+        if (keys.length > MAX_MONTHS) keys = keys.slice(-MAX_MONTHS);
+        keys.forEach(k=>{
+          const o = monthMap.get(k) || {pays:[],exps:[],adjs:[]};
+          const mTotalPays = o.pays.reduce((s,x)=> s + (Number(x.amount)||0), 0);
+          const mTotalExps = o.exps.reduce((s,x)=> s + (Number(x.amount)||0), 0);
           const mNet = mTotalPays - mTotalExps;
-          const mAdjustments = adjAll.filter(a=> inPeriod(a.date, mf, mt));
           const mWithdrawalsByPartner = {};
-          mAdjustments.forEach(adj=>{ const pid=adj.partnerId; const amt=Number(adj.amount)||0; mWithdrawalsByPartner[pid]=(mWithdrawalsByPartner[pid]||0)+amt; });
+          o.adjs.forEach(adj=>{ const pid=adj.partnerId; const amt=Number(adj.amount)||0; mWithdrawalsByPartner[pid]=(mWithdrawalsByPartner[pid]||0)+amt; });
           const hasPercentM = (AppSettings.getAll().reports?.partners?.distribution)==='percent' && (partnersList||[]).some(p=>p.sharePercent!=null);
           const totalPercent = hasPercentM ? (partnersList||[]).reduce((s,p)=> s+(parseFloat(p.sharePercent)||0),0)||100 : 100;
           const perM = partners>0 ? mNet/partners : mNet;
@@ -2326,13 +2331,13 @@ function exportPartners(format){
             const w = mWithdrawalsByPartner[p.id]||0; const co = 0; const final = base - w + co;
             return { الشريك: p.name||'', التوزيع: hasPercentM ? `${p.sharePercent||0}%` : 'متساوٍ', النصيب_الأساسي: base, السحوبات: w, الترحيل: co, الصافي: Math.abs(final), الوضع: final<0?'عليه':'له' };
           });
-          const label = 'شهر ' + cursor.format('M') + ' (' + cursor.locale('ar').format('MMMM') + ') ' + cursor.format('YYYY');
-          const monthListPays = monthPays.map(p=> ({ التاريخ: formatDateEn(p.date), المحل: (data.stores.find(s=>s.id===p.storeId)?.name)||'', المبلغ: Number(p.amount)||0, ملاحظات: p.notes||'' }));
-          const monthListExps = monthExps.map(e=> ({ التاريخ: formatDateEn(e.date), النوع: e.type||'', المبلغ: Number(e.amount)||0, ملاحظات: e.notes||'' }));
-          const mTotalWithdrawals = mAdjustments.reduce((s,a)=> s + (Number(a.amount)||0), 0);
-          monthsData.push({ label, totalPays: mTotalPays, totalExps: mTotalExps, totalWithdrawals: mTotalWithdrawals, partnerShares: mPartnerShares, listPays: monthListPays, listExps: monthListExps, adjustments: mAdjustments });
-          cursor.add(1,'month');
-        }
+          const m = moment(k, 'YYYY-MM');
+          const label = 'شهر ' + m.format('M') + ' (' + m.locale('ar').format('MMMM') + ') ' + m.format('YYYY');
+          const monthListPays = o.pays.map(p=> ({ التاريخ: formatDateEn(p.date), المحل: (data.stores.find(s=>s.id===p.storeId)?.name)||'', المبلغ: Number(p.amount)||0, ملاحظات: p.notes||'' }));
+          const monthListExps = o.exps.map(e=> ({ التاريخ: formatDateEn(e.date), النوع: e.type||'', المبلغ: Number(e.amount)||0, ملاحظات: e.notes||'' }));
+          const mTotalWithdrawals = o.adjs.reduce((s,a)=> s + (Number(a.amount)||0), 0);
+          monthsData.push({ label, totalPays: mTotalPays, totalExps: mTotalExps, totalWithdrawals: mTotalWithdrawals, partnerShares: mPartnerShares, listPays: monthListPays, listExps: monthListExps, adjustments: o.adjs });
+        });
       } catch(_) {}
       const html = buildPartnerReportHTML(text, partners, listPays, listExps, totalPays, totalExps, net, perPartner, adjustments, partnersList, partnerSharesRows, monthsData);
       const win = window.open('', '_blank'); if (!win || !win.document) { showNotification('يمنع المتصفح النوافذ المنبثقة. الرجاء السماح بها.', 'error'); return; }
