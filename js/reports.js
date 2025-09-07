@@ -355,7 +355,7 @@ function generatePartnerReports() {
         </table>
       </div>
 
-      <!-- 4) التسديدات -->
+      <!-- 4) التسديدات (إصدار واحد فقط) -->
       <div class="card border-0 mt-3">
         <div class="card-header bg-light">تفاصيل التسديدات ضمن الفترة</div>
         <div class="card-body p-0">
@@ -368,7 +368,7 @@ function generatePartnerReports() {
         </div>
       </div>
 
-      <!-- 5) المصروفات -->
+      <!-- 5) المصروفات (إصدار واحد فقط) -->
       <div class="card border-0 mt-3">
         <div class="card-header bg-light">تفاصيل المصروفات ضمن الفترة</div>
         <div class="card-body p-0">
@@ -380,49 +380,8 @@ function generatePartnerReports() {
           </div>
         </div>
       </div>
-      <div class="row g-3 mt-3">
-        <div class="col-12 col-lg-6">
-          <div class="card border-0">
-            <div class="card-header bg-light">تفاصيل التسديدات ضمن الفترة</div>
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-sm align-middle mb-0">
-                  <thead><tr><th>التاريخ</th><th>المحل</th><th>المبلغ</th><th>ملاحظات</th></tr></thead>
-                  <tbody>${paysRows || '<tr><td colspan="4" class="text-muted">لا توجد تسديدات</td></tr>'}</tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-lg-6">
-          <div class="card border-0">
-            <div class="card-header bg-light">تفاصيل المصروفات ضمن الفترة</div>
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-sm align-middle mb-0">
-                  <thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>ملاحظات</th></tr></thead>
-                  <tbody>${expsRows || '<tr><td colspan="4" class="text-muted">لا توجد مصروفات</td></tr>'}</tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      ${adjustmentsForPeriod.length ? `
-      <div class="mt-3">
-        <h6 class="mb-2">تفاصيل سحوبات الشركاء ضمن الفترة</h6>
-        <div class="table-responsive">
-          <table class="table table-sm align-middle">
-            <thead><tr><th>الشريك</th><th>المبلغ</th><th>التاريخ</th><th>ملاحظات</th></tr></thead>
-            <tbody>
-              ${adjustmentsForPeriod.map(adj=>{
-                const partnerName = (partnersList.find(x=>x.id===adj.partnerId)||baseShares.find(x=>x.id===adj.partnerId)||{}).name || adj.partnerId;
-                return `<tr><td>${partnerName}</td><td class="currency">${formatNumber(Number(adj.amount)||0)}</td><td>${adj.date||''}</td><td>${adj.notes||''}</td></tr>`;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>` : ''}
+      
+      
     </div>`;
   container.innerHTML = html;
   // attach export handlers (ensure wired to recompute fresh data)
