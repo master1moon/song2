@@ -222,7 +222,7 @@ function generatePartnerReports() {
 
   // إعدادات الشركاء من الإعدادات (اختياري)
   let partnersCfg = null;
-  try { partnersCfg = (typeof AppSettings!=='undefined') ? (AppSettings.getAll().partners||null) : null; } catch(_) { partnersCfg = null; }
+  try { partnersCfg = (typeof AppSettings!=='undefined') ? ((AppSettings.getAll().reports||{}).partners||null) : null; } catch(_) { partnersCfg = null; }
 
   let partnersCount = getPartnersCount();
   let partnersList = [];
@@ -2079,7 +2079,7 @@ function getPartnersPeriodRange(){
   return { fromDate, toDate, text: `${fromDate} إلى ${toDate}` };
 }
 
-function getPartnersCount(){ try{ if (typeof AppSettings!=='undefined'){ const c = AppSettings.getAll().partners?.count; if (c && c>0) return c; } }catch(_){} const el = document.getElementById('partnersCount'); const n = parseInt(el && el.value, 10); return isNaN(n) || n<1 ? 1 : n; }
+function getPartnersCount(){ try{ if (typeof AppSettings!=='undefined'){ const c = AppSettings.getAll().reports?.partners?.count; if (c && c>0) return c; } }catch(_){} const el = document.getElementById('partnersCount'); const n = parseInt(el && el.value, 10); return isNaN(n) || n<1 ? 1 : n; }
 
 /**
  * ملاحظة: الدالة exportPartners — وصف تلقائي موجز لوظيفتها.

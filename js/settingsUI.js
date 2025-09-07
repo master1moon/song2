@@ -1140,11 +1140,12 @@
     window.updatePartnerName = function(index, value){
         try {
             const s = AppSettings.getAll();
-            s.partners = s.partners || {};
-            s.partners.list = s.partners.list || [];
-            if (s.partners.list[index]) {
-                s.partners.list[index].name = value;
-                AppSettings.update('partners', s.partners);
+            s.reports = s.reports || {};
+            s.reports.partners = s.reports.partners || {};
+            s.reports.partners.list = s.reports.partners.list || [];
+            if (s.reports.partners.list[index]) {
+                s.reports.partners.list[index].name = value;
+                AppSettings.update('reports.partners', s.reports.partners);
             }
         } catch(_) {}
     };
@@ -1153,12 +1154,13 @@
     window.updatePartnerPercent = function(index, value){
         try {
             const s = AppSettings.getAll();
-            s.partners = s.partners || {};
-            s.partners.list = s.partners.list || [];
-            if (s.partners.list[index]) {
+            s.reports = s.reports || {};
+            s.reports.partners = s.reports.partners || {};
+            s.reports.partners.list = s.reports.partners.list || [];
+            if (s.reports.partners.list[index]) {
                 const v = value ? parseFloat(value) : null;
-                s.partners.list[index].sharePercent = isNaN(v) ? null : v;
-                AppSettings.update('partners', s.partners);
+                s.reports.partners.list[index].sharePercent = isNaN(v) ? null : v;
+                AppSettings.update('reports.partners', s.reports.partners);
             }
         } catch(_) {}
     };
@@ -1167,7 +1169,8 @@
     window.addPartnerAdjustment = function(){
         try {
             const s = AppSettings.getAll();
-            const P = s.partners || (s.partners = {});
+            s.reports = s.reports || {};
+            const P = s.reports.partners || (s.reports.partners = {});
             const pf = (typeof getPartnersPeriodRange==='function')?getPartnersPeriodRange():{fromDate:'',toDate:'',text:''};
             const periodKey = (pf.fromDate||'')+'_'+(pf.toDate||'');
             const list = (P.adjustments && P.adjustments[periodKey]) ? P.adjustments[periodKey] : [];
@@ -1178,7 +1181,7 @@
                 list.push({ partnerId: pid, amount: amount, date: date, notes: '' });
                 P.adjustments = P.adjustments || {};
                 P.adjustments[periodKey] = list;
-                AppSettings.update('partners', P);
+                AppSettings.update('reports.partners', P);
                 if (typeof showNotification==='function') showNotification('تم إضافة سحب الشريك', 'success');
                 document.getElementById('partnerAdjAmount').value = '';
             }

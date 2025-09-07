@@ -3559,8 +3559,8 @@
 
         // واجهة إدارة الشركاء داخل بطاقة التقرير
         (function wirePartnersInlineEditor(){
-            function getCfg(){ try{ return (typeof AppSettings!=='undefined')? (AppSettings.getAll().partners||{}):{}; }catch(_){ return {}; } }
-            function setCfg(cfg){ try{ AppSettings.update('partners', cfg); } catch(_){} }
+            function getCfg(){ try{ return (typeof AppSettings!=='undefined')? ((AppSettings.getAll().reports||{}).partners||{}):{}; }catch(_){ return {}; } }
+            function setCfg(cfg){ try{ AppSettings.update('reports.partners', cfg); } catch(_){} }
             function periodKey(){ try{ const pf = (typeof getPartnersPeriodRange==='function')?getPartnersPeriodRange():{fromDate:'',toDate:''}; return (pf.fromDate||'')+'_'+(pf.toDate||''); }catch(_){ return '_'; } }
             function refreshEditors(){
                 const cfg = getCfg();
