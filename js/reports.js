@@ -302,10 +302,6 @@ function generatePartnerReports() {
 
   const html = `
     <div class="partner-report-card">
-      <div class="partner-report-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <h5 class="partner-report-title mb-0">تقرير الشركاء</h5>
-        <div class="partner-report-dates">المدة: ${text} | الشركاء: ${partnersCount}</div>
-      </div>
       <!-- 1) الملخص -->
       <div class="partner-report-summary d-flex flex-wrap gap-3 my-2">
         <div class="summary-item"><div class="summary-value currency">${formatNumber(totalPays)}</div><div class="summary-label">إجمالي التسديدات</div></div>
@@ -314,6 +310,11 @@ function generatePartnerReports() {
         ${distribution==='percent' ? '' : `<div class="summary-item"><div class="summary-value currency">${formatNumber(partnersCount>0 ? (net/partnersCount) : net)}</div><div class="summary-label">صافي لكل شريك</div></div>`}
       </div>
       ${warnings.length ? `<div class="${net<0 ? 'alert alert-danger' : 'alert alert-warning'} mb-2 small"><ul class="mb-0 ps-3">${warnings.map(w=>`<li>${w}</li>`).join('')}</ul></div>` : ''}
+
+      <div class="partner-report-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="partner-report-title mb-0">تقرير الشركاء</h5>
+        <div class="partner-report-dates">المدة: ${text} | الشركاء: ${partnersCount}</div>
+      </div>
 
       <!-- 2) سحوبات الشركاء -->
       ${(adjustmentsForPeriod && adjustmentsForPeriod.length) ? `
