@@ -2465,6 +2465,10 @@
                                             <small class="text-muted">قيَم موجبة/سالبة حسب الرصيد المرحّل السابق</small>
                                         </div>
                                         <div class="mt-2" id="partnersCarryoverList" style="display:none"></div>
+                                        <div class="mt-3">
+                                            <button class="btn btn-sm btn-outline-info" id="toggleAdjustments" type="button">سحوبات الفترة السابقة/الحالية</button>
+                                        </div>
+                                        <div class="mt-2" id="partnersAdjustmentsList" style="display:none"></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-auto">
@@ -3622,16 +3626,22 @@
                 const dateAdj = document.getElementById('partnersAdjDate');
                 const carryWrap = document.getElementById('partnersCarryoverList');
                 const toggleCarry = document.getElementById('toggleCarryover');
+                const adjWrap = document.getElementById('partnersAdjustmentsList');
+                const toggleAdj = document.getElementById('toggleAdjustments');
                 if (!countEl) return;
                 refreshEditors();
+                renderAdjustments();
                 countEl.addEventListener('change', function(){
                     const cfg = getCfg(); const v = parseInt(this.value)||1; cfg.count = v; const list = (cfg.list||[]).slice(0,v); while(list.length<v){ list.push({ id:'p'+(list.length+1), name:'الشريك '+(list.length+1), sharePercent:null }); } cfg.list=list; setCfg(cfg); refreshEditors(); generatePartnerReports();
                 });
                 distEl.addEventListener('change', function(){ const cfg=getCfg(); cfg.distribution=this.value; setCfg(cfg); refreshEditors(); generatePartnerReports(); });
                 listWrap.addEventListener('change', function(e){ const t=e.target; const role=t && t.getAttribute('data-role'); if(!role) return; const idx=parseInt(t.getAttribute('data-idx')); const cfg=getCfg(); if(!cfg.list||!cfg.list[idx]) return; if(role==='name'){ cfg.list[idx].name = t.value; } else if (role==='percent'){ cfg.list[idx].sharePercent = t.value?parseFloat(t.value):null; } setCfg(cfg); generatePartnerReports(); });
-                if (btnAdd) btnAdd.addEventListener('click', function(){ const cfg=getCfg(); const pk=periodKey(); const list=(cfg.adjustments&&cfg.adjustments[pk])?cfg.adjustments[pk]:[]; const pid=selAdj.value; const amount=parseFloat(amtAdj.value)||0; const date=dateAdj.value; if (pid && amount>0){ list.push({ partnerId: pid, amount: amount, date: date, notes: '' }); cfg.adjustments = cfg.adjustments||{}; cfg.adjustments[pk]=list; setCfg(cfg); amtAdj.value=''; if (typeof showNotification==='function') showNotification('تم إضافة سحب الشريك', 'success'); generatePartnerReports(); } });
+                if (btnAdd) btnAdd.addEventListener('click', function(){ const cfg=getCfg(); const pk=periodKey(); const list=(cfg.adjustments&&cfg.adjustments[pk])?cfg.adjustments[pk]:[]; const pid=selAdj.value; const amount=parseFloat(amtAdj.value)||0; const date=dateAdj.value; if (pid && amount>0){ list.push({ partnerId: pid, amount: amount, date: date, notes: '' }); cfg.adjustments = cfg.adjustments||{}; cfg.adjustments[pk]=list; setCfg(cfg); amtAdj.value=''; if (typeof showNotification==='function') showNotification('تم إضافة سحب الشريك', 'success'); generatePartnerReports(); renderAdjustments(); } });
                 if (carryWrap) carryWrap.addEventListener('change', function(e){ const t=e.target; if(!t || t.getAttribute('data-role')!=='carryover') return; const pid=t.getAttribute('data-pid'); const cfg=getCfg(); cfg.carryover = cfg.carryover || {}; cfg.carryover[pid] = t.value?parseFloat(t.value):0; setCfg(cfg); if (typeof showNotification==='function') showNotification('تم تحديث الترحيل', 'info'); generatePartnerReports(); });
                 if (toggleCarry) toggleCarry.addEventListener('click', function(){ const wrap = document.getElementById('partnersCarryoverList'); if (!wrap) return; wrap.style.display = (wrap.style.display==='none' || wrap.style.display==='') ? 'block' : 'none'; });
+                if (toggleAdj) toggleAdj.addEventListener('click', function(){ if (!adjWrap) return; adjWrap.style.display = (adjWrap.style.display==='none' || adjWrap.style.display==='') ? 'block' : 'none'; });
+                if (adjWrap) adjWrap.addEventListener('click', function(e){ const btn = e.target.closest('button'); if (!btn) return; const tr = btn.closest('tr'); if (!tr) return; const idx = parseInt(tr.getAttribute('data-idx')); const cfg = getCfg(); const pk = periodKey(); const list = (cfg.adjustments&&cfg.adjustments[pk])?cfg.adjustments[pk]:[]; if (idx<0 || idx>=list.length) return; if (btn.getAttribute('data-action')==='delete') { list.splice(idx,1); cfg.adjustments = cfg.adjustments||{}; cfg.adjustments[pk]=list; setCfg(cfg); renderAdjustments(); generatePartnerReports(); return; } if (btn.getAttribute('data-action')==='save') { const amt = tr.querySelector('[data-role="amount"]'); const dt = tr.querySelector('[data-role="date"]'); const nt = tr.querySelector('[data-role="notes"]'); list[idx].amount = amt && amt.value ? parseFloat(amt.value)||0 : 0; list[idx].date = dt ? dt.value : list[idx].date; list[idx].notes = nt ? nt.value : list[idx].notes; cfg.adjustments = cfg.adjustments||{}; cfg.adjustments[pk]=list; setCfg(cfg); if (typeof showNotification==='function') showNotification('تم حفظ السحب', 'success'); generatePartnerReports(); return; } });
+                document.addEventListener('partners-report-rendered', function(){ try{ refreshEditors(); renderAdjustments(); }catch(_){} });
             });
         })();
         

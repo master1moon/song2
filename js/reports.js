@@ -331,6 +331,7 @@ function generatePartnerReports() {
   container.innerHTML = html;
   // attach export handlers (ensure wired to recompute fresh data)
   wirePartnerExports();
+  try { document.dispatchEvent(new CustomEvent('partners-report-rendered')); } catch(_) {}
 }
 
 /**
