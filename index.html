@@ -2460,6 +2460,11 @@
                                             </div>
                                         </div>
                                         <div class="mt-2" id="partnersEditorList"></div>
+                                        <div class="mt-2 d-flex gap-2 align-items-center">
+                                            <button class="btn btn-sm btn-outline-secondary" id="toggleCarryover" type="button">ترحيل الرصيد لكل شريك</button>
+                                            <small class="text-muted">قيَم موجبة/سالبة حسب الرصيد المرحّل السابق</small>
+                                        </div>
+                                        <div class="mt-2" id="partnersCarryoverList" style="display:none"></div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-auto">
@@ -3563,6 +3568,7 @@
                 const distEl = document.getElementById('partnersEditorDistribution');
                 const listWrap = document.getElementById('partnersEditorList');
                 const selAdj = document.getElementById('partnersAdjPartner');
+                const carryWrap = document.getElementById('partnersCarryoverList');
                 const dateAdj = document.getElementById('partnersAdjDate');
                 if (!countEl || !distEl || !listWrap || !selAdj) return;
                 const count = parseInt(cfg.count)|| (cfg.list?cfg.list.length:2) || 2;
@@ -3587,6 +3593,22 @@
                 // قائمة الشريك في السحب
                 selAdj.innerHTML = list.map(p=>'<option value="'+p.id+'">'+(p.name||'')+'</option>').join('');
                 if (dateAdj && !dateAdj.value) { try { dateAdj.value = (new Date()).toISOString().slice(0,10); } catch(_){} }
+                // قائمة الترحيل
+                if (carryWrap) {
+                    const carry = cfg.carryover || {};
+                    carryWrap.innerHTML = '';
+                    const crow = document.createElement('div'); crow.className = 'row g-2';
+                    list.forEach((p,idx)=>{
+                        const ccol = document.createElement('div'); ccol.className = 'col-12 col-md-4';
+                        const val = (typeof carry[p.id] !== 'undefined') ? carry[p.id] : 0;
+                        ccol.innerHTML = '<div class="input-group input-group-sm">\
+                            <span class="input-group-text">'+(p.name||('الشريك '+(idx+1)))+'</span>\
+                            <input type="number" class="form-control" step="1" value="'+val+'" data-pid="'+p.id+'" data-role="carryover" placeholder="0">\
+                        </div>';
+                        crow.appendChild(ccol);
+                    });
+                    carryWrap.appendChild(crow);
+                }
             }
 
             document.addEventListener('DOMContentLoaded', function(){
@@ -3598,6 +3620,8 @@
                 const selAdj = document.getElementById('partnersAdjPartner');
                 const amtAdj = document.getElementById('partnersAdjAmount');
                 const dateAdj = document.getElementById('partnersAdjDate');
+                const carryWrap = document.getElementById('partnersCarryoverList');
+                const toggleCarry = document.getElementById('toggleCarryover');
                 if (!countEl) return;
                 refreshEditors();
                 countEl.addEventListener('change', function(){
@@ -3606,6 +3630,8 @@
                 distEl.addEventListener('change', function(){ const cfg=getCfg(); cfg.distribution=this.value; setCfg(cfg); refreshEditors(); generatePartnerReports(); });
                 listWrap.addEventListener('change', function(e){ const t=e.target; const role=t && t.getAttribute('data-role'); if(!role) return; const idx=parseInt(t.getAttribute('data-idx')); const cfg=getCfg(); if(!cfg.list||!cfg.list[idx]) return; if(role==='name'){ cfg.list[idx].name = t.value; } else if (role==='percent'){ cfg.list[idx].sharePercent = t.value?parseFloat(t.value):null; } setCfg(cfg); generatePartnerReports(); });
                 if (btnAdd) btnAdd.addEventListener('click', function(){ const cfg=getCfg(); const pk=periodKey(); const list=(cfg.adjustments&&cfg.adjustments[pk])?cfg.adjustments[pk]:[]; const pid=selAdj.value; const amount=parseFloat(amtAdj.value)||0; const date=dateAdj.value; if (pid && amount>0){ list.push({ partnerId: pid, amount: amount, date: date, notes: '' }); cfg.adjustments = cfg.adjustments||{}; cfg.adjustments[pk]=list; setCfg(cfg); amtAdj.value=''; if (typeof showNotification==='function') showNotification('تم إضافة سحب الشريك', 'success'); generatePartnerReports(); } });
+                if (carryWrap) carryWrap.addEventListener('change', function(e){ const t=e.target; if(!t || t.getAttribute('data-role')!=='carryover') return; const pid=t.getAttribute('data-pid'); const cfg=getCfg(); cfg.carryover = cfg.carryover || {}; cfg.carryover[pid] = t.value?parseFloat(t.value):0; setCfg(cfg); if (typeof showNotification==='function') showNotification('تم تحديث الترحيل', 'info'); generatePartnerReports(); });
+                if (toggleCarry) toggleCarry.addEventListener('click', function(){ const wrap = document.getElementById('partnersCarryoverList'); if (!wrap) return; wrap.style.display = (wrap.style.display==='none' || wrap.style.display==='') ? 'block' : 'none'; });
             });
         })();
         
