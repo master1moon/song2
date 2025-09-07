@@ -2234,7 +2234,11 @@ function exportPartners(format){
       const win = window.open('', '_blank'); if (!win || !win.document) { showNotification('يمنع المتصفح النوافذ المنبثقة. الرجاء السماح بها.', 'error'); return; }
       win.document.open(); win.document.write(html); win.document.close();
       showNotification(format==='pdf' ? 'تم فتح صفحة الطباعة. اضغط حفظ كـ PDF.' : 'تم فتح صفحة التقرير.', 'success');
-    } catch (e) { showNotification(format==='pdf' ? 'حدث خطأ أثناء إنشاء PDF' : 'تعذر فتح صفحة التقرير', 'error'); }
+    } catch (e) {
+      try { console.error('Partner report print error:', e); } catch(_) {}
+      try { const w = window.open('', '_blank'); if (w && w.document) { w.document.open(); w.document.write('<pre style="direction:ltr;white-space:pre-wrap;font:12px/1.4 monospace">'+ (e && e.stack ? e.stack : (''+e)) +'</pre>'); w.document.close(); } } catch(_) {}
+      showNotification(format==='pdf' ? 'حدث خطأ أثناء إنشاء PDF' : 'تعذر فتح صفحة التقرير', 'error');
+    }
   }
 }
 
