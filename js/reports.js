@@ -704,6 +704,17 @@ function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, t
   html += '<div style="text-align: center; margin: 15px 0; color: #666;">';
   html += 'المدة: ' + periodText + ' | عدد الشركاء: ' + partnersCount + ' | تاريخ التصدير: ' + moment().format(settings.dateFormat);
   html += '</div>';
+
+  // دالة مساعدة لبناء جدول HTML (مرفوعة/hoisted بتعريف دالة)
+  function renderTable(title, headers, rows){
+    let s = title && title.trim() && title !== ' ' ? '<h4>'+title+'</h4>' : '';
+    if (rows.length){
+      s += '<table><thead><tr>'+ headers.map(h=>'<th>'+h+'</th>').join('') +'</tr></thead><tbody>' + rows.map(r=>'<tr>'+headers.map(h=>'<td>'+ (r[h]||'') +'</td>').join('') +'</tr>').join('') + '</tbody></table>';
+    } else {
+      s += '<div>لا توجد بيانات ضمن الفترة</div>';
+    }
+    return s;
+  }
   // إبراز سحوبات الشركاء أولاً ثم صافي الشركاء ثم ملخص الأرباح
   if (adjustments && adjustments.length){
     const map = (partnersList||[]).reduce((m,p)=>{ m[p.id]=p.name||p.id; return m; },{});
@@ -726,17 +737,6 @@ function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, t
     '<div class="box">صافي الأرباح: <span class="currency">' + formatNumber(net||0) + '</span></div>' +
     '<div class="box">صافي لكل شريك: <span class="currency">' + formatNumber(perPartner||0) + '</span></div>' +
   '</div>';
-  /**
-   * ملاحظة: الدالة renderTable — وصف تلقائي موجز لوظيفتها.
-   * المدخلات: title, headers, rows
-   * المخرجات: راجع التنفيذ
-   */
-  const renderTable = (title, headers, rows)=>{
-    let s = '<h4>'+title+'</h4>';
-    if (rows.length){ s += '<table><thead><tr>'+ headers.map(h=>'<th>'+h+'</th>').join('') +'</tr></thead><tbody>' + rows.map(r=>'<tr>'+headers.map(h=>'<td>'+ (r[h]||'') +'</td>').join('') +'</tr>').join('') + '</tbody></table>'; }
-    else { s += '<div>لا توجد بيانات ضمن الفترة</div>'; }
-    return s;
-  };
   html += renderTable('التسديدات', ['التاريخ','المحل','المبلغ','ملاحظات'], paysList);
   html += renderTable('المصروفات', ['التاريخ','النوع','المبلغ','ملاحظات'], expsList);
   
