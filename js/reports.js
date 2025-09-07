@@ -300,6 +300,10 @@ function generatePartnerReports() {
       </tr>`;
   }).join('');
 
+  // بناء تفاصيل المكونات التفصيلية
+  const paysRows = pays.map(p=> `<tr><td>${formatDateEn(p.date)}</td><td>${(data.stores.find(s=>s.id===p.storeId)||{}).name||''}</td><td class="currency">${formatNumber(Number(p.amount)||0)}</td><td>${p.notes||''}</td></tr>`).join('');
+  const expsRows = exps.map(e=> `<tr><td>${formatDateEn(e.date)}</td><td>${e.type||''}</td><td class="currency">${formatNumber(Number(e.amount)||0)}</td><td>${e.notes||''}</td></tr>`).join('');
+
   const html = `
     <div class="partner-report-card">
       <div class="partner-report-header d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -330,6 +334,34 @@ function generatePartnerReports() {
             ${rowsHtml}
           </tbody>
         </table>
+      </div>
+      <div class="row g-3 mt-3">
+        <div class="col-12 col-lg-6">
+          <div class="card border-0">
+            <div class="card-header bg-light">تفاصيل التسديدات ضمن الفترة</div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead><tr><th>التاريخ</th><th>المحل</th><th>المبلغ</th><th>ملاحظات</th></tr></thead>
+                  <tbody>${paysRows || '<tr><td colspan="4" class="text-muted">لا توجد تسديدات</td></tr>'}</tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-6">
+          <div class="card border-0">
+            <div class="card-header bg-light">تفاصيل المصروفات ضمن الفترة</div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>ملاحظات</th></tr></thead>
+                  <tbody>${expsRows || '<tr><td colspan="4" class="text-muted">لا توجد مصروفات</td></tr>'}</tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       ${adjustmentsForPeriod.length ? `
       <div class="mt-3">
@@ -661,7 +693,7 @@ function getReportStyles() {
  * المدخلات: periodText, partnersCount, paysList, expsList, totalPays, totalExps, net, perPartner
  * المخرجات: راجع التنفيذ
  */
-function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, totalPays, totalExps, net, perPartner){
+function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, totalPays, totalExps, net, perPartner, adjustments = [], partnersList = []){
   const settings = getReportSettings();
   let html='';
   html += '<!doctype html><html lang="ar" dir="rtl">';
@@ -696,6 +728,11 @@ function buildPartnerReportHTML(periodText, partnersCount, paysList, expsList, t
   };
   html += renderTable('التسديدات', ['التاريخ','المحل','المبلغ','ملاحظات'], paysList);
   html += renderTable('المصروفات', ['التاريخ','النوع','المبلغ','ملاحظات'], expsList);
+  if (adjustments.length){
+    const map = (partnersList||[]).reduce((m,p)=>{ m[p.id]=p.name||p.id; return m; },{});
+    const adjRows = adjustments.map(a=> ({ 'الشريك': map[a.partnerId]||a.partnerId, 'المبلغ': formatNumber(Number(a.amount)||0), 'التاريخ': a.date||'', 'ملاحظات': a.notes||'' }));
+    html += renderTable('سحوبات الشركاء', ['الشريك','المبلغ','التاريخ','ملاحظات'], adjRows);
+  }
   
   // تذييل التقرير
   html += buildReportFooter();
@@ -2120,22 +2157,37 @@ function exportPartners(format){
   const listExps = exps.map(e=> ({ التاريخ: formatDateEn(e.date), النوع: e.type||'', المبلغ: Number(e.amount)||0, ملاحظات: e.notes||'' }));
   if (format==='excel'){
     const wb = XLSX.utils.book_new();
+    const cfg = (typeof AppSettings!=='undefined') ? (AppSettings.getAll().reports?.partners||{}) : {};
+    const rng = getPartnersPeriodRange();
+    const adjustments = Array.isArray(cfg.adjustmentsAll) ? cfg.adjustmentsAll.filter(a=> inPeriod(a.date, rng.fromDate, rng.toDate)) : [];
     const meta = [{ المدة: text, عدد_الشركاء: partners, إجمالي_التسديدات: totalPays, إجمالي_المصروفات: totalExps, صافي_الأرباح: net, صافي_لكل_شريك: perPartner }];
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(meta), 'الملخص');
     if (listPays.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(listPays), 'التسديدات');
     if (listExps.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(listExps), 'المصروفات');
+    if (adjustments.length) {
+      const partnersMap = (cfg.list||[]).reduce((m,p)=>{ m[p.id]=p.name||p.id; return m; },{});
+      const adjSheet = adjustments.map(a=> ({ الشريك: partnersMap[a.partnerId]||a.partnerId, المبلغ: a.amount, التاريخ: a.date, ملاحظات: a.notes||'' }));
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(adjSheet), 'سحوبات الشركاء');
+    }
     XLSX.writeFile(wb, `تقرير_الشركاء_${moment().format('YYYYMMDD')}.xlsx`);
     showNotification('تم التصدير إلى Excel', 'success');
   } else if (format==='txt'){
-    let txt = `تقرير الشركاء\n\nالمدة: ${text}\nعدد الشركاء: ${partners}\nإجمالي التسديدات: ${totalPays}\nإجمالي المصروفات: ${totalExps}\نصافي الأرباح: ${net}\nصافي لكل شريك: ${perPartner}\n\n===== التسديدات =====\n`;
+    const cfg = (typeof AppSettings!=='undefined') ? (AppSettings.getAll().reports?.partners||{}) : {};
+    const rng = getPartnersPeriodRange();
+    const adjustments = Array.isArray(cfg.adjustmentsAll) ? cfg.adjustmentsAll.filter(a=> inPeriod(a.date, rng.fromDate, rng.toDate)) : [];
+    let txt = `تقرير الشركاء\n\nالمدة: ${text}\nعدد الشركاء: ${partners}\nإجمالي التسديدات: ${totalPays}\nإجمالي المصروفات: ${totalExps}\nصافي الأرباح: ${net}\nصافي لكل شريك: ${perPartner}\n\n===== التسديدات =====\n`;
     if (listPays.length){ txt += ['التاريخ','المحل','المبلغ','ملاحظات'].join('\t')+'\n'; listPays.forEach(r=>{ txt += [r.التاريخ, r.المحل, r.المبلغ, r.ملاحظات].join('\t')+'\n'; }); }
     txt += '\n===== المصروفات =====\n';
     if (listExps.length){ txt += ['التاريخ','النوع','المبلغ','ملاحظات'].join('\t')+'\n'; listExps.forEach(r=>{ txt += [r.التاريخ, r.النوع, r.المبلغ, r.ملاحظات].join('\t')+'\n'; }); }
+    if (adjustments.length){ txt += '\n===== سحوبات الشركاء =====\n'; txt += ['الشريك','المبلغ','التاريخ','ملاحظات'].join('\t')+'\n'; const partnersMap = (cfg.list||[]).reduce((m,p)=>{ m[p.id]=p.name||p.id; return m; },{}); adjustments.forEach(a=>{ txt += [(partnersMap[a.partnerId]||a.partnerId), a.amount, a.date, a.notes||''].join('\t')+'\n'; }); }
     const blob = new Blob([txt], { type:'text/plain' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download=`تقرير_الشركاء_${moment().format('YYYYMMDD')}.txt`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     showNotification('تم التصدير إلى مستند نصي', 'success');
   } else if (format==='pdf' || format==='print'){
     try {
-      const html = buildPartnerReportHTML(text, partners, listPays, listExps, totalPays, totalExps, net, perPartner);
+      const cfg = (typeof AppSettings!=='undefined') ? (AppSettings.getAll().reports?.partners||{}) : {};
+      const rng = getPartnersPeriodRange();
+      const adjustments = Array.isArray(cfg.adjustmentsAll) ? cfg.adjustmentsAll.filter(a=> inPeriod(a.date, rng.fromDate, rng.toDate)) : [];
+      const html = buildPartnerReportHTML(text, partners, listPays, listExps, totalPays, totalExps, net, perPartner, adjustments, cfg.list||[]);
       const win = window.open('', '_blank'); if (!win || !win.document) { showNotification('يمنع المتصفح النوافذ المنبثقة. الرجاء السماح بها.', 'error'); return; }
       win.document.open(); win.document.write(html); win.document.close();
       showNotification(format==='pdf' ? 'تم فتح صفحة الطباعة. اضغط حفظ كـ PDF.' : 'تم فتح صفحة التقرير.', 'success');
