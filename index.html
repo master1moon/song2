@@ -3638,7 +3638,7 @@
                         const val = (typeof carry[p.id] !== 'undefined') ? carry[p.id] : 0;
                         ccol.innerHTML = '<div class="input-group input-group-sm">\
                             <span class="input-group-text">'+(p.name||('الشريك '+(idx+1)))+'</span>\
-                            <input type="text" class="form-control formatted-input" step="1" value="'+formatNumber(val)+'" data-pid="'+p.id+'" data-role="carryover" placeholder="0">\
+                            <input type="text" class="form-control formatted-input" step="1" value="'+(val||0)+'" data-pid="'+p.id+'" data-role="carryover" placeholder="0">\
                         </div>';
                         crow.appendChild(ccol);
                     });
