@@ -3071,7 +3071,7 @@
             document.querySelectorAll('.formatted-input').forEach(input => {
                 // عند التركيز على الحقل، إزالة التنسيق
                 input.addEventListener('focus', function() {
-                    this.value = toEnglishDigits(this.value).replace(/,/g, '');
+                    this.value = toEnglishDigits(this.value).replace(/[^0-9.]/g, '');
                 });
                 
                 // عند الإدخال، تطبيق التنسيق مع الحفاظ على موضع المؤشر
