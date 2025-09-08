@@ -2455,7 +2455,10 @@
                                                 <label class="form-label mb-1">سحب جديد (الشريك/المبلغ/التاريخ/الملاحظة)</label>
                                                 <div class="d-flex gap-2 flex-wrap">
                                                     <select id="partnersAdjPartner" class="form-select form-select-sm" style="max-width:220px"></select>
-                                                    <input type="text" id="partnersAdjAmount" class="form-control form-control-sm formatted-input" placeholder="المبلغ" inputmode="decimal" style="max-width:150px" />
+                                                    <div class="input-group input-group-sm" style="max-width:200px">
+                                                        <input type="text" id="partnersAdjAmount" class="form-control formatted-input" placeholder="المبلغ" inputmode="decimal" />
+                                                        <span class="input-group-text" id="partnersAdjCurrencyLabel">ريال</span>
+                                                    </div>
                                                     <input type="date" id="partnersAdjDate" class="form-control form-control-sm" style="max-width:170px" />
                                                     <input type="text" id="partnersAdjNotes" class="form-control form-control-sm" placeholder="ملاحظة/سبب" style="max-width:220px" />
                                                     <button class="btn btn-sm btn-outline-primary" id="partnersAdjAdd">إضافة</button>
