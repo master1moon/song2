@@ -649,7 +649,6 @@
         body.dark-theme .bg-light {
             background-color: #252a3a !important;
         }
-        
         body.dark-theme .bg-white {
             background-color: #1a1f2e !important;
             color: #f0f0f0;
@@ -1289,7 +1288,6 @@
                 gap: 15px;
             }
         }
-
         /* درج الجوال */
         .mobile-drawer { position: fixed; top: 0; left: -80vw; width: 80vw; max-width: 320px; height: 100vh; background: #2c3e50; color:#fff; box-shadow: 2px 0 10px rgba(0,0,0,0.15); transition: left 0.3s ease; z-index: 2100; padding: 16px; overflow-y: auto; }
         .mobile-drawer .nav-link{ color:#ecf0f1; }
@@ -3023,7 +3021,6 @@
             </div>
         </div>
     </div>
-
     <script>
         // تهيئة التواريخ باللغة العربية
         moment.locale('ar');
@@ -3568,7 +3565,6 @@
             
             container.appendChild(report);
         }
-
         // واجهة إدارة الشركاء داخل بطاقة التقرير
         (function wirePartnersInlineEditor(){
             function getCfg(){ try{ return (typeof AppSettings!=='undefined')? ((AppSettings.getAll().reports||{}).partners||{}):{}; }catch(_){ return {}; } }
@@ -3587,7 +3583,7 @@
                 listed.forEach((it,idx)=>{
                     html += '<tr data-key="'+it.__i+'">'
                         + '<td>'+ (partners[it.partnerId]||it.partnerId) +'</td>'
-                        + '<td><div class="input-group"><input type="text" class="form-control formatted-input" inputmode="decimal" dir="ltr" value="'+(typeof formatNumber==='function'?formatNumber(Number(it.amount)||0):(it.amount||0))+'" data-role="amount"><span class="input-group-text">ريال</span></div></td>'
+                        + '<td><div class="input-group"><input type="text" class="form-control formatted-input" inputmode="decimal" dir="ltr" value="'+((Number(it.amount)||0))+'" data-role="amount"><span class="input-group-text">ريال</span></div></td>'
                         + '<td><input type="date" class="form-control" value="'+(it.date||'')+'" data-role="date"></td>'
                         + '<td><textarea class="form-control" rows="2" placeholder="ملاحظات" data-role="notes">'+(it.notes||'')+'</textarea></td>'
                         + '<td><button class="btn btn-sm btn-outline-success" data-action="save">حفظ</button> <button class="btn btn-sm btn-outline-danger" data-action="delete">حذف</button></td>'
@@ -4172,7 +4168,6 @@
             modal.hide();
             setTimeout(cleanupModalBackdrops, 300);
         }
-        
         // تحرير بيع
         function editSale(id) {
             const sale = data.sales.find(s => s.id === id);
@@ -4806,7 +4801,6 @@
                 table.appendChild(row);
             });
         }
-        
         // تصدير البيانات
         function exportData() {
             const dataType = document.getElementById('exportDataType').value;
@@ -5452,7 +5446,6 @@
                 notification.className = 'notification';
             }, 3000);
         }
-        
         // تهيئة النظام عند التحميل
         // دالة مساعدة لتنظيف backdrop المتبقية
         function cleanupModalBackdrops() {
@@ -5844,7 +5837,6 @@
                 document.body.appendChild(modal);
             }
         }
-        
         // تصدير دوال التواصل
         window.makePhoneCall = makePhoneCall;
         window.sendBalanceSMS = sendBalanceSMS;
