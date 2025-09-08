@@ -3587,7 +3587,7 @@
                 listed.forEach((it,idx)=>{
                     html += '<tr data-key="'+it.__i+'">'
                         + '<td>'+ (partners[it.partnerId]||it.partnerId) +'</td>'
-                        + '<td><input type="text" class="form-control formatted-input" inputmode="decimal" dir="ltr" value="'+(typeof formatNumber==='function'?formatNumber(Number(it.amount)||0):(it.amount||0))+'" data-role="amount"></td>'
+                        + '<td><div class="input-group"><input type="text" class="form-control formatted-input" inputmode="decimal" dir="ltr" value="'+(typeof formatNumber==='function'?formatNumber(Number(it.amount)||0):(it.amount||0))+'" data-role="amount"><span class="input-group-text">ريال</span></div></td>'
                         + '<td><input type="date" class="form-control" value="'+(it.date||'')+'" data-role="date"></td>'
                         + '<td><textarea class="form-control" rows="2" placeholder="ملاحظات" data-role="notes">'+(it.notes||'')+'</textarea></td>'
                         + '<td><button class="btn btn-sm btn-outline-success" data-action="save">حفظ</button> <button class="btn btn-sm btn-outline-danger" data-action="delete">حذف</button></td>'
