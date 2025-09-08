@@ -3688,6 +3688,26 @@
                 const amtInput = document.getElementById('partnersAdjAmount'); if (amtInput) amtInput.addEventListener('input', function(){ this.title = (typeof formatNumber==='function') ? formatNumber(parseFloat(this.value)||0) : this.title; });
                 if (carryWrap) carryWrap.addEventListener('input', function(e){ const t=e.target; if (t && t.getAttribute('data-role')==='carryover'){ t.title = (typeof formatNumber==='function') ? formatNumber(parseFloat(t.value)||0) : t.title; }});
                 document.addEventListener('partners-report-rendered', function(){ try{ refreshEditors(); renderAdjustments(); }catch(_){} });
+
+                // إخفاء/إظهار تسمية العملة عند تحرير المبلغ لتفادي الالتباس
+                document.addEventListener('focusin', function(e){
+                    const el = e.target;
+                    if (!el || el.tagName !== 'INPUT') return;
+                    const isAmount = (el.id === 'partnersAdjAmount') || (el.getAttribute('data-role') === 'amount');
+                    if (!isAmount) return;
+                    const group = el.parentElement && el.parentElement.classList.contains('input-group') ? el.parentElement : null;
+                    const lbl = group ? group.querySelector('.input-group-text') : null;
+                    if (lbl) lbl.style.display = 'none';
+                });
+                document.addEventListener('focusout', function(e){
+                    const el = e.target;
+                    if (!el || el.tagName !== 'INPUT') return;
+                    const isAmount = (el.id === 'partnersAdjAmount') || (el.getAttribute('data-role') === 'amount');
+                    if (!isAmount) return;
+                    const group = el.parentElement && el.parentElement.classList.contains('input-group') ? el.parentElement : null;
+                    const lbl = group ? group.querySelector('.input-group-text') : null;
+                    if (lbl) lbl.style.display = '';
+                });
             });
         })();
         
