@@ -3671,12 +3671,12 @@
                 // تحسين تجربة الجوال لحقول جدول السحوبات
                 const style = document.createElement('style');
                 style.textContent = `
-                #partnersAdjustmentsList input.form-control { font-size:16px; height:44px; white-space:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+                #partnersAdjustmentsList .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+                #partnersAdjustmentsList table { min-width: 720px; }
+                #partnersAdjustmentsList input.form-control { font-size:16px; height:44px; }
                 #partnersAdjustmentsList textarea.form-control { font-size:16px; min-height:56px; max-height:120px; overflow:auto; resize:vertical; }
                 @media (max-width: 480px) {
-                  #partnersAdjustmentsList table thead { display: none; }
-                  #partnersAdjustmentsList table tbody tr { display: block; margin-bottom: 10px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px; background: #fff; }
-                  #partnersAdjustmentsList table tbody td { display: block; padding: 6px 4px; border: none; word-break: break-word; }
+                  #partnersAdjustmentsList table { min-width: 640px; }
                 }`;
                 document.head.appendChild(style);
                 // تلميح بصيغة منسقة للأرقام في المدخلات
